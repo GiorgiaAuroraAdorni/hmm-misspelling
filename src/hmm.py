@@ -17,7 +17,7 @@ class HMM:
         self.graph = {}
         self.memory = {}
 
-        # Probablity models
+        # Probability models
         self.language_model = Counter()
         self.error_model = {}
 
@@ -52,11 +52,7 @@ class HMM:
             obs = [row for row in reader]
             self.error_model = {"sub": defaultdict(lambda: Counter()), "ins": 0, "del": 0}
                     
-
-        c_ins = 0
-        c_del = 0
-        c_sub = 0
-
+        c_sub = Counter()
         for elem in obs:
             typo = elem[0]
             correct = elem[1]
@@ -68,18 +64,24 @@ class HMM:
             
             l = zip(typo, correct)
             for i, j in l:
+                c_sub[j] += 1
                 if i != j:
                     self.error_model["sub"][i][j] += 1
                 
             if correct in self.graph:
                 self.graph[correct]["obs"].append(typo)
 
-        ## Normalization 
-        total = len(obs)
+        special = '[@_!#$%^&*()<>?/\|}{~:]'
+        keys = [k for k,v in self.error_model["sub"].items() if k in special]
+        for k in keys:
+            self.error_model["sub"].pop(k, None)
+
+        ## Normalization
         for key in self.error_model["sub"]:
             for subkey in self.error_model["sub"][key]:
-                self.error_model["sub"][key][subkey] /= total
+                self.error_model["sub"][key][subkey] /= c_sub[key]
 
+        total = len(obs)
         self.error_model["ins"] /= total
         self.error_model["del"] /= total
 
@@ -145,7 +147,7 @@ class HMM:
                 for i, j in l:
                     if i != j:
                         prob *= self.error_model["sub"][i][j]
-
+                
                 prob *= self.P(c)
                 tmp[c] = prob
 
