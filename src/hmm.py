@@ -25,7 +25,7 @@ class HMM:
 
     def train(self, words_ds, sentences_ds, typo_ds):
 
-        # Training the idden markov chain
+        # Training the hidden markov chain
         with open(sentences_ds, "r") as f:
             words = f.read().split()
 
@@ -46,17 +46,17 @@ class HMM:
                 elem = line.split()
                 self.language_model[elem[1]] = float(elem[3])/100
 
-        # Training error model
+        # Training the error model
         with open(typo_ds, "r") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
             self.error_model = {"sub": defaultdict(lambda: Counter()), "ins": 0, "del": 0}
-                    
+
         c_sub = Counter()
         for elem in obs:
             typo = elem[0]
             correct = elem[1]
-    
+
             if len(typo) > len(correct):
                 self.error_model["ins"] += 1
             elif len(typo) < len(correct):
@@ -76,7 +76,7 @@ class HMM:
         for k in keys:
             self.error_model["sub"].pop(k, None)
 
-        ## Normalization
+        # Normalization
         for key in self.error_model["sub"]:
             for subkey in self.error_model["sub"][key]:
                 self.error_model["sub"][key][subkey] /= c_sub[key]
@@ -88,17 +88,14 @@ class HMM:
     def reset(self):
         self.memory = {}
 
-
     def predict(self, word):
         states = self.candidates(word, )
         
         return " ".join(result[self.order :])
 
-
     def predict_sequence(self, sequence):
         self.memory = {}
         # iterate on predict
-
 
     def edits(self, word, n = 1):
 
@@ -119,12 +116,9 @@ class HMM:
             return [e2 for e1 in self.edits(word, 1) 
                        for e2 in self.edits(e1, n-1)]
 
-
     def known(self, words): return set(w for w in words if w in self.language_model)
 
-
     def P(self, word): return self.language_model[word]
-
 
     def candidates(self, word): 
         cand = {}
@@ -154,4 +148,3 @@ class HMM:
         tmp = OrderedDict(sorted(tmp.items(), key = lambda t: t[1], reverse = True))
         
         return list(tmp.items())[: self.max_states]
-

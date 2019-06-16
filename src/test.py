@@ -2,6 +2,7 @@ from markov import Markov
 from hmm import HMM
 import pprint
 
+
 def markov_test():
     print("### Markov Test")
     m = Markov(3, "word")
@@ -9,6 +10,7 @@ def markov_test():
 
     generated = m.generate(10)
     print(generated + "\n")
+
 
 def hmm_test():
     print("### HMM Test")
