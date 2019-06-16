@@ -1,0 +1,111 @@
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc} %utf8 % lettere accentate da tastiera
+\usepackage[italian]{babel} % lingua del documento
+\usepackage[T1]{fontenc} % codifica dei font
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{fancyhdr}
+\usepackage{vmargin}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{capt-of}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage[detect-all]{siunitx}
+\usepackage{gensymb}
+\usepackage{subcaption}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[backend=bibtex,sorting=none, backref=true]{biblatex}
+\setmarginsrb{3 cm}{2.5 cm}{3 cm}{2.5 cm}{1 cm}{1.5 cm}{1 cm}{1.5 cm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{listings,lstautogobble}
+
+\def\sections#1{\input{sections/#1}}
+
+\title{non so ancora il titolo}				% Title
+\author{Adorni, Cereda, Habbash}		  % Author
+\date{\today}											% Date
+
+\makeatletter
+\let\thetitle\@title
+\let\theauthor\@author
+\let\thedate\@date
+\makeatother
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\theauthor}
+\lhead{\thetitle}
+\cfoot{\thepage}
+\makeatletter
+\@addtoreset{chapter}{part}
+\makeatother
+
+\newcommand{\quotes}[1]{``#1''}
+\usepackage{catchfile}
+\usepackage{listings}
+\usepackage{adjustbox}
+\usepackage{makecell}
+
+\lstdefinestyle{sql}{
+	breaklines=true,                                    
+	language=SQL,
+	frame=ltrb,
+	framesep=5pt,
+	basicstyle=\normalsize,
+	keywordstyle=\ttfamily\color{OliveGreen},
+	identifierstyle=\ttfamily\color{MidnightBlue}\bfseries,
+	commentstyle=\color{Brown},
+	stringstyle=\ttfamily,
+	showstringspaces=false,
+}
+
+\bibliography{bibliography} 
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{titlepage}
+	\centering
+    \includegraphics[scale = 0.5]{LogoBicocca.pdf}\\[3.0 cm]
+    {\large Dipartimento di Informatica, Sistemistica e Comunicazione}\\[1.0 cm]	
+	\rule{\linewidth}{0.2 mm} \\[0.4 cm]
+	{ \huge \bfseries \thetitle}\\
+	\rule{\linewidth}{0.2 mm} \\[1.0 cm]
+	
+	\textsc{\Large Modelli Probabilistici per le Decisioni}\\[3.5 cm]	
+	
+	\begin{minipage}{0.4\textwidth}
+			\begin{flalign*}
+		&  \text{Giorgia Adorni } &\qquad\qquad& \quad \text{  Elia Cereda }  
+		&\qquad\qquad  \text{Nassim Habbash} \\
+		&  \text{Matricola 806787} &\qquad\qquad& \text{Matricola 807539}  
+		&\qquad\qquad  \text{Matricola 808292}
+		\end{flalign*}
+        
+	\end{minipage}\\[3.0 cm]
+	\begin{center} \textbf{Anno Accademico 2018-2019 }\end{center}
+	
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\tableofcontents
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\sections{introduzione}
+\sections{dataset}
+\sections{modelli}
+
+
+% BIBLIOGRAFIA
+\addcontentsline{toc}{chapter}{\refname}
+\printbibliography
+\nocite{*}
+
+\end{document}
