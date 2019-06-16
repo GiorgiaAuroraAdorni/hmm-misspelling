@@ -64,8 +64,8 @@ class HMM:
             
             l = zip(typo, correct)
             for i, j in l:
-                c_sub[j] += 1
                 if i != j:
+                    c_sub[j] += 1
                     self.error_model["sub"][i][j] += 1
                 
             if correct in self.graph:
