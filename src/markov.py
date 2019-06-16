@@ -1,6 +1,5 @@
 import random
 
-
 class Markov:
 
     def __init__(self, order, mode):
@@ -29,6 +28,7 @@ class Markov:
                 self.graph[key] = [value]
 
     def generate(self, length, starting_word = None):
+        
         if not starting_word:
             index = random.randint(0, len(self.text) - self.order)
             result = self.text[index : index + self.order]
