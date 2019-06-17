@@ -20,13 +20,18 @@ def hmm_test():
     hmm.train(words_ds = "../data/word_freq/frequency-alpha-gcide.txt",
               sentences_ds = "../data/texts/lotr_intro.txt", 
               typo_ds = "../data/typo/typo-corpus-r1.csv")
-    pp.pprint("Typed: hoem")
-    x = hmm.candidates("hoem")
+    pp.pprint("Typed: ambigos")
+    x = hmm.candidates("ambigos")
+    #pp.pprint(x)
+
+    pp.pprint("Typed: ambigous")
+    x = hmm.candidates("ambigous")
+    #pp.pprint(x)
+
+    x = hmm.predict("hoem")
     pp.pprint(x)
 
-    pp.pprint("Typed: tome")
-    x = hmm.candidates("tome")
-    pp.pprint(x)
+
 
 
 #markov_test()

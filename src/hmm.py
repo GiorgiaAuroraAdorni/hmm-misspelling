@@ -1,6 +1,7 @@
 import random
 import csv
 from collections import Counter, OrderedDict, defaultdict
+import networkx
 import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -17,7 +18,7 @@ class HMM:
 
         # HMM structure
         self.graph = {}
-        self.memory = {}
+        self.memory = None
 
         # Probability models
         self.language_model = Counter()
@@ -59,6 +60,12 @@ class HMM:
             typo = elem[0]
             correct = elem[1]
 
+            # Counting accidental insertions and deletions
+            if len(typo) > len(correct):
+                self.error_model["ins"] += 1
+            elif len(typo) < len(correct):
+                self.error_model["del"] += 1
+
             # Editing typed string to account for accidental insertions and deletions to align letters 
             # (to get the correct probabilities of substituted letters):
             # Ex: steet = st$eet (accidental deletion, index accounted by special char $)
@@ -72,12 +79,6 @@ class HMM:
                         typo = typo[:index_typo] + "$" + typo[index_typo:]
                     else:
                         typo = typo[:index_typo] + typo[index_typo + 1:]
-              
-            # Counting accidental insertions and deletions
-            if len(typo) > len(correct):
-                self.error_model["ins"] += 1
-            elif len(typo) < len(correct):
-                self.error_model["del"] += 1
             
             # Counting the frequency of substitutions between letters
             l = zip(typo, correct)
@@ -106,10 +107,15 @@ class HMM:
         self.error_model["del"] /= total
 
     def reset(self):
-        self.memory = {}
+        self.memory = None
 
     def predict(self, word):
         states = self.candidates(word)
+        if not self.memory:
+            self.memory = {}
+
+        pp.pprint(self.memory)
+
 
     def predict_sequence(self, sequence):
         self.memory = {}
@@ -146,7 +152,6 @@ class HMM:
         tmp = defaultdict(float)
         
         for k, v in cand.items():
-
             for c in v:
                 typo = word
                 prob = 1
@@ -165,7 +170,7 @@ class HMM:
                         else:
                             typo = typo[:index_typo] + typo[index_typo + 1:]
                             deletions += 1
-
+                
                 # Factoring in insertion or deletion probabilities
                 for i in range(0, insertions):
                     prob *= self.error_model["ins"]
