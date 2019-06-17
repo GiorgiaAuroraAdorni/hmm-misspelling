@@ -19,7 +19,7 @@ class HMM:
 
         # HMM structure
         self.graph = {}
-        self.memory = None
+        self.trellis = nx.DiGraph()
 
         # Probability models
         self.language_model = Counter()
@@ -58,7 +58,7 @@ class HMM:
 
         c_sub = Counter()
         for elem in obs:
-            typo = elem[0]
+            typo = edited_typo = elem[0]
             correct = elem[1]
 
             # Counting accidental insertions and deletions
@@ -77,12 +77,12 @@ class HMM:
                 for op in edit_sequence:
                     index_typo = op["position_typo"]
                     if op["operation"] == "insert":
-                        typo = typo[:index_typo] + "$" + typo[index_typo:]
+                        edited_typo = typo[:index_typo] + "$" + typo[index_typo:]
                     else:
-                        typo = typo[:index_typo] + typo[index_typo + 1:]
+                        edited_typo = typo[:index_typo] + typo[index_typo + 1:]
             
             # Counting the frequency of substitutions between letters
-            l = zip(typo, correct)
+            l = zip(edited_typo, correct)
             for i, j in l:
                 if i == "$":
                     continue
@@ -107,33 +107,83 @@ class HMM:
         self.error_model["ins"] /= total
         self.error_model["del"] /= total
 
-    def reset_memory(self):
-        self.memory.clear()
+    def init_trellis(self):
+        self.trellis.clear()
+        self.trellis.add_node(0)
+
+    def empty_trellis(self):
+        if len(self.trellis) == 1:
+            return True
+        else:
+            return False
 
     def predict(self, word):
         states = self.candidates(word)
         states = [state[0] for state in states]
+        if self.empty_trellis():
+            for state in states:
+                
+                N_obs = len(self.graph[state]["obs"])
+                obs_freq = self.graph[state]["obs"].count(word)
+                if N_obs == 0 or obs_freq == 0:
+                    obs_prob = 0.000001
+                else:
+                    obs_prob = self.graph[state]["obs"].count(word) / N_obs
 
-        if not self.memory:
-            self.memory = nx.DiGraph()
-            self.memory.add_nodes_from(states)
+                init_prob = self.language_model[state]
+                p = obs_prob * init_prob
+
+                self.trellis.add_node(state)
+                self.trellis.add_edge(0, state, weight = p)
         else:
             # Get leaf nodes representing last states
-            leaves = [x for x in self.memory.nodes() 
-                        if self.memory.out_degree(x) == 0]
-            for leaf in leaves:
-                for state in states:
-                    if state in self.graph[leaf]["next"]:
-                        self.memory.add_node(state)
-                        self.memory.add_edge(leaf, state)
+            leaves = [x for x in self.trellis.nodes() 
+                        if self.trellis.out_degree(x) == 0]
+
+            for state in states:
+                p = {}
+                for leaf in leaves:
+                        
+                    # Emission probability of observation word for the current state
+                    N_obs = len(self.graph[state]["obs"])
+                    obs_freq = self.graph[state]["obs"].count(word)
+                    if N_obs == 0 or obs_freq == 0:
+                        obs_prob = 0.000001
+                    else:
+                        obs_prob = obs_freq / N_obs
+
+                    # Transition probability from the leaf state (previous one) to the current state
+                    N_trans = len(self.graph[leaf]["next"])
+                    trans_freq = self.graph[leaf]["next"].count(state)
+                    if N_trans == 0 or trans_freq == 0:
+                        trans_prob = 0.000001
+                    else:
+                        trans_prob = trans_freq / N_trans
+                
+                    # Previous state probability
+                    predecessor = list(self.trellis.predecessors(leaf))
+                    # At one time there's always a single predecessor
+                    predecessor = predecessor[0]
+                    prev_state_prob = self.trellis.edges[predecessor, leaf]["weight"]
+
+                    p[leaf] = obs_prob  * trans_prob * prev_state_prob
+                
+                # Connecting a state to a leaf only if leaf->state is the path with the local maximal probability
+                max_key = max(p, key = p.get)
+                self.trellis.add_node(state)
+                self.trellis.add_edge(max_key, state, weight = p[max_key])
         
+        # Debug
         plt.figure()
-        nx.draw(self.memory, with_labels=True, font_weight='bold')
+        G = self.trellis
+        pos = nx.spring_layout(G)
+        nx.draw(G, pos = pos, with_labels=True)
+        nx.draw_networkx_edge_labels(G, pos)
 
 
 
     def predict_sequence(self, sequence):
-        self.reset_memory()
+        self.reset_trellis()
         
         # iterate on predict
 

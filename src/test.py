@@ -47,13 +47,13 @@ def hmm_predict_test():
               sentences_ds = "../data/texts/big.txt", 
               typo_ds = "../data/typo/typo-corpus-r1.csv")
 
-    sentence = "becasue shes hes siad tat she woud sendd it o thhe dai".split()
+    sentence = "becasue shee hes siad tat she woud sendd it o thhe dai".split()
+    hmm.init_trellis()
     hmm.predict(sentence[0])
     hmm.predict(sentence[1])
     hmm.predict(sentence[2])
     hmm.predict(sentence[3])
     plt.show()
-    pp.pprint(x)
 
 
 #markov_test()
