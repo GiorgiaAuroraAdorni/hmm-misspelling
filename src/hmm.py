@@ -91,7 +91,7 @@ class HMM:
                 self.graph[correct]["obs"].append(typo)
 
         # Removing special characters
-        special = '[@_!#$%^&*()<>?/\|}{~:]'
+        special = '[@_!#$%^&*()<>?/\\|}{~:]'
         keys = [k for k,v in self.error_model["sub"].items() if k in special]
         for k in keys:
             self.error_model["sub"].pop(k, None)
@@ -230,7 +230,7 @@ class HMM:
             letters    = "abcdefghijklmnopqrstuvwxyz"
             splits     = [(word[:i], word[i:])    for i in range(len(word) + 1)]
             deletes    = [L + R[1:]               for L, R in splits if R]
-            transposes = [L + R[1] + R[0] + R[2:] for L, R in splits if len(R)>1]
+            transposes = [L + R[1] + R[0] + R[2:] for L, R in splits if len(R) > 1]
             replaces   = [L + c + R[1:]           for L, R in splits if R for c in letters]
             inserts    = [L + c + R               for L, R in splits for c in letters]
 
