@@ -1,8 +1,8 @@
+import matplotlib.pyplot as plt
 from markov import Markov
 from hmm import HMM
 import pprint
 
-import matplotlib.pyplot as plt
 
 def markov_test():
     print("### Markov Test")
@@ -18,10 +18,10 @@ def hmm_candidate_test():
     print("### HMM Candidates Test")
     pp = pprint.PrettyPrinter(indent=4)
 
-    hmm = HMM(1, max_edits = 2, max_states = 3)
-    hmm.train(words_ds = "../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds = "../data/texts/lotr_intro.txt", 
-              typo_ds = "../data/typo/typo-corpus-r1.csv")
+    hmm = HMM(1, max_edits=2, max_states=3)
+    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
+              sentences_ds="../data/texts/lotr_intro.txt",
+              typo_ds="../data/typo/typo-corpus-r1.csv")
 
     pp.pprint("Typed: hoem")
     x = hmm.candidates("hoem")
@@ -40,14 +40,15 @@ def hmm_candidate_test():
     pp.pprint(x)
     pp.pprint("\n")
 
+
 def hmm_build_trellis_test():
     print("### HMM Build Trellis Test")
     pp = pprint.PrettyPrinter(indent=4)
 
-    hmm = HMM(1, max_edits = 2, max_states = 3)
-    hmm.train(words_ds = "../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds = "../data/texts/big.txt", 
-              typo_ds = "../data/typo/typo-corpus-r1.csv")
+    hmm = HMM(1, max_edits=2, max_states=3)
+    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
+              sentences_ds="../data/texts/big.txt",
+              typo_ds="../data/typo/typo-corpus-r1.csv")
 
     sentence = "becasue shee hes siad tat she woud sendd it o thhe dai".split()
     hmm.init_trellis()
@@ -58,14 +59,15 @@ def hmm_build_trellis_test():
     pp.pprint("\n")
     plt.show()
 
+
 def hmm_predict_sequence_test():
     print("### HMM Predict Test")
     pp = pprint.PrettyPrinter(indent=4)
 
-    hmm = HMM(1, max_edits = 2, max_states = 3)
-    hmm.train(words_ds = "../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds = "../data/texts/big.txt", 
-              typo_ds = "../data/typo/typo-corpus-r1.csv")
+    hmm = HMM(1, max_edits=2, max_states=3)
+    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
+              sentences_ds="../data/texts/big.txt",
+              typo_ds="../data/typo/typo-corpus-r1.csv")
 
     pp.pprint("#1")
     sentence = "becasue shee hes said tat"
@@ -87,8 +89,9 @@ def hmm_predict_sequence_test():
 
     plt.show()
 
-#markov_test()
-#hmm_candidate_test()
-#hmm_build_trellis_test()
+
+# markov_test()
+# hmm_candidate_test()
+# hmm_build_trellis_test()
 
 hmm_predict_sequence_test()

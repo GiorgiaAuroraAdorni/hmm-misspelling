@@ -1,12 +1,13 @@
-import random
-import csv
 from collections import Counter, OrderedDict, defaultdict
-import networkx as nx
-
 import matplotlib.pyplot as plt
+import networkx as nx
+import random
 import pprint
+import csv
+
 pp = pprint.PrettyPrinter(indent=4)
 DEBUG = False
+
 
 class HMM:
 

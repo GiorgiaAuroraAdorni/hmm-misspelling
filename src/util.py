@@ -6,7 +6,6 @@ def read_dataset(dataset):
 
 
 def preprocessing1(dataset, cleaned_dataset):
-
     words = read_dataset(dataset)
 
     with open(cleaned_dataset, "w+") as new_f:
@@ -22,7 +21,6 @@ def preprocessing1(dataset, cleaned_dataset):
 
 
 def preprocessing2(dataset, cleaned_dataset):
-
     words = read_dataset(dataset)
 
     with open(cleaned_dataset, "w+") as new_f:
