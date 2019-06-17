@@ -6,6 +6,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
+DEBUG = False
 
 class HMM:
 
@@ -18,8 +19,9 @@ class HMM:
         self.max_states = max_states
 
         # HMM structure
-        self.graph = {}
+        self.graph = defaultdict(lambda: defaultdict(list))
         self.trellis = nx.DiGraph()
+        self.trellis_depth = 0
 
         # Probability models
         self.language_model = Counter()
@@ -37,11 +39,7 @@ class HMM:
             state = words[i : i + self.order][0]
             next_s = words[i + self.order]
 
-            if state in self.graph:
-                self.graph[state]["next"].append(next_s)
-            else:
-                self.graph[state] = {"next": [], "obs": []}
-                self.graph[state]["next"] = [next_s]
+            self.graph[state]["next"].append(next_s)
         
         # Importing the language model
         with open(words_ds, "r") as f:
@@ -109,7 +107,8 @@ class HMM:
 
     def init_trellis(self):
         self.trellis.clear()
-        self.trellis.add_node(0)
+        self.trellis_depth = 1
+        self.trellis.add_node(0, name = "")
 
     def empty_trellis(self):
         if len(self.trellis) == 1:
@@ -117,7 +116,7 @@ class HMM:
         else:
             return False
 
-    def predict(self, word):
+    def build_trellis(self, word):
         states = self.candidates(word)
         states = [state[0] for state in states]
         if self.empty_trellis():
@@ -133,17 +132,21 @@ class HMM:
                 init_prob = self.language_model[state]
                 p = obs_prob * init_prob
 
-                self.trellis.add_node(state)
-                self.trellis.add_edge(0, state, weight = p)
+                new_id = len(self.trellis)
+                self.trellis.add_node(new_id, name = state, depth = self.trellis_depth)
+                self.trellis.add_edge(0, new_id, weight = p)
         else:
             # Get leaf nodes representing last states
-            leaves = [x for x in self.trellis.nodes() 
-                        if self.trellis.out_degree(x) == 0]
+            
+            leaves = [x for x, v in self.trellis.nodes(data = True) 
+                        if self.trellis.out_degree(x) == 0
+                        and v["depth"] == self.trellis_depth-1]
 
             for state in states:
                 p = {}
-                for leaf in leaves:
-                        
+                for leaf_id in leaves:
+                    leaf = self.trellis.node[leaf_id]["name"]
+
                     # Emission probability of observation word for the current state
                     N_obs = len(self.graph[state]["obs"])
                     obs_freq = self.graph[state]["obs"].count(word)
@@ -153,39 +156,73 @@ class HMM:
                         obs_prob = obs_freq / N_obs
 
                     # Transition probability from the leaf state (previous one) to the current state
-                    N_trans = len(self.graph[leaf]["next"])
-                    trans_freq = self.graph[leaf]["next"].count(state)
+                    N_trans = len(self.graph[leaf_id]["next"])
+                    trans_freq = self.graph[leaf_id]["next"].count(state)
                     if N_trans == 0 or trans_freq == 0:
                         trans_prob = 0.000001
                     else:
                         trans_prob = trans_freq / N_trans
                 
                     # Previous state probability
-                    predecessor = list(self.trellis.predecessors(leaf))
+                    predecessor = list(self.trellis.predecessors(leaf_id))
                     # At one time there's always a single predecessor
                     predecessor = predecessor[0]
-                    prev_state_prob = self.trellis.edges[predecessor, leaf]["weight"]
+                    prev_state_prob = self.trellis.edges[predecessor, leaf_id]["weight"]
 
-                    p[leaf] = obs_prob  * trans_prob * prev_state_prob
+                    p[leaf_id] = obs_prob  * trans_prob * prev_state_prob
                 
                 # Connecting a state to a leaf only if leaf->state is the path with the local maximal probability
                 max_key = max(p, key = p.get)
-                self.trellis.add_node(state)
-                self.trellis.add_edge(max_key, state, weight = p[max_key])
+                new_id = len(self.trellis)
+                self.trellis.add_node(new_id, name = state, depth = self.trellis_depth)
+                self.trellis.add_edge(max_key, new_id, weight = p[max_key])
+
+        self.trellis_depth += 1
         
-        # Debug
-        plt.figure()
-        G = self.trellis
-        pos = nx.spring_layout(G)
-        nx.draw(G, pos = pos, with_labels=True)
-        nx.draw_networkx_edge_labels(G, pos)
+        if DEBUG:
+            plt.figure()
+            G = self.trellis
+            labels = {e[0] : e[1]["name"] + " " + str(e[0]) for e in G.nodes(data=True)}
+            pos = nx.spring_layout(G)
+            nx.draw(G, pos = pos, labels = labels)
+            #nx.draw_networkx_edge_labels(G, pos)
 
+    def most_likely_sequence(self):
+        leaves = [x for x in self.trellis.nodes() 
+                    if self.trellis.out_degree(x) == 0]
 
+        leaves = [x for x, v in self.trellis.nodes(data = True) 
+                        if self.trellis.out_degree(x) == 0
+                        and v["depth"] == self.trellis_depth-1]
+
+        p = {}
+        for leaf_id in leaves:
+            # Previous state probability
+            predecessor = list(self.trellis.predecessors(leaf_id))
+            predecessor = predecessor[0]
+            prev_state_prob = self.trellis.edges[predecessor, leaf_id]["weight"]
+            p[leaf_id] = prev_state_prob
+
+        # Finding global maximum probability between last leaf states (Viterbi)
+        max_key = max(p, key = p.get)
+        seq = nx.shortest_path(self.trellis, source = 0, target = max_key)
+        corrected_words = []
+        
+        seq.pop(0)
+        for i in seq:
+            corrected_words.append(self.trellis.nodes[i]["name"])
+        
+        string = " ".join(corrected_words)
+        return string
 
     def predict_sequence(self, sequence):
-        self.reset_trellis()
+        self.init_trellis()
+        words = sequence.split()
+
+        for word in words:
+            self.build_trellis(word)
         
-        # iterate on predict
+        return self.most_likely_sequence()
 
     def edits(self, word, n = 1):
 
@@ -257,7 +294,6 @@ class HMM:
         
         return list(tmp.items())[: self.max_states]
 
-   
     def diff(self, e, f, i=0, j=0):
         #  Returns a minimal list of differences between 2 lists e and f
         #  requring O(min(len(e),len(f))) space and O(min(len(e),len(f)) * D)

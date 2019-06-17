@@ -38,8 +38,8 @@ def hmm_candidate_test():
     x = hmm.candidates("ambigous")
     pp.pprint(x)
 
-def hmm_predict_test():
-    print("### HMM Predict Test")
+def hmm_build_trellis_test():
+    print("### HMM Build Trellis Test")
     pp = pprint.PrettyPrinter(indent=4)
 
     hmm = HMM(1, max_edits = 2, max_states = 3)
@@ -49,13 +49,29 @@ def hmm_predict_test():
 
     sentence = "becasue shee hes siad tat she woud sendd it o thhe dai".split()
     hmm.init_trellis()
-    hmm.predict(sentence[0])
-    hmm.predict(sentence[1])
-    hmm.predict(sentence[2])
-    hmm.predict(sentence[3])
+    hmm.build_trellis(sentence[0])
+    hmm.build_trellis(sentence[1])
+    hmm.build_trellis(sentence[2])
+    hmm.build_trellis(sentence[3])
     plt.show()
 
+def hmm_predict_sequence_test():
+    print("### HMM Predict Test")
+    pp = pprint.PrettyPrinter(indent=4)
+
+    hmm = HMM(1, max_edits = 2, max_states = 3)
+    hmm.train(words_ds = "../data/word_freq/frequency-alpha-gcide.txt",
+              sentences_ds = "../data/texts/big.txt", 
+              typo_ds = "../data/typo/typo-corpus-r1.csv")
+
+    sentence = "becasue shee hes said tat"
+    pp.pprint("Sentence: " + sentence)
+    correct = hmm.predict_sequence(sentence)
+    pp.pprint("Corrected: " + correct)
+    #plt.show()
 
 #markov_test()
 #hmm_candidate_test()
-hmm_predict_test()
+#hmm_build_trellis_test()
+
+hmm_predict_sequence_test()
