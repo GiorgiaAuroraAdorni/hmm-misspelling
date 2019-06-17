@@ -6,6 +6,7 @@ import pprint
 
 def markov_test():
     print("### Markov Test")
+    pp = pprint.PrettyPrinter(indent=4)
     m = Markov(3, "word")
     m.train("../data/texts/lotr_intro.txt")
 

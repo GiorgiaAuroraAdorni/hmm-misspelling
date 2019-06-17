@@ -1,3 +1,4 @@
+from networkx.drawing.nx_agraph import graphviz_layout
 from collections import Counter, OrderedDict, defaultdict
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -183,8 +184,11 @@ class HMM:
         if DEBUG:
             plt.figure()
             G = self.trellis
+            # FIXME: labels are very hugly
             labels = {e[0]: e[1]["name"] + " " + str(e[0]) for e in G.nodes(data=True)}
-            pos = nx.spring_layout(G)
+            topological_node = list(reversed(list(nx.topological_sort(G))))
+
+            pos = graphviz_layout(G, prog='dot')
             nx.draw(G, pos=pos, labels=labels)
             # nx.draw_networkx_edge_labels(G, pos)
 
