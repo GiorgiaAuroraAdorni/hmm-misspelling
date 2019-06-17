@@ -1,9 +1,10 @@
 import random
 import csv
 from collections import Counter, OrderedDict, defaultdict
-import networkx
-import pprint
+import networkx as nx
 
+import matplotlib.pyplot as plt
+import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
 class HMM:
@@ -106,19 +107,34 @@ class HMM:
         self.error_model["ins"] /= total
         self.error_model["del"] /= total
 
-    def reset(self):
-        self.memory = None
+    def reset_memory(self):
+        self.memory.clear()
 
     def predict(self, word):
         states = self.candidates(word)
-        if not self.memory:
-            self.memory = {}
+        states = [state[0] for state in states]
 
-        pp.pprint(self.memory)
+        if not self.memory:
+            self.memory = nx.DiGraph()
+            self.memory.add_nodes_from(states)
+        else:
+            # Get leaf nodes representing last states
+            leaves = [x for x in self.memory.nodes() 
+                        if self.memory.out_degree(x) == 0]
+            for leaf in leaves:
+                for state in states:
+                    if state in self.graph[leaf]["next"]:
+                        self.memory.add_node(state)
+                        self.memory.add_edge(leaf, state)
+        
+        plt.figure()
+        nx.draw(self.memory, with_labels=True, font_weight='bold')
+
 
 
     def predict_sequence(self, sequence):
-        self.memory = {}
+        self.reset_memory()
+        
         # iterate on predict
 
     def edits(self, word, n = 1):
@@ -176,7 +192,7 @@ class HMM:
                     prob *= self.error_model["ins"]
                 for i in range(0, deletions):
                     prob *= self.error_model["del"]
-
+                
                 # Factoring in substitution probabilities
                 l = zip(typo, c)
                 for i, j in l:
