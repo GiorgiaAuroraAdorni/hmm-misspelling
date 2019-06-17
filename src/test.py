@@ -10,7 +10,8 @@ def markov_test():
     m.train("../data/texts/lotr_intro.txt")
 
     generated = m.generate(10)
-    print(generated + "\n")
+    pp.pprint(generated)
+    pp.pprint("\n")
 
 
 def hmm_candidate_test():
@@ -37,6 +38,7 @@ def hmm_candidate_test():
     pp.pprint("Typed: ambigous")
     x = hmm.candidates("ambigous")
     pp.pprint(x)
+    pp.pprint("\n")
 
 def hmm_build_trellis_test():
     print("### HMM Build Trellis Test")
@@ -53,6 +55,7 @@ def hmm_build_trellis_test():
     hmm.build_trellis(sentence[1])
     hmm.build_trellis(sentence[2])
     hmm.build_trellis(sentence[3])
+    pp.pprint("\n")
     plt.show()
 
 def hmm_predict_sequence_test():
@@ -64,11 +67,25 @@ def hmm_predict_sequence_test():
               sentences_ds = "../data/texts/big.txt", 
               typo_ds = "../data/typo/typo-corpus-r1.csv")
 
+    pp.pprint("#1")
     sentence = "becasue shee hes said tat"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
     pp.pprint("Corrected: " + correct)
-    #plt.show()
+
+    pp.pprint("#2")
+    sentence = "Pierre cae up t hin ad caugt hom by te ams"
+    pp.pprint("Sentence: " + sentence)
+    correct = hmm.predict_sequence(sentence)
+    pp.pprint("Corrected: " + correct)
+
+    pp.pprint("#3")
+    sentence = "Toady evenqs mawks an epovh tge gteates eioch im pur jistoty"
+    pp.pprint("Sentence: " + sentence)
+    correct = hmm.predict_sequence(sentence)
+    pp.pprint("Corrected: " + correct)
+
+    plt.show()
 
 #markov_test()
 #hmm_candidate_test()
