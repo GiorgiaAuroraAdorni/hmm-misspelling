@@ -1,6 +1,7 @@
 from hmm import HMM
 import pandas as pd
 import numpy as np
+import random
 import pprint
 import time
 import csv
@@ -8,7 +9,7 @@ import os
 
 
 def prediction_hmm_candidate_test():
-    print("### HMM Candidates Test - Evaluation")
+    print("### HMM Candidates - Evaluation")
     pp = pprint.PrettyPrinter(indent=4)
 
     hmm = HMM(1, max_edits=2, max_states=3)
@@ -62,7 +63,7 @@ def prediction_hmm_candidate_test():
 
 
 def evaluation_hmm_candidate_test():
-    predictions = pd.read_csv("../results/typo_evaluation.csv", "r")
+    predictions = pd.read_csv("../results/typo_evaluation.csv")
 
     print("\n Starting evaluation…")
     start = time.time()
@@ -76,7 +77,39 @@ def evaluation_hmm_candidate_test():
 
     print("Ended evaluation in {:6.2f} seconds \n".format(eval_time))
 
-    print("Accuracy: " + accuracy)
+    print("Accuracy: {:4.2f} %".format(accuracy*100))
+
+
+def perturb(hmm):
+    cleaned = open("../data/texts/lotr_intro.txt", "r")
+
+    if not os.path.exists("../data/texts/perturbates/"):
+        os.makedirs("../data/texts/perturbates/")
+
+    perturbed = open("../data/texts/perturbates/lotr_intro_perturbed.txt", "w")
+
+    for line in cleaned:
+        pos = 0
+        while pos < len(line):
+            if line[pos].isalpha():
+                char_select = line[pos]
+                c = random.random()
+                if c <= 0.1:
+                    # Given a char selected randomly from the line,
+                    # replace it with a new char chosen randomly from the given neighbours in the hmm error model
+                    cran = random.choice(list(hmm.error_model["sub"][char_select.lower()].keys()))
+                    initial = line[0:pos]
+                    final = line[pos + 1:]
+                    line = initial + cran + final
+                pos += 1
+            else:
+                pos += 1
+            if pos == len(line):
+                perturbed.write(line)
+
+    cleaned.close()
+    perturbed.close()
+
 
 # prediction_hmm_candidate_test()
-evaluation_hmm_candidate_test()
+# evaluation_hmm_candidate_test()
