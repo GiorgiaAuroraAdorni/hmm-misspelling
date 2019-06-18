@@ -21,8 +21,8 @@ def hmm_candidate_test():
 
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds="../data/texts/lotr_intro.txt",
-              typo_ds="../data/typo/train.csv")
+              sentences_ds="../data/texts/big.txt",
+              typo_ds="../data/typo/new/train.csv")
 
     pp.pprint("Typed: hoem")
     x = hmm.candidates("hoem")
@@ -49,7 +49,7 @@ def hmm_build_trellis_test():
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
               sentences_ds="../data/texts/big.txt",
-              typo_ds="../data/typo/train.csv")
+              typo_ds="../data/typo/new/train.csv")
 
     sentence = "becasue shee hes siad tat she woud sendd it o thhe dai".split()
     hmm.init_trellis()
@@ -68,7 +68,7 @@ def hmm_predict_sequence_test():
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
               sentences_ds="../data/texts/big.txt",
-              typo_ds="../data/typo/train.csv")
+              typo_ds="../data/typo/new/train.csv")
 
     pp.pprint("#1")
     sentence = "becasue shee hes said tat"
