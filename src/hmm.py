@@ -99,7 +99,11 @@ class HMM:
         # Normalization
         for key in self.error_model["sub"]:
             for subkey in self.error_model["sub"][key]:
-                self.error_model["sub"][key][subkey] /= c_sub[key]
+                if c_sub[key] == 0:
+                    # The letter (key) doesn't appear in the dataset as a correct letter, defaulting to low probability
+                    self.error_model["sub"][key][subkey] = 0.000001
+                else:
+                    self.error_model["sub"][key][subkey] /= c_sub[key]
 
         total = len(obs)
         self.error_model["ins"] /= total
