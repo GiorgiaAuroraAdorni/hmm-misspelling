@@ -1,5 +1,6 @@
 from hmm import HMM
 import pandas as pd
+import numpy as np
 import pprint
 import time
 import csv
@@ -17,7 +18,7 @@ def prediction_hmm_candidate_test():
 
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
               sentences_ds="../data/texts/lotr_intro.txt",
-              typo_ds="../data/typo/train.csv")
+              typo_ds="../data/typo/new/train.csv")
 
     end = time.time()
     train_time = end - start
@@ -29,7 +30,7 @@ def prediction_hmm_candidate_test():
     real = []
     observed = []
 
-    with open("../data/typo/test.csv", "r") as f:
+    with open("../data/typo/new/test.csv", "r") as f:
         reader = csv.reader(f)
         obs = [row for row in reader]
 
@@ -61,21 +62,21 @@ def prediction_hmm_candidate_test():
 
 
 def evaluation_hmm_candidate_test():
-    with open("../results/typo_evaluation.csv", "r") as f:
-        reader = csv.reader(f)
-        
-        print("\n Starting evaluation…")
+    predictions = pd.read_csv("../results/typo_evaluation.csv", "r")
 
-        correct_predictions = 0
+    print("\n Starting evaluation…")
+    start = time.time()
+    predictions['count'] = np.where(predictions['real'] == predictions['observed'], True, False)
 
-        for i in range(len(real)):
-            if observed[i] == real[i]:
-                correct_predictions += 1
+    frequencies = predictions['count'].value_counts(True)
+    accuracy = frequencies[True]
 
-        accuracy = correct_predictions / len(real)
+    end = time.time()
+    eval_time = end - start
 
-        print("Accuracy: " + accuracy)
+    print("Ended evaluation in {:6.2f} seconds \n".format(eval_time))
 
+    print("Accuracy: " + accuracy)
 
-prediction_hmm_candidate_test()
+# prediction_hmm_candidate_test()
 evaluation_hmm_candidate_test()

@@ -8,10 +8,10 @@ def read_dataset(dataset):
     return words
 
 
-def clean_dataset(dataset):
-    words = read_dataset(dataset)
+def clean_dataset(directory, dataset):
+    words = read_dataset(directory + dataset)
 
-    outfile = dataset.split(".txt")[0] + "_clean.csv"
+    outfile = directory + "new/" + dataset.split(".txt")[0] + "_clean.csv"
 
     with open(outfile, "w+") as new_f:
         correct_word = ""
@@ -32,8 +32,6 @@ def split_dataset(combined_csv):
     df = combined_csv.apply(lambda x: x.astype(str).str.lower())
 
     # shuffle data frame
-    df.reindex(np.random.permutation(df.index))
-
     df['split'] = np.random.randn(df.shape[0], 1)
 
     df['is_duplicate'] = df.duplicated()     # no duplicated rows
