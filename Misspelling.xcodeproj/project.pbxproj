@@ -17,6 +17,8 @@
 		45404B9622B57FAC00C1768F /* PythonLibrary+Symbols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45404B9122B57FAC00C1768F /* PythonLibrary+Symbols.swift */; };
 		45404B9722B57FAC00C1768F /* NumpyConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45404B9222B57FAC00C1768F /* NumpyConversion.swift */; };
 		45F6BFCF22B7EC7200F6613B /* PyPlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F6BFCE22B7EC7200F6613B /* PyPlot.swift */; };
+		45F6BFD122B82FA700F6613B /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F6BFD022B82FA700F6613B /* TextView.swift */; };
+		45F6BFD522B92D9600F6613B /* SpellChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F6BFD422B92D9600F6613B /* SpellChecker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +35,8 @@
 		45404B9122B57FAC00C1768F /* PythonLibrary+Symbols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PythonLibrary+Symbols.swift"; sourceTree = "<group>"; };
 		45404B9222B57FAC00C1768F /* NumpyConversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumpyConversion.swift; sourceTree = "<group>"; };
 		45F6BFCE22B7EC7200F6613B /* PyPlot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PyPlot.swift; sourceTree = "<group>"; };
+		45F6BFD022B82FA700F6613B /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
+		45F6BFD422B92D9600F6613B /* SpellChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellChecker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +73,8 @@
 				45404B8C22B57FAC00C1768F /* Python */,
 				45404B7A22B57F5000C1768F /* AppDelegate.swift */,
 				45404B7C22B57F5000C1768F /* ViewController.swift */,
+				45F6BFD022B82FA700F6613B /* TextView.swift */,
+				45F6BFD422B92D9600F6613B /* SpellChecker.swift */,
 				45404B7E22B57F5400C1768F /* Assets.xcassets */,
 				45404B8022B57F5500C1768F /* Main.storyboard */,
 				45404B8322B57F5500C1768F /* Info.plist */,
@@ -173,7 +179,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				45F6BFD522B92D9600F6613B /* SpellChecker.swift in Sources */,
 				45404B9622B57FAC00C1768F /* PythonLibrary+Symbols.swift in Sources */,
+				45F6BFD122B82FA700F6613B /* TextView.swift in Sources */,
 				45F6BFCF22B7EC7200F6613B /* PyPlot.swift in Sources */,
 				45404B9722B57FAC00C1768F /* NumpyConversion.swift in Sources */,
 				45404B7D22B57F5000C1768F /* ViewController.swift in Sources */,

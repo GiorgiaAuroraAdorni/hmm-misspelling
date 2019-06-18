@@ -715,7 +715,7 @@
                                     <rect key="frame" x="1" y="1" width="438" height="187"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="bar" spellingCorrection="YES" smartInsertDelete="YES" id="jK6-eQ-ggc">
+                                        <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="bar" allowsCharacterPickerTouchBarItem="NO" allowsUndo="YES" textCompletion="NO" id="jK6-eQ-ggc" customClass="TextView" customModule="Misspelling" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="438" height="187"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -753,6 +753,9 @@
                             <constraint firstAttribute="bottom" secondItem="wqR-d1-d0R" secondAttribute="bottom" constant="20" id="wd4-aE-nSu"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="textView" destination="jK6-eQ-ggc" id="k6I-ip-Kl6"/>
+                    </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
