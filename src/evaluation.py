@@ -211,10 +211,20 @@ def evaluation_hmm_sequence_test():
         predictions.loc[index, 'not_correct PREV not correct'] = len(not_corrected_perturbated)
         predictions.loc[index, 'total correct'] = len(total_correct)
         predictions.loc[index, 'total not correct'] = len(total_not_correct)
+        predictions.loc[index, 'accuracy'] = len(total_correct) / total
+        predictions.loc[index, 'precision'] = \
+            len(corrected_not_perturbated) / (len(corrected_not_perturbated) + len(corrected_perturbated))
+        predictions.loc[index, 'recall'] = \
+            len(corrected_not_perturbated) / (len(corrected_not_perturbated) + len(not_corrected_not_perturbated)) # same of sensitivity
+        predictions.loc[index, 'specificity'] = \
+            len(not_corrected_perturbated) / (len(not_corrected_perturbated) + len(corrected_not_perturbated))
 
         # not based on length only on word match
 
-    word_accuracy = npmean(predictions['word_accuracy'])
+    word_accuracy = np.mean(predictions['accuracy'])
+    word_precision = np.mean(predictions['precision'])
+    word_recall = np.mean(predictions['recall'])
+    word_specificity = np.mean(predictions['specificity'])
 
     end = time.time()
     eval_time = end - start
@@ -225,6 +235,9 @@ def evaluation_hmm_sequence_test():
 
     print("Exact match accuracy: {:4.2f} %".format(exact_match_accuracy * 100))
     print("Word accuracy: {:4.2f} %".format(word_accuracy * 100))
+    print("Word precision: {:4.2f} %".format(word_precision * 100))
+    print("Word recall: {:4.2f} %".format(word_recall * 100))
+    print("Word specificity: {:4.2f} %".format(word_specificity * 100))
 
 
 prediction_hmm_sequence_test()
