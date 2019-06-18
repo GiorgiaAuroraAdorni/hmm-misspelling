@@ -1,3 +1,9 @@
+import pandas as pd
+import numpy as np
+import csv
+import os
+
+
 def read_dataset(dataset):
     with open(dataset, "r") as f:
         words = f.read().split()
@@ -5,50 +11,32 @@ def read_dataset(dataset):
     return words
 
 
-def preprocessing1(dataset, cleaned_dataset):
+def clean_dataset(dataset):
     words = read_dataset(dataset)
 
-    with open(cleaned_dataset, "w+") as new_f:
-        key = ""
-        for word in words:
-            if word.endswith(":"):
-                key = word
-            else:
-                new_f.write(key.split(":")[0])
-                new_f.write(",")
-                new_f.write(word)
-                new_f.write("\n")
+    outfile = dataset.split(".txt")[0] + "_clean.csv"
 
-
-def preprocessing2(dataset, cleaned_dataset):
-    words = read_dataset(dataset)
-
-    with open(cleaned_dataset, "w+") as new_f:
-        key = ""
+    with open(outfile, "w+") as new_f:
+        correct_word = ""
         for word in words:
             if word.startswith("$"):
-                key = word
+                correct_word = word.split("$")[1]
+            elif word.endswith(":"):
+                correct_word = word.split(":")[0]
             else:
-                new_f.write(key.split("$")[1])
-                new_f.write(",")
                 new_f.write(word)
+                new_f.write(",")
+                new_f.write(correct_word)
                 new_f.write("\n")
 
 
-aspell_ds = "../data/typo/spelling-corrector/aspell.txt"
-wikipedia_ds = "../data/typo/spelling-corrector/wikipedia.txt"
-spell_testset1_ds = "../data/typo/spelling-corrector/spell-testset1.txt"
-spell_testset2_ds = "../data/typo/spelling-corrector/spell-testset2.txt"
-birkbeck_misp_ds = "../data/typo/birkbeck-misp.txt"
+def split_dataset(combined_csv):
+    combined_csv['split'] = np.random.randn(combined_csv.shape[0], 1)
 
-aspell_ds_clean = "../data/typo/spelling-corrector/aspell_clean.txt"
-wikipedia_ds_clean = "../data/typo/spelling-corrector/wikipedia_clean.txt"
-spell_testset1_clean = "../data/typo/spelling-corrector/spell-testset1_clean.txt"
-spell_testset2_clean = "../data/typo/spelling-corrector/spell-testset2_clean.txt"
-birkbeck_misp_ds_clean = "../data/typo/birkbeck-misp_clean.txt"
+    combined_csv['is_duplicate'] = combined_csv.duplicated()     # no duplicated rows
+    msk = np.random.rand(len(combined_csv)) <= 0.8
 
-preprocessing1(aspell_ds, aspell_ds_clean)
-preprocessing1(wikipedia_ds, wikipedia_ds_clean)
-preprocessing1(spell_testset1_ds, spell_testset1_clean)
-preprocessing1(spell_testset2_ds, spell_testset2_clean)
-preprocessing2(birkbeck_misp_ds, birkbeck_misp_ds_clean)
+    train = combined_csv[msk].drop(['split', 'is_duplicate'], axis=1)
+    test = combined_csv[~msk].drop(['split', 'is_duplicate'], axis=1)
+
+    return train, test
