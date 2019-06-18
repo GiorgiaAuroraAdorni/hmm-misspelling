@@ -1,5 +1,4 @@
 import numpy as np
-import re
 
 
 def read_dataset(dataset):
@@ -29,12 +28,18 @@ def clean_dataset(dataset):
 
 
 def split_dataset(combined_csv):
-    combined_csv['split'] = np.random.randn(combined_csv.shape[0], 1)
+    # lowercase
+    df = combined_csv.apply(lambda x: x.astype(str).str.lower())
 
-    combined_csv['is_duplicate'] = combined_csv.duplicated()     # no duplicated rows
-    msk = np.random.rand(len(combined_csv)) <= 0.8
+    # shuffle data frame
+    df.reindex(np.random.permutation(df.index))
 
-    train = combined_csv[msk].drop(['split', 'is_duplicate'], axis=1)
-    test = combined_csv[~msk].drop(['split', 'is_duplicate'], axis=1)
+    df['split'] = np.random.randn(df.shape[0], 1)
+
+    df['is_duplicate'] = df.duplicated()     # no duplicated rows
+    msk = np.random.rand(len(df)) <= 0.8
+
+    train = df[msk].drop(['split', 'is_duplicate'], axis=1)
+    test = df[~msk].drop(['split', 'is_duplicate'], axis=1)
 
     return train, test
