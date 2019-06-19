@@ -117,8 +117,9 @@ def prediction_hmm_sequence_test():
     print("### HMM Sequence Prediction - Evaluation")
 
     # Cleaning dataset
-    real = []
-
+    with open("../data/texts/big_clean.txt", "r") as f:
+        real = f.readlines()
+        real = [r.replace("\n", "") for r in real]
 
     print("\n Start training…")
 
@@ -156,7 +157,7 @@ def prediction_hmm_sequence_test():
         for sentence in perturbated:
             if sentence == '':
                 continue
-            if iterator % 10 == 0:
+            if iterator % 100 == 0:
                 print(iterator)
             iterator += 1
             corrected = hmm.predict_sequence(sentence)
@@ -241,9 +242,9 @@ def evaluation_hmm_sequence_test():
 
 
 
-prediction_hmm_candidate_test()
-evaluation_hmm_candidate_test()
+# prediction_hmm_candidate_test()
+# evaluation_hmm_candidate_test()
 
-# prediction_hmm_sequence_test()
-# evaluation_hmm_sequence_test()
+prediction_hmm_sequence_test()
+evaluation_hmm_sequence_test()
 
