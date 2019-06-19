@@ -34,7 +34,7 @@ class HMM:
     def train(self, words_ds, sentences_ds, typo_ds):
 
         # Training the hidden markov chain
-        with open(sentences_ds, "r") as f:
+        with open(sentences_ds, "r", encoding="utf-8") as f:
             words = f.read().split()
 
         for i in range(0, len(words) - self.state_len):
@@ -44,14 +44,14 @@ class HMM:
             self.graph[state]["next"].append(next_s)
 
         # Importing the language model
-        with open(words_ds, "r") as f:
+        with open(words_ds, "r", encoding="utf-8") as f:
             next(f)
             for line in f:
                 elem = line.split()
                 self.language_model[elem[1]] = float(elem[3]) / 100
 
         # Training the error model
-        with open(typo_ds, "r") as f:
+        with open(typo_ds, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
             self.error_model = {"sub": defaultdict(lambda: Counter()), "ins": 0, "del": 0}
