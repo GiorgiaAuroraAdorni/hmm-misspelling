@@ -8,22 +8,19 @@ import csv
 import os
 import re
 
-import pprint
-
 pp = pprint.PrettyPrinter(indent=4)
 
 
 def prediction_hmm_candidate_test():
     print("### HMM Candidates - Evaluation")
-    pp = pprint.PrettyPrinter(indent=4)
 
     hmm = HMM(1, max_edits=2, max_states=3)
 
     print("\n Starting training…")
     start = time.time()
 
-    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds="../data/texts/lotr_intro.txt",
+    hmm.train(words_ds="../data/word_freq/frequency-all_clean_cut.txt",
+              sentences_ds="../data/texts/big_clean.txt",
               typo_ds="../data/typo/new/train.csv")
 
     end = time.time()
@@ -125,23 +122,14 @@ def prediction_hmm_sequence_test():
 
     # Cleaning dataset
     real = []
-    with open("../data/texts/big.txt", "r") as f:
-        real = f.read().split(".")
-        real = [r.strip().lower().replace("'", "") for r in real]
-        real = [re.sub(r"[^a-zA-Z0-9]+", ' ', r) for r in real]
 
-    filename = "../data/texts/big_clean.txt"
-
-    with open(filename, mode="w") as outfile: 
-        for r in real:
-            outfile.write("%s\n" % r)
 
     print("\n Start training…")
 
     start = time.time()
 
     hmm = HMM(1, max_edits=2, max_states=3)
-    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
+    hmm.train(words_ds="../data/word_freq/frequency-all_clean_cut.txt",
               sentences_ds="../data/texts/big_clean.txt",
               typo_ds="../data/typo/new/train.csv")
 
@@ -256,8 +244,10 @@ def evaluation_hmm_sequence_test():
     print("Word specificity: {:4.2f} %".format(word_specificity * 100))
 
 
-# prediction_hmm_candidate_test()
-# evaluation_hmm_candidate_test()
 
-prediction_hmm_sequence_test()
-#evaluation_hmm_sequence_test()
+prediction_hmm_candidate_test()
+evaluation_hmm_candidate_test()
+
+# prediction_hmm_sequence_test()
+# evaluation_hmm_sequence_test()
+
