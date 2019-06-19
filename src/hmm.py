@@ -176,7 +176,7 @@ class HMM:
                     prev_state_prob = self.trellis.edges[predecessor, leaf_id]["weight"]
 
                     p[leaf_id] = obs_prob * trans_prob * prev_state_prob
-
+  
                 # Connecting a state to a leaf only if leaf->state is the path with the local maximal probability
                 max_key = max(p, key=p.get)
                 new_id = len(self.trellis)
@@ -188,7 +188,7 @@ class HMM:
         if DEBUG:
             plt.figure()
             G = self.trellis
-            # FIXME: labels are very hugly
+            # FIXME: labels are very ugly
             labels = {e[0]: e[1]["name"] + " " + str(e[0]) for e in G.nodes(data=True)}
             topological_node = list(reversed(list(nx.topological_sort(G))))
 
@@ -261,8 +261,12 @@ class HMM:
     def candidates(self, word):
         cand = {}
         for i in range(1, self.max_edits + 1):
-            cand[i] = self.known(self.edits(word, i))
-
+            # If the word is not in the language model, leave the word as the only candidate
+            c = self.known(self.edits(word, i))
+            if not c:
+                c = set([word])
+            cand[i] = c
+    
         tmp = defaultdict(float)
 
         for k, v in cand.items():

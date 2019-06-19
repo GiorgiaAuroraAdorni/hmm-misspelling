@@ -6,6 +6,11 @@ import pprint
 import time
 import csv
 import os
+import re
+
+import pprint
+
+pp = pprint.PrettyPrinter(indent=4)
 
 
 def prediction_hmm_candidate_test():
@@ -14,7 +19,7 @@ def prediction_hmm_candidate_test():
 
     hmm = HMM(1, max_edits=2, max_states=3)
 
-    print("\n Start trainining…")
+    print("\n Starting training…")
     start = time.time()
 
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
@@ -25,7 +30,7 @@ def prediction_hmm_candidate_test():
     train_time = end - start
 
     print("Endend training in {:4.2f} seconds".format(train_time))
-    print("\n Start testing…")
+    print("\n Starting testing…")
     start = time.time()
 
     real = []
@@ -85,12 +90,12 @@ def evaluation_hmm_candidate_test():
 
 
 def perturb(hmm):
-    cleaned = open("../data/texts/lotr_intro.txt", "r")
+    cleaned = open("../data/texts/big_clean.txt", "r")
 
-    if not os.path.exists("../data/texts/perturbates/"):
-        os.makedirs("../data/texts/perturbates/")
+    if not os.path.exists("../data/texts/perturbated/"):
+        os.makedirs("../data/texts/perturbated/")
 
-    perturbed = open("../data/texts/perturbates/lotr_intro_perturbed.txt", "w")
+    perturbed = open("../data/texts/perturbated/big_perturbed.txt", "w")
 
     for line in cleaned:
         pos = 0
@@ -117,13 +122,27 @@ def perturb(hmm):
 
 def prediction_hmm_sequence_test():
     print("### HMM Sequence Prediction - Evaluation")
-    print("\n Start trainining…")
+
+    # Cleaning dataset
+    real = []
+    with open("../data/texts/big.txt", "r") as f:
+        real = f.read().split(".")
+        real = [r.strip().lower().replace("'", "") for r in real]
+        real = [re.sub(r"[^a-zA-Z0-9]+", ' ', r) for r in real]
+
+    filename = "../data/texts/big_clean.txt"
+
+    with open(filename, mode="w") as outfile: 
+        for r in real:
+            outfile.write("%s\n" % r)
+
+    print("\n Start training…")
 
     start = time.time()
 
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds="../data/texts/big.txt",
+              sentences_ds="../data/texts/big_clean.txt",
               typo_ds="../data/typo/new/train.csv")
 
     end = time.time()
@@ -131,7 +150,7 @@ def prediction_hmm_sequence_test():
 
     print("Endend training in {:4.2f} seconds".format(train_time))
 
-    print("\n Start perturbation…")
+    print("\n Starting perturbation…")
     start = time.time()
 
     perturb(hmm)
@@ -140,19 +159,13 @@ def prediction_hmm_sequence_test():
     perturbation_time = end - start
     print("Endend perturbation in {:4.2f} seconds".format(perturbation_time))
 
-    real = []
-
-    with open("../data/texts/lotr_intro.txt", "r") as f:
-        real = f.read().split(".")
-        real = [r.replace("\n", "") for r in real]
-
     print("\n Start testing…")
     start = time.time()
 
     observed = []
 
-    with open("../data/texts/perturbates/lotr_intro_perturbed.txt", "r") as f:
-        perturbated = f.read().split(".")
+    with open("../data/texts/perturbated/big_perturbed.txt", "r") as f:
+        perturbated = f.readlines()
         perturbated = [p.replace("\n", "") for p in perturbated]
 
         iterator = 0
@@ -162,7 +175,6 @@ def prediction_hmm_sequence_test():
             if iterator % 10 == 0:
                 print(iterator)
             iterator += 1
-
             corrected = hmm.predict_sequence(sentence)
             observed.append(corrected)
 
@@ -245,7 +257,7 @@ def evaluation_hmm_sequence_test():
 
 
 # prediction_hmm_candidate_test()
-evaluation_hmm_candidate_test()
+# evaluation_hmm_candidate_test()
 
-# prediction_hmm_sequence_test()
+prediction_hmm_sequence_test()
 #evaluation_hmm_sequence_test()
