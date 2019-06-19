@@ -41,6 +41,10 @@ def prediction_hmm_candidate_test():
                 print(iterator)
             iterator += 1
 
+            # Not counting the word if it's not in the language model
+            if not hmm.known([el[1]]):
+                continue
+
             real.append(el[1])
             if len(hmm.candidates(el[0])) > 0:
                 observed.append(hmm.candidates(el[0])[0][0])
@@ -240,7 +244,8 @@ def evaluation_hmm_sequence_test():
     print("Word specificity: {:4.2f} %".format(word_specificity * 100))
 
 
-prediction_hmm_sequence_test()
-evaluation_hmm_sequence_test()
 # prediction_hmm_candidate_test()
-# evaluation_hmm_candidate_test()
+evaluation_hmm_candidate_test()
+
+# prediction_hmm_sequence_test()
+#evaluation_hmm_sequence_test()
