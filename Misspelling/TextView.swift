@@ -16,6 +16,6 @@ class TextView: NSTextView {
         super.viewWillMove(toWindow: newWindow)
         
         // Setup the SpellChecker
-        self.spellChecker.configure(textView: self)
+        self.spellChecker.textView = self
     }
 }
