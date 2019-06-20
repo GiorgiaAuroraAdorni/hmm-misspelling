@@ -118,7 +118,7 @@ def perturb():
             line_words[i] = word
 
         line = " ".join(line_words)
-        perturbed.write(line)
+        perturbed.write(line + '\n')
 
     perturbed.close()
     cleaned.close()
