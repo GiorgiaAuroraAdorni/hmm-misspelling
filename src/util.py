@@ -90,6 +90,14 @@ def perturb():
             for j in range(x):
                 r = np.random.random()  #FIXME now choose an edit randomly
 
+                def substitute(word):
+                    l = list(word)
+                    if not l[indices[j]] in hmm.error_model["sub"]:
+                        l[indices[j]] = random.choice(string.ascii_letters).lower()
+                    else:
+                        l[indices[j]] = np.random.choice(list(hmm.error_model["sub"][l[indices[j]]].keys()))
+                    return "".join(l)
+
                 # insert a letter in a random position (after idx)
                 if r < 0.33:
                     new_letter = random.choice(string.ascii_letters)
@@ -97,16 +105,15 @@ def perturb():
 
                 # delete a letter
                 elif r > 0.66:
-                    word = word[0:indices[j]] + word[indices[j] + 1:]
+                    if len(word) == 1:
+                        # if the word is 1 char, don't delete the word but substitute it with another one
+                        word = substitute(word)
+                    else:
+                        word = word[0:indices[j]] + word[indices[j] + 1:]
 
                 # substitute a letter
                 else:
-                    l = list(word)
-                    if not l[indices[j]] in hmm.error_model["sub"]:
-                        l[indices[j]] = random.choice(string.ascii_letters).lower()
-                    else:
-                        l[indices[j]] = np.random.choice(list(hmm.error_model["sub"][l[indices[j]]].keys()))
-                    word = "".join(l)
+                    word = substitute(word)
 
             line_words[i] = word
 
