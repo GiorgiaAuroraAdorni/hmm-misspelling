@@ -61,11 +61,16 @@ def prediction_hmm_candidate_test():
     if not os.path.exists("../results"):
         os.makedirs("../results")
 
-    prediction.to_csv("../results/typo_evaluation.csv", sep=',', index=False)
+    prediction.to_csv("../results/typo_prediction.csv", sep=',', index=False)
+
+    m = {'obervation': iterator, 'train_time': train_time, 'test_time': test_time}
+    meta = pd.DataFrame(m)
+    meta.to_csv("../results/meta_typo_prediction.csv", sep=',', index=False)
 
 
 def evaluation_hmm_candidate_test():
-    predictions = pd.read_csv("../results/typo_evaluation.csv")
+    predictions = pd.read_csv("../results/typo_prediction.csv")
+    meta = pd.read_csv("../results/meta_typo_prediction.csv")
 
     print("\n Starting evaluation…")
     start = time.time()
@@ -81,35 +86,11 @@ def evaluation_hmm_candidate_test():
 
     print("Accuracy: {:4.2f} %".format(accuracy*100))
 
+    meta['eval_time'] = eval_time
+    meta['accuracy_top_1'] = accuracy * 100
+    mata.to_csv("../results/meta_typo_prediction.csv", sep=',', index=False)
+
     # Add accuracy top-3 and top-5
-
-
-def perturb(hmm):
-    cleaned = open("../data/texts/big_clean.txt", "r")
-
-    if not os.path.exists("../data/texts/perturbated/"):
-        os.makedirs("../data/texts/perturbated/")
-
-    perturbed = open("../data/texts/perturbated/big_perturbed.txt", "w")
-
-    for line in cleaned:
-        pos = 0
-        while pos < len(line):
-            if line[pos].isalpha():
-                char_select = line[pos]
-                c = random.random()
-                if c <= 0.1:
-                    # Given a char selected randomly from the line,
-                    # replace it with a new char chosen randomly from the given neighbours in the hmm error model
-                    cran = random.choice(list(hmm.error_model["sub"][char_select.lower()].keys()))
-                    initial = line[0:pos]
-                    final = line[pos + 1:]
-                    line = initial + cran + final
-                pos += 1
-            else:
-                pos += 1
-            if pos == len(line):
-                perturbed.write(line)
 
 
 def prediction_hmm_sequence_test():
@@ -147,8 +128,11 @@ def prediction_hmm_sequence_test():
         for sentence in perturbated:
             if sentence == '':
                 continue
-            if iterator % 100 == 0:
-                print(iterator)
+            if iterator % 20 == 0:
+                pp.pprint(iterator)
+            if iterator > 1000:
+                break
+
             iterator += 1
             corrected = hmm.predict_sequence(sentence)
             observed.append(corrected)
@@ -158,7 +142,7 @@ def prediction_hmm_sequence_test():
     print("Endend testing in {:6.2f} seconds \n".format(test_time))
 
     # save prediction to csv
-    d = {'target': real, 'perturbated': perturbated, 'observed': observed}
+    d = {'target': real[:1001], 'perturbated': perturbated[:1001], 'observed': observed}
     prediction = pd.DataFrame(d)
 
     if not os.path.exists("../results"):
@@ -166,9 +150,14 @@ def prediction_hmm_sequence_test():
 
     prediction.to_csv("../results/sentence_prediction.csv", sep=',', index=False)
 
+    m = {'obervation': iterator, 'train_time': train_time, 'test_time': test_time}
+    meta = pd.DataFrame(m)
+    meta.to_csv("../results/meta_sentence_prediction.csv", sep=',', index=False)
+
 
 def evaluation_hmm_sequence_test():
     predictions = pd.read_csv("../results/sentence_prediction.csv")
+    meta = pd.read_csv("../results/meta_sentence_prediction.csv")
 
     print("\n Starting evaluation…")
     start = time.time()
@@ -250,11 +239,19 @@ def evaluation_hmm_sequence_test():
     print("Word recall: {:4.2f} %".format(word_recall * 100))
     print("Word specificity: {:4.2f} %".format(word_specificity * 100))
 
-    predictions.to_csv("../results/sentence_evaluation.csv", sep=',', index=False)
+    predictions.to_csv("../results/sentence_evaluation_1000.csv", sep=',', index=False)
 
-# prediction_hmm_candidate_test()
-# evaluation_hmm_candidate_test()
+    meta['eval_time'] = eval_time
+    meta['accuracy_top_1'] = word_accuracy * 100
+    meta['exact_match'] = exact_match_accuracy * 100
+    meta['precision'] = word_precision * 100
+    meta['recall'] = word_recall * 100
+    meta['specificity'] = word_specificity * 100
 
-# prediction_hmm_sequence_test()
+    mata.to_csv("../results/meta_sentence_prediction.csv", sep=',', index=False)
+
+prediction_hmm_candidate_test()
+evaluation_hmm_candidate_test()
+
+prediction_hmm_sequence_test()
 evaluation_hmm_sequence_test()
-
