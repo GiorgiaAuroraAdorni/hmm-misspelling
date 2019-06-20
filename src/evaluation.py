@@ -14,7 +14,7 @@ pp = pprint.PrettyPrinter(indent=4)
 def prediction_hmm_candidate_test():
     print("### HMM Candidates - Evaluation")
 
-    hmm = HMM(1, max_edits=2, max_states=3)
+    hmm = HMM(1, max_edits=2, max_states=5)
 
     print("\n Starting training…")
     start = time.time()
@@ -31,7 +31,7 @@ def prediction_hmm_candidate_test():
     start = time.time()
 
     real = []
-    observed = []
+    observed = [[], [], [], [], []]
 
     with open("../data/typo/new/test.csv", "r") as f:
         reader = csv.reader(f)
@@ -44,18 +44,26 @@ def prediction_hmm_candidate_test():
             iterator += 1
 
             real.append(el[1])
-            if len(hmm.candidates(el[0])) > 0:
-                observed.append(hmm.candidates(el[0])[0][0])
-            else:
-                observed.append("")  # if no word is bredicted by the model
-                print(el, "No words predicted", "\n")
+
+            candidates = hmm.candidates(el[0])
+
+            for idx in range(5):
+                if len(candidates) < idx + 1:
+                    observed[idx].append("")
+                else:
+                    observed[idx].append(candidates[idx][0])
 
     end = time.time()
     test_time = end - start
     print("Endend testing in {:6.2f} seconds \n".format(test_time))
 
     # save prediction to csv
-    d = {'real': real, 'observed': observed}
+    d = {'real':            real,
+         'first_observed':  observed[0],
+         'second_observed': observed[1],
+         'third_observed':  observed[2],
+         'fourth_observed': observed[3],
+         'fifth_observed':  observed[4]}
     prediction = pd.DataFrame(d)
 
     if not os.path.exists("../results"):
@@ -98,12 +106,14 @@ def evaluation_hmm_candidate_test():
 
     print("Ended evaluation in {:6.2f} seconds \n".format(eval_time))
 
-    print("Accuracy: {:4.2f} %".format(accuracy * 100))
+    print("Accuracy_top_1: {:4.2f} %".format(accuracy_top1 * 100))
 
     meta['eval_time'] = eval_time
     meta['accuracy_top_1'] = accuracy_top1 * 100
     meta['accuracy_top_3'] = accuracy_top3 * 100
     meta['accuracy_top_5'] = accuracy_top5 * 100
+
+    meta = meta.round(2)
     meta.to_csv("../results/meta_typo_prediction.csv", sep=',', index=False)
 
 
@@ -298,11 +308,12 @@ def evaluation_hmm_sequence_test():
     meta['correct_PREV_correct'] = word_correct_PREV_correct * 100
     meta['correct_PREV_not_correct'] = word_correct_PREV_not_correct * 100
 
+    meta = meta.round(2)
     meta.to_csv("../results/meta_sentence_prediction.csv", sep=',', index=False)
 
 
 # prediction_hmm_candidate_test()
-# evaluation_hmm_candidate_test()
+evaluation_hmm_candidate_test()
 
 # prediction_hmm_sequence_test()
-evaluation_hmm_sequence_test()
+# evaluation_hmm_sequence_test()
