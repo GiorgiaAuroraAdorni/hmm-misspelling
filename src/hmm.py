@@ -1,3 +1,4 @@
+from networkx.drawing.nx_agraph import graphviz_layout
 from collections import Counter, OrderedDict, defaultdict
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -33,7 +34,7 @@ class HMM:
     def train(self, words_ds, sentences_ds, typo_ds):
 
         # Training the hidden markov chain
-        with open(sentences_ds, "r") as f:
+        with open(sentences_ds, "r", encoding="utf-8") as f:
             words = f.read().split()
 
         for i in range(0, len(words) - self.state_len):
@@ -43,17 +44,17 @@ class HMM:
             self.graph[state]["next"].append(next_s)
 
         # Importing the language model
-        with open(words_ds, "r") as f:
+        with open(words_ds, "r", encoding="utf-8") as f:
             next(f)
             for line in f:
                 elem = line.split()
-                self.language_model[elem[1]] = float(elem[3]) / 100
+                self.language_model[elem[1].lower()] = float(elem[3]) / 100
 
         # Training the error model
-        with open(typo_ds, "r") as f:
+        with open(typo_ds, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
-            self.error_model = {"sub": defaultdict(lambda: Counter()), "ins": 0, "del": 0}
+            self.error_model = {"sub": defaultdict(lambda: Counter()), "swap": defaultdict(lambda: Counter()), "ins": 0, "del": 0}
 
         c_sub = Counter()
         for elem in obs:
@@ -71,16 +72,17 @@ class HMM:
             # Ex: steet = st$eet (accidental deletion, index accounted by special char $)
             #     mapes = maps (accidental insertion, index accounted by removing the extra char)
 
-            if len(typo) != len(correct):
-                edit_sequence = self.diff(typo, correct)
-                for op in edit_sequence:
-                    index_typo = op["position_typo"]
-                    if op["operation"] == "insert":
-                        edited_typo = typo[:index_typo] + "$" + typo[index_typo:]
-                    else:
-                        edited_typo = typo[:index_typo] + typo[index_typo + 1:]
+            #if len(typo) != len(correct):
+            edit_sequence = self.diff(typo, correct)
+            for op in edit_sequence:
+                index_typo = op["position_typo"]
+                if op["operation"] == "insert":
+                    edited_typo = typo[:index_typo] + "$" + typo[index_typo:]
+                else:
+                    edited_typo = typo[:index_typo] + typo[index_typo + 1:]
 
-            # Counting the frequency of substitutions between letters
+            # Counting the frequency of substitutions and swaps between letters
+            # A typed word contains a swap between two adjacent letters if given two adjacent letters x, y of the typed word, the 
             l = zip(edited_typo, correct)
             for i, j in l:
                 if i == "$":
@@ -100,7 +102,11 @@ class HMM:
         # Normalization
         for key in self.error_model["sub"]:
             for subkey in self.error_model["sub"][key]:
-                self.error_model["sub"][key][subkey] /= c_sub[key]
+                if c_sub[key] == 0:
+                    # The letter (key) doesn't appear in the dataset as a correct letter, defaulting to low probability
+                    self.error_model["sub"][key][subkey] = 0.000001
+                else:
+                    self.error_model["sub"][key][subkey] /= c_sub[key]
 
         total = len(obs)
         self.error_model["ins"] /= total
@@ -171,7 +177,7 @@ class HMM:
                     prev_state_prob = self.trellis.edges[predecessor, leaf_id]["weight"]
 
                     p[leaf_id] = obs_prob * trans_prob * prev_state_prob
-
+  
                 # Connecting a state to a leaf only if leaf->state is the path with the local maximal probability
                 max_key = max(p, key=p.get)
                 new_id = len(self.trellis)
@@ -183,8 +189,11 @@ class HMM:
         if DEBUG:
             plt.figure()
             G = self.trellis
+            # FIXME: labels are very ugly
             labels = {e[0]: e[1]["name"] + " " + str(e[0]) for e in G.nodes(data=True)}
-            pos = nx.spring_layout(G)
+            topological_node = list(reversed(list(nx.topological_sort(G))))
+
+            pos = graphviz_layout(G, prog='dot')
             nx.draw(G, pos=pos, labels=labels)
             # nx.draw_networkx_edge_labels(G, pos)
 
@@ -248,13 +257,20 @@ class HMM:
         return set(w for w in words if w in self.language_model)
 
     def P(self, word):
-        return self.language_model[word]
+        if word in self.language_model:
+            return self.language_model[word]
+        else:
+            return 0.000001
 
     def candidates(self, word):
         cand = {}
         for i in range(1, self.max_edits + 1):
-            cand[i] = self.known(self.edits(word, i))
-
+            # If the word is not in the language model, leave the word as the only candidate
+            c = self.known(self.edits(word, i))
+            if not c:
+                c = set([word])
+            cand[i] = c
+    
         tmp = defaultdict(float)
 
         for k, v in cand.items():
@@ -264,6 +280,11 @@ class HMM:
 
                 insertions = 0
                 deletions = 0
+
+                # The word is most probably correct
+                if typo == c:
+                    tmp[c] = 1
+                    continue
 
                 # Editing typo to account for accidental insertions or deletions
                 if len(typo) != len(c):
