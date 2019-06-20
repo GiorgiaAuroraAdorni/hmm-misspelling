@@ -63,7 +63,7 @@ def prediction_hmm_candidate_test():
 
     prediction.to_csv("../results/typo_prediction.csv", sep=',', index=False)
 
-    m = {'obervation': iterator, 'train_time': train_time, 'test_time': test_time}
+    m = {'obervation': [iterator], 'train_time': [train_time], 'test_time': [test_time]}
     meta = pd.DataFrame(m)
     meta.to_csv("../results/meta_typo_prediction.csv", sep=',', index=False)
 
@@ -84,11 +84,11 @@ def evaluation_hmm_candidate_test():
 
     print("Ended evaluation in {:6.2f} seconds \n".format(eval_time))
 
-    print("Accuracy: {:4.2f} %".format(accuracy*100))
+    print("Accuracy: {:4.2f} %".format(accuracy * 100))
 
     meta['eval_time'] = eval_time
     meta['accuracy_top_1'] = accuracy * 100
-    mata.to_csv("../results/meta_typo_prediction.csv", sep=',', index=False)
+    meta.to_csv("../results/meta_typo_prediction.csv", sep=',', index=False)
 
     # Add accuracy top-3 and top-5
 
@@ -150,7 +150,7 @@ def prediction_hmm_sequence_test():
 
     prediction.to_csv("../results/sentence_prediction.csv", sep=',', index=False)
 
-    m = {'obervation': iterator, 'train_time': train_time, 'test_time': test_time}
+    m = {'obervation': [iterator], 'train_time': [train_time], 'test_time': [test_time]}
     meta = pd.DataFrame(m)
     meta.to_csv("../results/meta_sentence_prediction.csv", sep=',', index=False)
 
@@ -248,7 +248,7 @@ def evaluation_hmm_sequence_test():
     meta['recall'] = word_recall * 100
     meta['specificity'] = word_specificity * 100
 
-    mata.to_csv("../results/meta_sentence_prediction.csv", sep=',', index=False)
+    meta.to_csv("../results/meta_sentence_prediction.csv", sep=',', index=False)
 
 prediction_hmm_candidate_test()
 evaluation_hmm_candidate_test()
