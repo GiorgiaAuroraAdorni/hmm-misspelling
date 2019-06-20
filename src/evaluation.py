@@ -134,15 +134,6 @@ def prediction_hmm_sequence_test():
 
     print("Endend training in {:4.2f} seconds".format(train_time))
 
-    print("\n Starting perturbation…")
-    start = time.time()
-
-    perturb(hmm)
-
-    end = time.time()
-    perturbation_time = end - start
-    print("Endend perturbation in {:4.2f} seconds".format(perturbation_time))
-
     print("\n Start testing…")
     start = time.time()
 
