@@ -97,8 +97,22 @@ def hmm_predict_sequence_test():
 
     plt.show()
 
+def gen_test():
+    print("### HMM Candidates Test")
+    pp = pprint.PrettyPrinter(indent=4)
+
+    hmm = HMM(1, max_edits=2, max_states=10)
+    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
+              sentences_ds="../data/texts/big.txt",
+              typo_ds="../data/typo/new/train.csv")
+
+    pp.pprint("Typed: 's'")
+    x = hmm.candidates("'s'")
+    pp.pprint(x)
+
 
 # markov_test()
 # hmm_candidate_test()
 # hmm_build_trellis_test()
-hmm_predict_sequence_test()
+# hmm_predict_sequence_test()
+gen_test()

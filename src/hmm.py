@@ -48,13 +48,13 @@ class HMM:
             next(f)
             for line in f:
                 elem = line.split()
-                self.language_model[elem[1]] = float(elem[3]) / 100
+                self.language_model[elem[1].lower()] = float(elem[3]) / 100
 
         # Training the error model
         with open(typo_ds, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
-            self.error_model = {"sub": defaultdict(lambda: Counter()), "ins": 0, "del": 0}
+            self.error_model = {"sub": defaultdict(lambda: Counter()), "swap": defaultdict(lambda: Counter()), "ins": 0, "del": 0}
 
         c_sub = Counter()
         for elem in obs:
@@ -72,16 +72,17 @@ class HMM:
             # Ex: steet = st$eet (accidental deletion, index accounted by special char $)
             #     mapes = maps (accidental insertion, index accounted by removing the extra char)
 
-            if len(typo) != len(correct):
-                edit_sequence = self.diff(typo, correct)
-                for op in edit_sequence:
-                    index_typo = op["position_typo"]
-                    if op["operation"] == "insert":
-                        edited_typo = typo[:index_typo] + "$" + typo[index_typo:]
-                    else:
-                        edited_typo = typo[:index_typo] + typo[index_typo + 1:]
+            #if len(typo) != len(correct):
+            edit_sequence = self.diff(typo, correct)
+            for op in edit_sequence:
+                index_typo = op["position_typo"]
+                if op["operation"] == "insert":
+                    edited_typo = typo[:index_typo] + "$" + typo[index_typo:]
+                else:
+                    edited_typo = typo[:index_typo] + typo[index_typo + 1:]
 
-            # Counting the frequency of substitutions between letters
+            # Counting the frequency of substitutions and swaps between letters
+            # A typed word contains a swap between two adjacent letters if given two adjacent letters x, y of the typed word, the 
             l = zip(edited_typo, correct)
             for i, j in l:
                 if i == "$":
@@ -256,7 +257,10 @@ class HMM:
         return set(w for w in words if w in self.language_model)
 
     def P(self, word):
-        return self.language_model[word]
+        if word in self.language_model:
+            return self.language_model[word]
+        else:
+            return 0.000001
 
     def candidates(self, word):
         cand = {}
@@ -276,6 +280,11 @@ class HMM:
 
                 insertions = 0
                 deletions = 0
+
+                # The word is most probably correct
+                if typo == c:
+                    tmp[c] = 1
+                    continue
 
                 # Editing typo to account for accidental insertions or deletions
                 if len(typo) != len(c):

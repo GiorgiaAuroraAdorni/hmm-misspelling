@@ -19,7 +19,7 @@ def prediction_hmm_candidate_test():
     print("\n Starting training…")
     start = time.time()
 
-    hmm.train(words_ds="../data/word_freq/frequency-all_clean_cut.txt",
+    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
               sentences_ds="../data/texts/big_clean.txt",
               typo_ds="../data/typo/new/train.csv")
 
@@ -42,10 +42,6 @@ def prediction_hmm_candidate_test():
             if iterator % 100 == 0:
                 print(iterator)
             iterator += 1
-
-            # Not counting the word if it's not in the language model
-            if not hmm.known([el[1]]):
-                continue
 
             real.append(el[1])
             if len(hmm.candidates(el[0])) > 0:
