@@ -74,10 +74,24 @@ def evaluation_hmm_candidate_test():
 
     print("\n Starting evaluation…")
     start = time.time()
-    predictions['count'] = np.where(predictions['real'] == predictions['observed'], True, False)
 
-    frequencies = predictions['count'].value_counts(True)
-    accuracy = frequencies[True]
+    predictions['count_first'] = np.where((predictions['real'] == predictions['first_observed']), True, False)
+    predictions['count_third'] = np.where((predictions['real'] == predictions['first_observed']) |
+                                          (predictions['real'] == predictions['second_observed']) |
+                                          (predictions['real'] == predictions['third_observed']), True, False)
+    predictions['count_fifth'] = np.where((predictions['real'] == predictions['first_observed']) |
+                                          (predictions['real'] == predictions['second_observed']) |
+                                          (predictions['real'] == predictions['third_observed']) |
+                                          (predictions['real'] == predictions['fourth_observed']) |
+                                          (predictions['real'] == predictions['fifth_observed']), True, False)
+
+    frequencies1 = predictions['count_first'].value_counts(True)
+    frequencies3 = predictions['count_third'].value_counts(True)
+    frequencies5 = predictions['count_fifth'].value_counts(True)
+
+    accuracy_top1 = frequencies1[True]
+    accuracy_top3 = frequencies3[True]
+    accuracy_top5 = frequencies5[True]
 
     end = time.time()
     eval_time = end - start
@@ -87,10 +101,10 @@ def evaluation_hmm_candidate_test():
     print("Accuracy: {:4.2f} %".format(accuracy * 100))
 
     meta['eval_time'] = eval_time
-    meta['accuracy_top_1'] = accuracy * 100
+    meta['accuracy_top_1'] = accuracy_top1 * 100
+    meta['accuracy_top_3'] = accuracy_top3 * 100
+    meta['accuracy_top_5'] = accuracy_top5 * 100
     meta.to_csv("../results/meta_typo_prediction.csv", sep=',', index=False)
-
-    # Add accuracy top-3 and top-5
 
 
 def prediction_hmm_sequence_test():
@@ -229,12 +243,21 @@ def evaluation_hmm_sequence_test():
         predictions.loc[index, 'correct'] = perturbated / total
         predictions.loc[index, 'not_correct'] = not_perturbated / total
         predictions.loc[index, 'accuracy'] = correct_prediction / total
-        predictions.loc[index, 'precision'] = correct_not_perturbated / (
-                    correct_not_perturbated + correct_perturbated)
-        predictions.loc[index, 'recall'] = correct_not_perturbated / (
-                    correct_not_perturbated + not_correct_not_perturbated)  # same of sensitivity
-        predictions.loc[index, 'specificity'] = not_correct_perturbated / (
-                    not_correct_perturbated + correct_not_perturbated)
+
+        if correct_not_perturbated + correct_perturbated == 0:
+            predictions.loc[index, 'precision'] = np.nan
+        else:
+            predictions.loc[index, 'precision'] = correct_not_perturbated / (correct_not_perturbated + correct_perturbated)
+
+        if correct_not_perturbated + not_correct_not_perturbated == 0:
+            predictions.loc[index, 'recall'] = np.nan
+        else:
+            predictions.loc[index, 'recall'] = correct_not_perturbated / (correct_not_perturbated + not_correct_not_perturbated)  # same of sensitivity
+
+        if not_correct_perturbated + correct_not_perturbated == 0:
+            predictions.loc[index, 'specificity'] = np.nan
+        else:
+            predictions.loc[index, 'specificity'] = not_correct_perturbated / (not_correct_perturbated + correct_not_perturbated)
 
     word_accuracy = np.mean(predictions['accuracy'])
     word_precision = np.mean(predictions['precision'])
