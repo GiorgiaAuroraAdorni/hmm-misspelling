@@ -47,7 +47,7 @@ def prediction_hmm_candidate_test():
             if len(hmm.candidates(el[0])) > 0:
                 observed.append(hmm.candidates(el[0])[0][0])
             else:
-                observed.append("") # if no word is bredicted by the model
+                observed.append("")  # if no word is bredicted by the model
                 print(el, "No words predicted", "\n")
 
     end = time.time()
@@ -212,21 +212,41 @@ def evaluation_hmm_sequence_test():
             else:
                 not_corrected_not_perturbated += 1
 
+        if perturbated == 0:
+            predictions.loc[index, 'not_correct PREV correct'] = np.nan
+            predictions.loc[index, 'not_correct PREV not_correct'] = np.nan
+        else:
+            predictions.loc[index, 'not_correct PREV correct'] = correct_perturbated / perturbated
+            predictions.loc[index, 'not_correct PREV not_correct'] = not_corrected_perturbated / perturbated
+
+        if not_perturbated == 0:
+            predictions.loc[index, 'correct PREV correct'] = np.nan
+            predictions.loc[index, 'correct PREV not_correct'] = np.nan
+        else:
+            predictions.loc[index, 'correct PREV correct'] = corrected_not_perturbated / not_perturbated
+            predictions.loc[index, 'correct PREV not_correct'] = not_corrected_not_perturbated / not_perturbated
+
         predictions.loc[index, 'correct'] = perturbated / total
         predictions.loc[index, 'not_correct'] = not_perturbated / total
-        predictions.loc[index, 'correct PREV correct'] = corrected_not_perturbated / not_perturbated
-        predictions.loc[index, 'correct PREV not_correct'] = not_corrected_not_perturbated / not_perturbated
-        predictions.loc[index, 'not_correct PREV correct'] = correct_perturbated / perturbated
-        predictions.loc[index, 'not_correct PREV not_correct'] = not_corrected_perturbated / perturbated
         predictions.loc[index, 'accuracy'] = correct_prediction / total
-        predictions.loc[index, 'precision'] = corrected_not_perturbated / (corrected_not_perturbated + correct_perturbated)
-        predictions.loc[index, 'recall'] = corrected_not_perturbated / (corrected_not_perturbated + not_corrected_not_perturbated) # same of sensitivity
-        predictions.loc[index, 'specificity'] = not_corrected_perturbated / (not_corrected_perturbated + corrected_not_perturbated)
+        predictions.loc[index, 'precision'] = corrected_not_perturbated / (
+                    corrected_not_perturbated + correct_perturbated)
+        predictions.loc[index, 'recall'] = corrected_not_perturbated / (
+                    corrected_not_perturbated + not_corrected_not_perturbated)  # same of sensitivity
+        predictions.loc[index, 'specificity'] = not_corrected_perturbated / (
+                    not_corrected_perturbated + corrected_not_perturbated)
 
     word_accuracy = np.mean(predictions['accuracy'])
     word_precision = np.mean(predictions['precision'])
     word_recall = np.mean(predictions['recall'])
     word_specificity = np.mean(predictions['specificity'])
+
+    word_correct = np.nanmean(predictions['correct'])
+    word_not_correct = np.nanmean(predictions['not_correct'])
+    word_not_correct_PREV_correct = np.nanmean(predictions['not_correct PREV correct'])
+    word_not_correct_PREV_not_correct = np.nanmean(predictions['not_correct PREV not_correct'])
+    word_correct_PREV_correct = np.nanmean(predictions['correct PREV correct'])
+    word_correct_PREV_not_correct = np.nanmean(predictions['correct PREV not_correct'])
 
     end = time.time()
     eval_time = end - start
@@ -248,10 +268,18 @@ def evaluation_hmm_sequence_test():
     meta['recall'] = word_recall * 100
     meta['specificity'] = word_specificity * 100
 
+    meta['correct'] = word_correct * 100
+    meta['not_correct'] = word_not_correct * 100
+    meta['not_correct_PREV_correct'] = word_not_correct_PREV_correct * 100
+    meta['not_correct_PREV_not_correct'] = word_not_correct_PREV_not_correct * 100
+    meta['correct_PREV_correct'] = word_correct_PREV_correct * 100
+    meta['correct_PREV_not_correct'] = word_correct_PREV_not_correct * 100
+
     meta.to_csv("../results/meta_sentence_prediction.csv", sep=',', index=False)
 
-prediction_hmm_candidate_test()
-evaluation_hmm_candidate_test()
 
-prediction_hmm_sequence_test()
+# prediction_hmm_candidate_test()
+# evaluation_hmm_candidate_test()
+
+# prediction_hmm_sequence_test()
 evaluation_hmm_sequence_test()
