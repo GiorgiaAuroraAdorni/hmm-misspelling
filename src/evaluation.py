@@ -184,10 +184,10 @@ def evaluation_hmm_sequence_test():
         not_correct_prediction = 0
 
         correct_perturbated = 0
-        not_corrected_perturbated = 0
+        not_correct_perturbated = 0
 
-        corrected_not_perturbated = 0
-        not_corrected_not_perturbated = 0
+        correct_not_perturbated = 0
+        not_correct_not_perturbated = 0
 
         for i, word in enumerate(target):
             is_perturbated = (target[i] != noisy[i])
@@ -206,35 +206,35 @@ def evaluation_hmm_sequence_test():
             if is_perturbated and is_correct:
                 correct_perturbated += 1
             elif is_perturbated and not is_correct:
-                not_corrected_perturbated += 1
+                not_correct_perturbated += 1
             elif not is_perturbated and is_correct:
-                corrected_not_perturbated += 1
+                correct_not_perturbated += 1
             else:
-                not_corrected_not_perturbated += 1
+                not_correct_not_perturbated += 1
 
         if perturbated == 0:
             predictions.loc[index, 'not_correct PREV correct'] = np.nan
             predictions.loc[index, 'not_correct PREV not_correct'] = np.nan
         else:
             predictions.loc[index, 'not_correct PREV correct'] = correct_perturbated / perturbated
-            predictions.loc[index, 'not_correct PREV not_correct'] = not_corrected_perturbated / perturbated
+            predictions.loc[index, 'not_correct PREV not_correct'] = not_correct_perturbated / perturbated
 
         if not_perturbated == 0:
             predictions.loc[index, 'correct PREV correct'] = np.nan
             predictions.loc[index, 'correct PREV not_correct'] = np.nan
         else:
-            predictions.loc[index, 'correct PREV correct'] = corrected_not_perturbated / not_perturbated
-            predictions.loc[index, 'correct PREV not_correct'] = not_corrected_not_perturbated / not_perturbated
+            predictions.loc[index, 'correct PREV correct'] = correct_not_perturbated / not_perturbated
+            predictions.loc[index, 'correct PREV not_correct'] = not_correct_not_perturbated / not_perturbated
 
         predictions.loc[index, 'correct'] = perturbated / total
         predictions.loc[index, 'not_correct'] = not_perturbated / total
         predictions.loc[index, 'accuracy'] = correct_prediction / total
-        predictions.loc[index, 'precision'] = corrected_not_perturbated / (
-                    corrected_not_perturbated + correct_perturbated)
-        predictions.loc[index, 'recall'] = corrected_not_perturbated / (
-                    corrected_not_perturbated + not_corrected_not_perturbated)  # same of sensitivity
-        predictions.loc[index, 'specificity'] = not_corrected_perturbated / (
-                    not_corrected_perturbated + corrected_not_perturbated)
+        predictions.loc[index, 'precision'] = correct_not_perturbated / (
+                    correct_not_perturbated + correct_perturbated)
+        predictions.loc[index, 'recall'] = correct_not_perturbated / (
+                    correct_not_perturbated + not_correct_not_perturbated)  # same of sensitivity
+        predictions.loc[index, 'specificity'] = not_correct_perturbated / (
+                    not_correct_perturbated + correct_not_perturbated)
 
     word_accuracy = np.mean(predictions['accuracy'])
     word_precision = np.mean(predictions['precision'])
