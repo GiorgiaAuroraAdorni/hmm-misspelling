@@ -24,8 +24,6 @@ Model} (HMM).
 %  keyboard
 % and uses the probabilities that one character is typed for another, 
 
-
-
 \chapter{Problem formulation} % Representation
 Given an observation sequence, typically a phrase, and the model 
 parameters, we are interested in detect and correct errors estimating the 
@@ -45,10 +43,21 @@ word given the intended one, and depend on the confusion probabilities.
 
 \section{Purpose}
 
-\section{Design choice}
+\section{Design choices}
+
+We have chosen the English language for different reasons. First of all, the great majority of material in literature deals 
+with the problem in question in the English languag. Moreover it is a simple language, both from a grammatical and a 
+lexical point of view: it lacks in certain symbols, like accents and apostrophes, and genres. 
+Furthermore all punctuation and special character symbols were not considered, but only letters and sometimes numbers. 
+\\
+
 We considered that a typed word only depends on the previous one, being 
 in the framework of Markov chains. If we know the probability of a word 
 given its predecessor, the frequency of each word, and the probability to 
 type word x when word y is intended, we have all the necessary ingredients 
 to use Hidden Markov Models.
 
+\section{Softwares}
+%FIXME
+We have developed the project in \textbf{Python}.\\
+The interface is a native macOS application written in \textbf{Swift}.
