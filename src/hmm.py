@@ -2,9 +2,11 @@ from networkx.drawing.nx_agraph import graphviz_layout
 from collections import Counter, OrderedDict, defaultdict
 import matplotlib.pyplot as plt
 import networkx as nx
+import edlib as el
 import random
 import pprint
 import csv
+import re
 
 pp = pprint.PrettyPrinter(indent=4)
 DEBUG = False
@@ -54,41 +56,56 @@ class HMM:
         with open(typo_ds, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
-            self.error_model = {"sub": defaultdict(lambda: Counter()), "swap": defaultdict(lambda: Counter()), "ins": 0, "del": 0}
+            self.error_model = {"sub": defaultdict(lambda: Counter()), "swap": defaultdict(lambda: Counter()), "ins": 0, "del": 0, "p": 0}
 
         c_sub = Counter()
+        c_swap = Counter()
+
+        correct_character_count = 0
+
         for elem in obs:
             typo = edited_typo = elem[0]
             correct = elem[1]
 
-            # Counting accidental insertions and deletions
-            if len(typo) > len(correct):
-                self.error_model["ins"] += 1
-            elif len(typo) < len(correct):
-                self.error_model["del"] += 1
-
-            # Editing typed string to account for accidental insertions and deletions to align letters 
-            # (to get the correct probabilities of substituted letters):
+            # Editing typed string to account for accidental insertions, deletions and swaps to align letters, counting them:
             # Ex: steet = st$eet (accidental deletion, index accounted by special char $)
             #     mapes = maps (accidental insertion, index accounted by removing the extra char)
+            #     omeh = $ome (deletion + insertion)
 
-            #if len(typo) != len(correct):
-            edit_sequence = self.diff(typo, correct)
-            for op in edit_sequence:
-                index_typo = op["position_typo"]
-                if op["operation"] == "insert":
-                    edited_typo = typo[:index_typo] + "$" + typo[index_typo:]
-                else:
-                    edited_typo = typo[:index_typo] + typo[index_typo + 1:]
+            edit_info = el.align(correct, typo, task = "path")
+            cigar = edit_info["cigar"]
+            self.error_model["p"] += edit_info["editDistance"]
+            correct_character_count += len(correct)
 
-            # Counting the frequency of substitutions and swaps between letters
-            # A typed word contains a swap between two adjacent letters if given two adjacent letters x, y of the typed word, the 
-            l = zip(edited_typo, correct)
-            for i, j in l:
-                if i == "$":
-                    continue
-                c_sub[j] += 1
-                self.error_model["sub"][i][j] += 1
+            # If the alphabet of both typo and correct is equal to the length of correct, it means its the same alphabet as correct's, so it's a swap
+            # If it's a swap it's not any other error in this model
+            if edit_info["alphabetLength"] == len(correct):
+                l = zip(edited_typo, correct)
+                for i, j in l:
+                    if i != j:
+                        c_swap[i] += 1
+                        self.error_model["swap"][i][j] += 1
+            else:
+                edited_typo = typo
+                pos = 0
+                for idx, op in re.findall('(\d+)([IDX=])?', cigar):
+                    idx = int(idx)
+                    pos += idx
+                    if op == "I":
+                        self.error_model["ins"] += 1
+                        edited_typo = edited_typo[:pos - 1] + "$" + edited_typo[pos - 1:]
+                    elif op == "D":
+                        self.error_model["del"] += 1
+                        edited_typo = edited_typo[:pos - 1] + edited_typo[pos:]
+                
+                # Counting the frequency of substitutions and swaps between letters
+                # A typed word contains a swap between two adjacent letters if given two adjacent letters x, y of the typed word, the 
+                l = zip(edited_typo, correct)
+                for i, j in l:
+                    if i == "$":
+                        continue
+                    c_sub[j] += 1
+                    self.error_model["sub"][i][j] += 1
 
             if correct in self.graph:
                 self.graph[correct]["obs"].append(typo)
@@ -108,9 +125,18 @@ class HMM:
                 else:
                     self.error_model["sub"][key][subkey] /= c_sub[key]
 
+        for key in self.error_model["swap"]:
+            for subkey in self.error_model["swap"][key]:
+                if c_swap[key] == 0:
+                    # The letter (key) doesn't appear in the dataset as a correct letter, defaulting to low probability
+                    self.error_model["swap"][key][subkey] = 0.000001
+                else:
+                    self.error_model["swap"][key][subkey] /= c_swap[key]
+
         total = len(obs)
         self.error_model["ins"] /= total
         self.error_model["del"] /= total
+        self.error_model["p"] /= correct_character_count
 
     def init_trellis(self):
         self.trellis.clear()
@@ -281,35 +307,41 @@ class HMM:
                 insertions = 0
                 deletions = 0
 
-                # The word is most probably correct
-                if typo == c:
-                    tmp[c] = 1
-                    continue
+                edit_info = el.align(c, typo, task = "path")
+                cigar = edit_info["cigar"]
 
-                # Editing typo to account for accidental insertions or deletions
-                if len(typo) != len(c):
-                    edit_sequence = self.diff(typo, c)
-                    for op in edit_sequence:
-                        index_typo = op["position_typo"]
-                        if op["operation"] == "insert":
-                            typo = typo[:index_typo] + "$" + typo[index_typo:]
+                # If it's a swap it's not anything else
+                if edit_info["alphabetLength"] == len(c):
+                    l = zip(typo, c)
+                    for i, j in l:
+                        if i != j:
+                            prob *= self.error_model["swap"][i][j]
+                else:
+                    # Editing typo to account for accidental insertions or deletions
+                    pos = 0
+                    for idx, op in re.findall('(\d+)([IDX=])?', cigar):
+                        idx = int(idx)
+                        pos += idx
+                        if op == "I":
                             insertions += 1
-                        else:
-                            typo = typo[:index_typo] + typo[index_typo + 1:]
+                            typo = typo[:pos - 1] + "$" + typo[pos - 1:]
+                        elif op == "D":
                             deletions += 1
+                            typo = typo[:pos - 1] + typo[pos:]
 
-                # Factoring in insertion or deletion probabilities
-                for i in range(0, insertions):
-                    prob *= self.error_model["ins"]
-                for i in range(0, deletions):
-                    prob *= self.error_model["del"]
 
-                # Factoring in substitution probabilities
-                l = zip(typo, c)
-                for i, j in l:
-                    if i == "$":
-                        continue
-                    prob *= self.error_model["sub"][i][j]
+                    # Factoring in insertion or deletion probabilities
+                    for i in range(0, insertions):
+                        prob *= self.error_model["ins"]
+                    for i in range(0, deletions):
+                        prob *= self.error_model["del"]
+
+                    # Factoring in substitution probabilities
+                    l = zip(typo, c)
+                    for i, j in l:
+                        if i == "$":
+                            continue
+                        prob *= self.error_model["sub"][i][j]
 
                 prob *= self.P(c)
                 tmp[c] = prob
