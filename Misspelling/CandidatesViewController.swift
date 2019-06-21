@@ -46,6 +46,7 @@ class CandidatesViewController: NSViewController, NSTableViewDataSource, NSTable
         set {
             if let newValue = newValue {
                 self.tableView.selectRowIndexes([newValue], byExtendingSelection: false)
+                self.tableView.scrollRowToVisible(newValue)
             } else {
                 self.tableView.deselectAll(self)
             }

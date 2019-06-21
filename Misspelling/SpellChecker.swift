@@ -436,7 +436,7 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         
         self.isApplyingTransientEdit = true
         self.textStorage?.replaceCharacters(in: editRange, with: originalText)
-        self.isApplyingTransientEdit = true
+        self.isApplyingTransientEdit = false
     }
     
     func commitTransientEdits() {
