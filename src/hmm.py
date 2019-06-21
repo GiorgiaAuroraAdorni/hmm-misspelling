@@ -70,7 +70,7 @@ class HMM:
         with open(typo_ds, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
-            self.error_model = {"sub": defaultdict(lambda: Counter()), "swap": 0, "ins": 0, "del": 0, "p": 0}
+            self.error_model = {"sub": defaultdict(Counter), "swap": 0, "ins": 0, "del": 0, "p": 0}
 
         c_sub = Counter()
         correct_character_count = 0
