@@ -1,0 +1,2 @@
+obervation,train_time,test_time,eval_time,accuracy_top_1,accuracy_top_3,accuracy_top_5
+8080,2.3,329.68,0.02,45.0,69.69,74.47

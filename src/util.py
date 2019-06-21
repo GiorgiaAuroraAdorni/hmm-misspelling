@@ -1,4 +1,10 @@
+from collections import defaultdict
+from hmm import HMM
+import pandas as pd
 import numpy as np
+import random
+import string
+import os
 
 
 def read_dataset(dataset):
@@ -41,3 +47,78 @@ def split_dataset(combined_csv):
     test = df[~msk].drop(['split', 'is_duplicate'], axis=1)
 
     return train, test
+
+
+def perturb():
+    # Create a model for the test set
+    hmm = HMM(1, max_edits=2, max_states=3)
+    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
+              sentences_ds="../data/texts/big_clean.txt",
+              typo_ds="../data/typo/new/test.csv")
+
+    # typos = pd.read_csv("../data/typo/new/test.csv")
+    #
+    # typos_dict = defaultdict(lambda: list())
+    #
+    # for index, row in typos.iterrows():
+    #     typos_dict[row[1]].append(row[0])
+
+    cleaned = open("../data/texts/big_clean.txt", "r")
+
+    if not os.path.exists("../data/texts/perturbated/"):
+        os.makedirs("../data/texts/perturbated/")
+
+    perturbed = open("../data/texts/perturbated/big_perturbed.txt", "w")
+
+    # FIXME
+    ## To remove after the change of hmm.model_error
+    #hmm.error_model["p"]
+    # probability that a word has an edit
+    p = 0.10
+
+    for line in cleaned:
+        line_words = line.split()
+
+        for i, word in enumerate(line_words):
+            n = len(word)
+            x = np.random.binomial(n, p)        # x ~ Bin(p, n)  number of errors to introduce in the word
+
+            # choose two letter to change
+            indices = np.random.choice(n, x, replace=False)
+            indices = -np.sort(-indices)
+
+            for j in range(x):
+                r = np.random.random()  #FIXME now choose an edit randomly
+
+                def substitute(word):
+                    l = list(word)
+                    if not l[indices[j]] in hmm.error_model["sub"]:
+                        l[indices[j]] = random.choice(string.ascii_letters).lower()
+                    else:
+                        l[indices[j]] = np.random.choice(list(hmm.error_model["sub"][l[indices[j]]].keys()))
+                    return "".join(l)
+
+                # insert a letter in a random position (after idx)
+                if r < 0.33:
+                    new_letter = random.choice(string.ascii_letters)
+                    word = word[0:indices[j]] + new_letter + word[indices[j] + 1:]
+
+                # delete a letter
+                elif r > 0.66:
+                    if len(word) == 1:
+                        # if the word is 1 char, don't delete the word but substitute it with another one
+                        word = substitute(word)
+                    else:
+                        word = word[0:indices[j]] + word[indices[j] + 1:]
+
+                # substitute a letter
+                else:
+                    word = substitute(word)
+
+            line_words[i] = word
+
+        line = " ".join(line_words)
+        perturbed.write(line + '\n')
+
+    perturbed.close()
+    cleaned.close()
