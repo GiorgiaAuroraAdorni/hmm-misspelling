@@ -40,6 +40,7 @@ The dataset obtained is divided into two corpora: \num{80}\% is used as a train 
 used as a test set (\num{8080} row).
 
 \subsection{Language Model}
+\label{subsection:languagemodel}
 The language model dataset is a concatenation of public domain book excerpts from 
 \href{http://www.gutenberg.org/wiki/Main_Page}{ \textcolor{blue}{Project Gutenberg}}  and lists of most frequent words 
 from \href{https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists}{ \textcolor{blue}{Wiktionary}} and the 
@@ -59,4 +60,35 @@ Each row of the corpus contains the ranking of the word, the word itself, the co
 percentage of how often each word was being used and a cumulative percentage.
 
 With the following dataset we found some problems due to the lack of proper names, city names, countries, brands etc.
+
+\subsection{Perturbated Dataset}
+In order to evaluate our algorithm on whole sentences, we create a new perturbed dataset starting from the dataset 
+\texttt{big} described in the section \ref{subsection:languagemodel}.
+
+The disturbance introduced presents an error partly dependent on the error model previously presented, with the 
+difference that it is created starting from the typos belonging to the test dataset.
+
+Three different texts have been generated, each of which has a percentage of errors in the text of \num{10}-\num{15}-
+\num{20}\% respectively. \\
+
+We implemented a perturbation algorithm, which for each line of our input file generates a new perturbed string.\\
+The input text is perturbed accordingly the following steps:
+
+\begin{enumerate}
+	\item Give us from the error model the value of $p$, the probability that a word has an edit, for each word  of length 
+	$n$, the number of edits to be introduced $x$ is calculated according to the relation $ x \sim \text{Bin}(n, 
+	p)$
+	\item FIXME % How are the character positions to be changed chosen?
+	\item FIXME % How is the type of edit chosen?
+	\item The disturbance goes to alter the letters designated not in a random manner. 
+	In fact, we use three different probabilities to define whether a letter will be deleted from the index in question, if a new 
+	letter will be hung (FIXME: come), or if the current character will be replaced with one of the possible letters (coming 
+	from the error model).
+	
+\end{enumerate}
+
+Cases of elimination of a whole word are excluded, as these would heavily influence the evaluation metrics as they are 
+inconsistent with our model.
+
+%(\num{58000} sentence)
 
