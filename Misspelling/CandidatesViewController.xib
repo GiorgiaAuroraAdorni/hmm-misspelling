@@ -55,21 +55,33 @@ for the selected word.</string>
                                         </textFieldCell>
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <prototypeCellViews>
-                                            <tableCellView identifier="CandidateCell" id="4OA-dW-xgP">
+                                            <tableCellView identifier="CandidateCell" id="4OA-dW-xgP" customClass="CandidateCellView" customModule="Misspelling" customModuleProvider="target">
                                                 <rect key="frame" x="1" y="1" width="241" height="20"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="464-nv-9SF">
-                                                        <rect key="frame" x="8" y="0.0" width="225" height="20"/>
+                                                        <rect key="frame" x="8" y="0.0" width="169" height="20"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                        <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Candidate Cell" id="Iaj-tm-COZ">
+                                                        <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="left" title="Candidate Cell" id="Iaj-tm-COZ">
                                                             <font key="font" metaFont="system" size="15"/>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
+                                                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="beo-zM-aSb">
+                                                        <rect key="frame" x="181" y="0.0" width="52" height="20"/>
+                                                        <autoresizingMask key="autoresizingMask"/>
+                                                        <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" alignment="right" title="0.800" id="iFV-u9-Yd4">
+                                                            <numberFormatter key="formatter" formatterBehavior="default10_4" numberStyle="decimal" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" maximumFractionDigits="3" id="DFn-xU-H9t"/>
+                                                            <font key="font" metaFont="system" size="15"/>
+                                                            <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
                                                 </subviews>
                                                 <connections>
+                                                    <outlet property="likelihoodFormatter" destination="DFn-xU-H9t" id="mm8-c5-8I4"/>
+                                                    <outlet property="likelihoodLabel" destination="beo-zM-aSb" id="dJT-yn-mNM"/>
                                                     <outlet property="textField" destination="464-nv-9SF" id="3vF-dQ-3Hz"/>
                                                 </connections>
                                             </tableCellView>

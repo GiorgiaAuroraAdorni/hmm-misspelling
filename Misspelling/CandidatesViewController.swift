@@ -37,7 +37,10 @@ class CandidatesViewController: NSViewController, NSTableViewDataSource, NSTable
             
             self.noContentLabel.isHidden = self.hasContent
             
-            self.preferredContentSize = self.tableView.sizeThatFits(NSSize(width: 100, height: 0))
+            var contentSize = self.tableView.sizeThatFits(NSSize(width: 100, height: 0))
+            contentSize.height = min(contentSize.height, 4.5 * 22.0)
+            
+            self.preferredContentSize = contentSize
         }
     }
     
@@ -115,9 +118,10 @@ class CandidatesViewController: NSViewController, NSTableViewDataSource, NSTable
     
     // MARK: - NSTableViewDelegate
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        let view = tableView.makeView(withIdentifier: .candidateCell, owner: self) as? NSTableCellView
+        let view = tableView.makeView(withIdentifier: .candidateCell, owner: self) as? CandidateCellView
         
         view?.textField?.stringValue = self.candidates![row].text
+        view?.likelihoodLabel.doubleValue = self.candidates![row].likelihood
         
         return view
     }
@@ -136,5 +140,19 @@ class CandidatesViewController: NSViewController, NSTableViewDataSource, NSTable
     
     func tableViewSelectionDidChange(_ notification: Notification) {
         self.delegate?.candidatesViewControllerSelectionDidChange(self)
+    }
+}
+
+class CandidateCellView: NSTableCellView {
+    @IBOutlet weak var likelihoodLabel: NSTextField!
+    @IBOutlet weak var likelihoodFormatter: NumberFormatter!
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        self.likelihoodFormatter.minimumFractionDigits = 3
+        self.likelihoodFormatter.maximumFractionDigits = 3
+        
+        self.likelihoodLabel.font = NSFont.monospacedDigitSystemFont(ofSize: 15.0, weight: .regular)
     }
 }

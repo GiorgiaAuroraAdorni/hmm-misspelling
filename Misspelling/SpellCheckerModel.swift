@@ -62,17 +62,17 @@ class SpellCheckerModel {
         
         let time = measure {
             self.queue.sync {
-                results = tokens.map {
-                    var result = self.cache[$0]
+                results = tokens.map { token in
+                    var result = self.cache[token]
                     
                     if result == nil {
-                        let candidates = [Candidate](self.model.candidates(word: $0.text)) ?? []
-                        let isMispelled = ($0.text != candidates.first?.text)
+                        let candidates = [Candidate](self.model.candidates(word: token.text)) ?? []
+                        let isMispelled = candidates.allSatisfy { token.text != $0.text }
                     
                         result = CheckResult(isMispelled: isMispelled,
-                                             candidates: candidates)
+                                             candidates: self.normalized(candidates))
                         
-                        self.cache[$0] = result
+                        self.cache[token] = result
                     }
                     
                     return result!
@@ -83,5 +83,13 @@ class SpellCheckerModel {
         print("Spell Check: \(time) ms")
         
         return results
+    }
+    
+    private func normalized(_ candidates: [Candidate]) -> [Candidate] {
+        let total = candidates.map { $0.likelihood }.reduce(0, +)
+        
+        return candidates.map {
+            Candidate(text: $0.text, likelihood: $0.likelihood / total)
+        }
     }
 }
