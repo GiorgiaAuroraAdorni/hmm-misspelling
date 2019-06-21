@@ -18,7 +18,6 @@
 		45404B9722B57FAC00C1768F /* NumpyConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45404B9222B57FAC00C1768F /* NumpyConversion.swift */; };
 		45D768F722BD2A5A00AB57AD /* SpellCheckerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45D768F522BD2A5A00AB57AD /* SpellCheckerModel.swift */; };
 		45D768FA22BD2C7300AB57AD /* Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45D768F922BD2C7300AB57AD /* Performance.swift */; };
-		45D768FC22BD38CC00AB57AD /* hmm.pickle in Resources */ = {isa = PBXBuildFile; fileRef = 45D768FB22BD38CB00AB57AD /* hmm.pickle */; };
 		45F6BFCF22B7EC7200F6613B /* PyPlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F6BFCE22B7EC7200F6613B /* PyPlot.swift */; };
 		45F6BFD122B82FA700F6613B /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F6BFD022B82FA700F6613B /* TextView.swift */; };
 		45F6BFD522B92D9600F6613B /* SpellChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F6BFD422B92D9600F6613B /* SpellChecker.swift */; };
@@ -41,7 +40,6 @@
 		45404B9222B57FAC00C1768F /* NumpyConversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumpyConversion.swift; sourceTree = "<group>"; };
 		45D768F522BD2A5A00AB57AD /* SpellCheckerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellCheckerModel.swift; sourceTree = "<group>"; };
 		45D768F922BD2C7300AB57AD /* Performance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Performance.swift; sourceTree = "<group>"; };
-		45D768FB22BD38CB00AB57AD /* hmm.pickle */ = {isa = PBXFileReference; lastKnownFileType = file; name = hmm.pickle; path = data/hmm.pickle; sourceTree = "<group>"; };
 		45F6BFCE22B7EC7200F6613B /* PyPlot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PyPlot.swift; sourceTree = "<group>"; };
 		45F6BFD022B82FA700F6613B /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		45F6BFD422B92D9600F6613B /* SpellChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellChecker.swift; sourceTree = "<group>"; };
@@ -63,7 +61,6 @@
 		45404B6E22B57F5000C1768F = {
 			isa = PBXGroup;
 			children = (
-				45D768FB22BD38CB00AB57AD /* hmm.pickle */,
 				45404B8A22B57F8000C1768F /* src */,
 				45404B7922B57F5000C1768F /* Misspelling */,
 				45404B7822B57F5000C1768F /* Products */,
@@ -128,6 +125,7 @@
 				45404B7322B57F5000C1768F /* Sources */,
 				45404B7422B57F5000C1768F /* Frameworks */,
 				45404B7522B57F5000C1768F /* Resources */,
+				45D7690022BD460000AB57AD /* Train HMM Model */,
 			);
 			buildRules = (
 			);
@@ -181,7 +179,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				45D768FC22BD38CC00AB57AD /* hmm.pickle in Resources */,
 				45F6BFDC22B984FF00F6613B /* CandidatesViewController.xib in Resources */,
 				45404B8B22B57F8000C1768F /* src in Resources */,
 				45404B7F22B57F5400C1768F /* Assets.xcassets in Resources */,
@@ -190,6 +187,30 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		45D7690022BD460000AB57AD /* Train HMM Model */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/src",
+				"$(SRCROOT)/data",
+			);
+			name = "Train HMM Model";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/hmm.pickle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python3 \"src/train.py\" \"data\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/hmm.pickle\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		45404B7322B57F5000C1768F /* Sources */ = {
