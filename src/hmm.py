@@ -56,11 +56,9 @@ class HMM:
         with open(typo_ds, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
-            self.error_model = {"sub": defaultdict(lambda: Counter()), "swap": defaultdict(lambda: Counter()), "ins": 0, "del": 0, "p": 0}
+            self.error_model = {"sub": defaultdict(lambda: Counter()), "swap": 0, "ins": 0, "del": 0, "p": 0}
 
         c_sub = Counter()
-        c_swap = Counter()
-
         correct_character_count = 0
 
         for elem in obs:
@@ -83,8 +81,7 @@ class HMM:
                 l = zip(edited_typo, correct)
                 for i, j in l:
                     if i != j:
-                        c_swap[i] += 1
-                        self.error_model["swap"][i][j] += 1
+                        self.error_model["swap"] += 1
             else:
                 edited_typo = typo
                 pos = 0
@@ -125,17 +122,10 @@ class HMM:
                 else:
                     self.error_model["sub"][key][subkey] /= c_sub[key]
 
-        for key in self.error_model["swap"]:
-            for subkey in self.error_model["swap"][key]:
-                if c_swap[key] == 0:
-                    # The letter (key) doesn't appear in the dataset as a correct letter, defaulting to low probability
-                    self.error_model["swap"][key][subkey] = 0.000001
-                else:
-                    self.error_model["swap"][key][subkey] /= c_swap[key]
-
         total = len(obs)
         self.error_model["ins"] /= total
         self.error_model["del"] /= total
+        self.error_model["swap"] /= total
         self.error_model["p"] /= correct_character_count
 
     def init_trellis(self):
@@ -315,7 +305,7 @@ class HMM:
                     l = zip(typo, c)
                     for i, j in l:
                         if i != j:
-                            prob *= self.error_model["swap"][i][j]
+                            prob *= self.error_model["swap"]
                 else:
                     # Editing typo to account for accidental insertions or deletions
                     pos = 0
