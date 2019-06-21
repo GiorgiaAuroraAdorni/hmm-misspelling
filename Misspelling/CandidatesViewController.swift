@@ -22,6 +22,10 @@ private extension NSUserInterfaceItemIdentifier {
     static let candidateCell = NSUserInterfaceItemIdentifier("CandidateCell")
 }
 
+protocol CandidatesViewControllerDelegate: class {
+    func candidatesViewControllerSelectionDidChange(_ viewController: CandidatesViewController)
+}
+
 class CandidatesViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
 
     var hasContent: Bool { return (self.candidates?.count ?? 0) != 0 }
@@ -50,6 +54,9 @@ class CandidatesViewController: NSViewController, NSTableViewDataSource, NSTable
     
     @IBOutlet weak var tableView: NSTableView!
     @IBOutlet weak var noContentLabel: NSTextField!
+    
+    typealias Delegate = CandidatesViewControllerDelegate
+    weak var delegate: Delegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -124,5 +131,9 @@ class CandidatesViewController: NSViewController, NSTableViewDataSource, NSTable
         }
         
         return RowView()
+    }
+    
+    func tableViewSelectionDidChange(_ notification: Notification) {
+        self.delegate?.candidatesViewControllerSelectionDidChange(self)
     }
 }

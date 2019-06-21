@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopoverDelegate {
+class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopoverDelegate, CandidatesViewController.Delegate {
     
     let linguisticTagger = NSLinguisticTagger(tagSchemes: [.tokenType], options: 0)
     
@@ -48,6 +48,10 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
     private var isCandidatesListClosing: Bool = false
     private var lastActiveIndex: Int?
     
+    private var transientEditRange: NSRange? = nil
+    private var hasTransientEdit: Bool { return self.transientEditRange != nil }
+    private var isApplyingTransientEdit: Bool = false
+    
     // MARK: - NSTextViewDelegate
     func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
         let event = NSApp.currentEvent
@@ -57,10 +61,10 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
             self.toggleCandidatesList()
             return true
         case Selector(("cancel:")) where self.isCandidatesListActive:
-            self.hideCandidatesList()
+            self.hideCandidatesList(committingChanges: false)
             return true
         case Selector(("insertNewline:")) where self.isCandidatesListActive:
-            self.commitSelectedCandidate()
+            self.hideCandidatesList(committingChanges: true)
             return true
             
         default:
@@ -71,27 +75,27 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         }
     }
     
-    func textView(_ textView: NSTextView, willChangeSelectionFromCharacterRanges oldSelectedCharRanges: [NSValue], toCharacterRanges newSelectedCharRanges: [NSValue]) -> [NSValue] {
-        return newSelectedCharRanges
-    }
-    
     func textViewDidChangeSelection(_ notification: Notification) {
+        guard !self.isApplyingTransientEdit else {
+            return
+        }
+        
         self.refreshCandidatesList()
     }
     
     func textShouldEndEditing(_ textObject: NSText) -> Bool {
-        self.hideCandidatesList()
+        self.hideCandidatesList(committingChanges: true)
         return true
     }
     
     // MARK: - NSTextStorageDelegate
     func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
-        self.linguisticTagger.stringEdited(in: editedRange, changeInLength: delta)
+        guard !self.isApplyingTransientEdit else {
+            return
+        }
         
-        self.hideCandidatesList()
-        
-        self.invalidateSpellCheck()
-        self.performSpellCheck() // TODO: process editedRange + changeInLength to incrementally update the spell checking
+        self.hideCandidatesList(committingChanges: true)
+        self.processEdits(in: editedRange, changeInLength: delta)
     }
     
     // MARK: Spell Checking
@@ -113,6 +117,13 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
     struct CheckResult {
         var isMisspelled: Bool
         var candidates: [Candidate]
+    }
+    
+    private func processEdits(in editedRange: NSRange, changeInLength delta: Int) {
+        self.linguisticTagger.stringEdited(in: editedRange, changeInLength: delta)
+        
+        self.invalidateSpellCheck()
+        self.performSpellCheck() // TODO: process editedRange + changeInLength to incrementally update the spell checking
     }
     
     private func invalidateSpellCheck() {
@@ -203,7 +214,7 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         if self.candidatesList == nil {
             self.showCandidatesList()
         } else {
-            self.hideCandidatesList()
+            self.hideCandidatesList(committingChanges: true)
         }
     }
     
@@ -212,33 +223,39 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
             return
         }
         
+        let viewController = CandidatesViewController()
+        
+        viewController.delegate = self
+        
         let popover = NSPopover()
         
         popover.delegate = self
 //        popover.behavior = .transient
-        popover.contentViewController = CandidatesViewController()
+        popover.contentViewController = viewController
         popover.show(relativeTo: self.textView!.bounds, of: self.textView!, preferredEdge: .minY)
         
         self.candidatesList = popover
         self.refreshCandidatesList()
     }
     
-    func hideCandidatesList() {
+    func hideCandidatesList(committingChanges: Bool) {
         guard self.isCandidatesListActive else {
             return
+        }
+        
+        if committingChanges {
+            self.commitTransientEdits()
         }
         
         self.candidatesList!.performClose(self)
     }
     
-    func commitSelectedCandidate() {
-        // TODO
-        self.hideCandidatesList()
-    }
-    
     // MARK: - NSPopoverDelegate
     
     func popoverWillClose(_ notification: Notification) {
+        // Any confirmed edits should be committed by now
+        self.cancelTransientEdits()
+        
         self.isCandidatesListClosing = true
     }
     
@@ -260,7 +277,23 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
             return
         }
         
-        let activeIndex = self.indexOfActiveWord()
+        let activeIndex: Int?
+        
+        if self.hasTransientEdit {
+            if self.insertionPointIsInsideTransientEdit() {
+                // The insertion point is still inside the range of the transient edit.
+                // The active index has not changed.
+                activeIndex = self.lastActiveIndex
+            } else {
+                // The insertion point has left the range of the transient edit.
+                // Commit the changes, triggering a new spell check, and return.
+                // When spell checking completes it will call refreshCandidatesList() again.
+                self.commitTransientEdits()
+                return
+            }
+        } else {
+            activeIndex = self.indexOfActiveWord()
+        }
         
         guard activeIndex != self.lastActiveIndex || activeIndex == nil else {
             return
@@ -296,9 +329,9 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         }
     }
     
-    private func indexOfActiveWord() -> Int? {
+    private func insertionPointRange() -> NSRange? {
         guard let textView = self.textView else {
-                return nil
+            return nil
         }
         
         let selectedRanges = textView.selectedRanges
@@ -322,11 +355,84 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
             textView.setSelectedRange(first, affinity: textView.selectionAffinity, stillSelecting: false)
         }
         
-        // FIXME: tokens is sorted by range, could use binary search.
-        let firstWord = self.tokens.firstIndex {
-            ($0.range.intersection(first) != nil) ||  (first.length == 0 && $0.range.upperBound == first.lowerBound)
+        return first
+    }
+    
+    private func indexOfActiveWord() -> Int? {
+        guard let insertionPoint = self.insertionPointRange() else {
+            return nil
         }
         
-        return firstWord
+        // FIXME: tokens is sorted by range, could use binary search.
+        let wordIndex = self.tokens.firstIndex {
+            self.range(insertionPoint, isInside: $0.range)
+        }
+        
+        return wordIndex
+    }
+    
+    private func insertionPointIsInsideTransientEdit() -> Bool {
+        guard let insertionPoint = self.insertionPointRange(),
+              let transientEditRange = self.transientEditRange else {
+            return false
+        }
+        
+        return self.range(insertionPoint, isInside: transientEditRange)
+    }
+    
+    private func range(_ range: NSRange, isInside other: NSRange) -> Bool {
+        return other.intersection(range) != nil || range.lowerBound == other.upperBound
+    }
+    
+    // MARK: - CandidatesViewController.Delegate
+    func candidatesViewControllerSelectionDidChange(_ viewController: CandidatesViewController) {
+        guard let activeIndex = self.lastActiveIndex else {
+            return
+        }
+        
+        let editRange = self.transientEditRange ?? self.tokens[activeIndex].range
+        
+        guard let selectedCandidate = viewController.selectedCandidate else {
+            // Should not happen, one candidate should always be selected
+            return
+        }
+        
+        let candidate = self.results[activeIndex].candidates[selectedCandidate].text
+        let newRange = NSRange(location: editRange.location, length: (candidate as NSString).length)
+        
+        self.transientEditRange = newRange
+        
+        self.isApplyingTransientEdit = true
+        self.textStorage?.replaceCharacters(in: editRange, with: candidate)
+        self.isApplyingTransientEdit = false
+    }
+    
+    func cancelTransientEdits() {
+        guard let editRange = self.transientEditRange,
+              let activeIndex = self.lastActiveIndex else {
+            return
+        }
+        
+        let originalText = self.tokens[activeIndex].text
+        
+        self.transientEditRange = nil
+        
+        self.isApplyingTransientEdit = true
+        self.textStorage?.replaceCharacters(in: editRange, with: originalText)
+        self.isApplyingTransientEdit = true
+    }
+    
+    func commitTransientEdits() {
+        guard let editRange = self.transientEditRange,
+              let activeIndex = self.lastActiveIndex else {
+            return
+        }
+        
+        self.transientEditRange = nil
+        
+        let originalRange = self.tokens[activeIndex].range
+        
+        // Re-send the event that was suppressed when the transient edit was first made
+        self.processEdits(in: originalRange, changeInLength: editRange.length - originalRange.length)
     }
 }
