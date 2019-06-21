@@ -70,7 +70,7 @@ class HMM:
         with open(typo_ds, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
-            self.error_model = {"sub": defaultdict(Counter), "swap": 0, "ins": 0, "del": 0, "p": 0}
+            self.error_model = {"sub": defaultdict(lambda: defaultdict(lambda: 1e-4)), "swap": 0, "ins": 0, "del": 0, "p": 0}
 
         c_sub = Counter()
         correct_character_count = 0
@@ -128,11 +128,13 @@ class HMM:
             self.error_model["sub"].pop(k, None)
 
         # Normalization
+        avg = sum(c for c in c_sub.values()) / len(c_sub)
         for key in self.error_model["sub"]:
             for subkey in self.error_model["sub"][key]:
                 if c_sub[key] == 0:
-                    # The letter (key) doesn't appear in the dataset as a correct letter, defaulting to low probability
-                    self.error_model["sub"][key][subkey] = 0.000001
+                    # The letter (key) doesn't appear in the dataset as a correct letter, dividing by the mean of c_sub
+                    
+                    self.error_model["sub"][key][subkey] /= avg
                 else:
                     self.error_model["sub"][key][subkey] /= c_sub[key]
 
@@ -162,7 +164,7 @@ class HMM:
                 N_obs = len(self.graph[state]["obs"])
                 obs_freq = self.graph[state]["obs"].count(word)
                 if N_obs == 0 or obs_freq == 0:
-                    obs_prob = 0.000001
+                    obs_prob = 1e-6
                 else:
                     obs_prob = self.graph[state]["obs"].count(word) / N_obs
 
@@ -188,7 +190,7 @@ class HMM:
                     N_obs = len(self.graph[state]["obs"])
                     obs_freq = self.graph[state]["obs"].count(word)
                     if N_obs == 0 or obs_freq == 0:
-                        obs_prob = 0.000001
+                        obs_prob = 0.1e-6
                     else:
                         obs_prob = obs_freq / N_obs
 
@@ -196,7 +198,7 @@ class HMM:
                     N_trans = len(self.graph[leaf_id]["next"])
                     trans_freq = self.graph[leaf_id]["next"].count(state)
                     if N_trans == 0 or trans_freq == 0:
-                        trans_prob = 0.000001
+                        trans_prob = 1e-6
                     else:
                         trans_prob = trans_freq / N_trans
 
@@ -290,7 +292,7 @@ class HMM:
         if word in self.language_model:
             return self.language_model[word]
         else:
-            return 0.000001
+            return 1e-6
 
     def candidates(self, word):
         cand = {}
@@ -349,42 +351,7 @@ class HMM:
 
                 prob *= self.P(c)
                 tmp[c] = prob
-
+  
         tmp = OrderedDict(sorted(tmp.items(), key=lambda t: t[1], reverse=True))
 
         return list(tmp.items())[: self.max_states]
-
-    def diff(self, e, f, i=0, j=0):
-        #  Returns a minimal list of differences between 2 lists e and f
-        #  requring O(min(len(e),len(f))) space and O(min(len(e),len(f)) * D)
-        #  worst-case execution time where D is the number of differences.
-        #  Documented at http://blog.robertelder.org/diff-algorithm/
-
-        N, M, L, Z = len(e), len(f), len(e) + len(f), 2 * min(len(e), len(f)) + 2
-        if N > 0 and M > 0:
-            w, g, p = N - M, [0] * Z, [0] * Z
-            for h in range(0, (L // 2 + (L % 2 != 0)) + 1):
-                for r in range(0, 2):
-                    c, d, o, m = (g, p, 1, 1) if r == 0 else (p, g, 0, -1)
-                    for k in range(-(h - 2 * max(0, h - M)), h - 2 * max(0, h - N) + 1, 2):
-                        a = c[(k + 1) % Z] if (k == -h or k != h and c[(k - 1) % Z] < c[(k + 1) % Z]) else c[(
-                                                                                                                         k - 1) % Z] + 1
-                        b = a - k
-                        s, t = a, b
-                        while a < N and b < M and e[(1 - o) * N + m * a + (o - 1)] == f[(1 - o) * M + m * b + (o - 1)]:
-                            a, b = a + 1, b + 1
-                        c[k % Z], z = a, -(k - w)
-                        if L % 2 == o and -(h - o) <= z <= h - o and c[k % Z] + d[z % Z] >= N:
-                            D, x, y, u, v = (2 * h - 1, s, t, a, b) if o == 1 else (2 * h, N - a, M - b, N - s, M - t)
-                            if D > 1 or (x != u and y != v):
-                                return self.diff(e[0:x], f[0:y], i, j) + self.diff(e[u:N], f[v:M], i + u, j + v)
-                            elif M > N:
-                                return self.diff([], f[N:M], i + N, j + N)
-                            elif M < N:
-                                return self.diff(e[M:N], [], i + M, j + M)
-                            else:
-                                return []
-        elif N > 0:
-            return [{"operation": "delete", "position_typo": i + n} for n in range(0, N)]
-        else:
-            return [{"operation": "insert", "position_typo": i, "position_correct": j + n} for n in range(0, M)]
