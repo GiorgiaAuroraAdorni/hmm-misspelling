@@ -10,8 +10,6 @@
 
 \section{Dataset acquisition}
 \label{section:dataset-exploration}
-This project has resorted to the use of three different datasets. 
-
 \subsection{Error Model}
 This dataset was collected from the following resources 
 \footnote{\url{https://www.dcs.bbk.ac.uk/~ROGER/corpora.html}}  
@@ -35,7 +33,30 @@ This dataset was collected from the following resources
 	\item \textsc{spell-set}: contains \num{670} typos.
 	\item \textsc{tweet-typo}: contains \num{39172} typos, taken from Twitter.
 \end{itemize}
-\subsection{Language Model}
-\subsection{Frequency Model}
 
-\sections{analisi_esplorativa}
+All the datasets are joined and cleaned. After that, it contains \num{39888} row, in each of which there 
+is the typo and the correct word.
+The dataset obtained is divided into two corpora: \num{80}\% is used as a train set (\num{31808} row) and \num{20}\% is 
+used as a test set (\num{8080} row).
+
+\subsection{Language Model}
+The language model dataset is a concatenation of public domain book excerpts from 
+\href{http://www.gutenberg.org/wiki/Main_Page}{ \textcolor{blue}{Project Gutenberg}}  and lists of most frequent words 
+from \href{https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists}{ \textcolor{blue}{Wiktionary}} and the 
+\href{http://www.kilgarriff.co.uk/bnc-readme.html}{\textcolor{blue}{British National Corpus}}. 
+
+This dataset contains about a million word. It is use to estimate the probability of a word by counting the number of times 
+each word appears in this dataset. %Fixme: spiegare per cosa usiamo questo dataset  To do that, the text was breaks into 
+%words, then a variable holds a counter of how often each word appears. Than the  probability of each word, based on 
+%this Counter was estimated
+
+\subsection{Frequency Model}
+The words frequency dataset includes wordlists derived from the \href{https://books.google.com/ngrams/}{ 
+\textcolor{blue}{Google's ngram corpora}}. In particular we use the dataset \texttt{frequency-alpha-gcide.txt}, a smaller 
+version of the original dataset, cleaned up and limited to only the top \num{65538} words.
+
+Each row of the corpus contains the ranking of the word, the word itself, the count of the occurrences of the word, a 
+percentage of how often each word was being used and a cumulative percentage.
+
+With the following dataset we found some problems due to the lack of proper names, city names, countries, brands etc.
+
