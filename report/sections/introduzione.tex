@@ -18,16 +18,16 @@ equip our technological tools with a series of programs and software that
 control and correct automatically the misspelt words typed.
 
 In this project, we propose and evaluate an automatic spelling correction 
-algorithm. 
-We modelled the typing process as an \textit{Hidden Markov Model} (HMM). 
+algorithm, modelling the typing process as an \textit{Hidden Markov 
+Model} (HMM). 
 
 %  keyboard
 % and uses the probabilities that one character is typed for another, 
 
 
 
-\section{Problem definition}
-Given an observation sequence, typically a phrase,  and the model 
+\chapter{Problem formulation} % Representation
+Given an observation sequence, typically a phrase, and the model 
 parameters, we are interested in detect and correct errors estimating the 
 optimal state sequence. %FIXME
 
@@ -40,17 +40,6 @@ its predecessor obtained from ?? %FIXME.
 
 The emission probabilities, $B_{ij}$, represent the probability of a typed 
 word given the intended one, and depend on the confusion probabilities.
-
-\subsection{Common Errors}
-The following type of errors were considered:
-\begin{itemize}
-	\item \textsc{transposed adjacent characters}
-	\item \textsc{omitted digit}
-	\item \textsc{additional digit (twin errors)}:
-	\item \textsc{substituted digit}: this is the probability to type a
-	character $i$ when the character $j$ was intended ($P(i|j)$). This 
-	probability was determined experimentally. %FIXME how? from where?
-\end{itemize}
 
 %We also detect the non-word error?
 
