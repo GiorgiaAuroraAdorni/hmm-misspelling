@@ -16,6 +16,9 @@
 		45404B9422B57FAC00C1768F /* Python.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45404B8E22B57FAC00C1768F /* Python.swift */; };
 		45404B9622B57FAC00C1768F /* PythonLibrary+Symbols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45404B9122B57FAC00C1768F /* PythonLibrary+Symbols.swift */; };
 		45404B9722B57FAC00C1768F /* NumpyConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45404B9222B57FAC00C1768F /* NumpyConversion.swift */; };
+		45D768F722BD2A5A00AB57AD /* SpellCheckerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45D768F522BD2A5A00AB57AD /* SpellCheckerModel.swift */; };
+		45D768FA22BD2C7300AB57AD /* Performance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45D768F922BD2C7300AB57AD /* Performance.swift */; };
+		45D768FC22BD38CC00AB57AD /* hmm.pickle in Resources */ = {isa = PBXBuildFile; fileRef = 45D768FB22BD38CB00AB57AD /* hmm.pickle */; };
 		45F6BFCF22B7EC7200F6613B /* PyPlot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F6BFCE22B7EC7200F6613B /* PyPlot.swift */; };
 		45F6BFD122B82FA700F6613B /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F6BFD022B82FA700F6613B /* TextView.swift */; };
 		45F6BFD522B92D9600F6613B /* SpellChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45F6BFD422B92D9600F6613B /* SpellChecker.swift */; };
@@ -36,6 +39,9 @@
 		45404B8E22B57FAC00C1768F /* Python.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Python.swift; sourceTree = "<group>"; };
 		45404B9122B57FAC00C1768F /* PythonLibrary+Symbols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PythonLibrary+Symbols.swift"; sourceTree = "<group>"; };
 		45404B9222B57FAC00C1768F /* NumpyConversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumpyConversion.swift; sourceTree = "<group>"; };
+		45D768F522BD2A5A00AB57AD /* SpellCheckerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellCheckerModel.swift; sourceTree = "<group>"; };
+		45D768F922BD2C7300AB57AD /* Performance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Performance.swift; sourceTree = "<group>"; };
+		45D768FB22BD38CB00AB57AD /* hmm.pickle */ = {isa = PBXFileReference; lastKnownFileType = file; name = hmm.pickle; path = data/hmm.pickle; sourceTree = "<group>"; };
 		45F6BFCE22B7EC7200F6613B /* PyPlot.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PyPlot.swift; sourceTree = "<group>"; };
 		45F6BFD022B82FA700F6613B /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		45F6BFD422B92D9600F6613B /* SpellChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpellChecker.swift; sourceTree = "<group>"; };
@@ -57,6 +63,7 @@
 		45404B6E22B57F5000C1768F = {
 			isa = PBXGroup;
 			children = (
+				45D768FB22BD38CB00AB57AD /* hmm.pickle */,
 				45404B8A22B57F8000C1768F /* src */,
 				45404B7922B57F5000C1768F /* Misspelling */,
 				45404B7822B57F5000C1768F /* Products */,
@@ -79,7 +86,9 @@
 				45404B7C22B57F5000C1768F /* ViewController.swift */,
 				45F6BFD022B82FA700F6613B /* TextView.swift */,
 				45F6BFD422B92D9600F6613B /* SpellChecker.swift */,
+				45D768F522BD2A5A00AB57AD /* SpellCheckerModel.swift */,
 				45F6BFD722B983A100F6613B /* CandidatesViewController.swift */,
+				45D768F922BD2C7300AB57AD /* Performance.swift */,
 				45404B7E22B57F5400C1768F /* Assets.xcassets */,
 				45404B8022B57F5500C1768F /* Main.storyboard */,
 				45F6BFDB22B984FF00F6613B /* CandidatesViewController.xib */,
@@ -172,6 +181,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				45D768FC22BD38CC00AB57AD /* hmm.pickle in Resources */,
 				45F6BFDC22B984FF00F6613B /* CandidatesViewController.xib in Resources */,
 				45404B8B22B57F8000C1768F /* src in Resources */,
 				45404B7F22B57F5400C1768F /* Assets.xcassets in Resources */,
@@ -192,10 +202,12 @@
 				45F6BFCF22B7EC7200F6613B /* PyPlot.swift in Sources */,
 				45404B9722B57FAC00C1768F /* NumpyConversion.swift in Sources */,
 				45404B7D22B57F5000C1768F /* ViewController.swift in Sources */,
+				45D768FA22BD2C7300AB57AD /* Performance.swift in Sources */,
 				45404B9422B57FAC00C1768F /* Python.swift in Sources */,
 				45F6BFD822B983A100F6613B /* CandidatesViewController.swift in Sources */,
 				45404B7B22B57F5000C1768F /* AppDelegate.swift in Sources */,
 				45404B9322B57FAC00C1768F /* PythonLibrary.swift in Sources */,
+				45D768F722BD2A5A00AB57AD /* SpellCheckerModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -5,6 +5,7 @@ import networkx as nx
 import random
 import pprint
 import csv
+import pickle
 
 pp = pprint.PrettyPrinter(indent=4)
 DEBUG = False
@@ -21,7 +22,7 @@ class HMM:
         self.max_states = max_states
 
         # HMM structure
-        self.graph = defaultdict(lambda: defaultdict(list))
+        self.graph = defaultdict(self._graph_init)
         self.trellis = nx.DiGraph()
         self.trellis_depth = 0
 
@@ -30,6 +31,19 @@ class HMM:
         self.error_model = {}
 
         return
+
+    @staticmethod
+    def load(file):
+        with open(file, "rb") as f:
+            return pickle.load(f)
+
+    def save(self, file):
+        with open(file, "wb") as f:
+            pickle.dump(self, f)
+
+    @staticmethod
+    def _graph_init():
+        return defaultdict(list)
 
     def train(self, words_ds, sentences_ds, typo_ds):
 
@@ -54,7 +68,7 @@ class HMM:
         with open(typo_ds, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
-            self.error_model = {"sub": defaultdict(lambda: Counter()), "swap": defaultdict(lambda: Counter()), "ins": 0, "del": 0}
+            self.error_model = {"sub": defaultdict(Counter), "swap": defaultdict(Counter), "ins": 0, "del": 0}
 
         c_sub = Counter()
         for elem in obs:

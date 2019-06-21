@@ -39,6 +39,7 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
     private var status = Status.invalid
     private var invalidationCounter = 0
     
+    private var model = SpellCheckerModel()
     private var tokens = [Token]()
     private var results = [CheckResult]()
     
@@ -60,10 +61,10 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         case Selector(("noop:")) where event?.characters == "\0" && event?.modifierFlags.contains(.control) == true:
             self.toggleCandidatesList()
             return true
-        case Selector(("cancel:")) where self.isCandidatesListActive:
+        case #selector(NSStandardKeyBindingResponding.cancelOperation(_:)) where self.isCandidatesListActive:
             self.hideCandidatesList(committingChanges: false)
             return true
-        case Selector(("insertNewline:")) where self.isCandidatesListActive:
+        case #selector(NSStandardKeyBindingResponding.insertNewline(_:)) where self.isCandidatesListActive:
             self.hideCandidatesList(committingChanges: true)
             return true
             
@@ -105,18 +106,39 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         case complete
     }
     
-    struct Token {
+    struct Token: Hashable {
         var text: String
         var range: NSRange
     }
     
-    struct Candidate {
+    struct Candidate: ConvertibleFromPython {
         var text: String
+        var likelihood: Double
+        
+        init(text: String, likelihood: Double) {
+            self.text = text
+            self.likelihood = likelihood
+        }
+        
+        init?(_ object: PythonObject) {
+            guard let tuple = object.checking.tuple2,
+                  let text = String(tuple.0),
+                  let likelihood = Double(tuple.1) else {
+                return nil
+            }
+            
+            self.init(text: text, likelihood: likelihood)
+        }
     }
     
     struct CheckResult {
-        var isMisspelled: Bool
+        var isMispelled: Bool
         var candidates: [Candidate]
+        
+        init(isMispelled: Bool, candidates: [Candidate]) {
+            self.isMispelled = isMispelled
+            self.candidates = candidates
+        }
     }
     
     private func processEdits(in editedRange: NSRange, changeInLength delta: Int) {
@@ -181,12 +203,7 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
     private func spellCheck() {
         assert(self.status == .inProgress)
         
-        self.results = self.tokens.map {
-            CheckResult(isMisspelled: $0.text.count >= 5, candidates: [
-                Candidate(text: "prova"), Candidate(text: "alcune"), Candidate(text: "alternative"),
-                Candidate(text: "prova"), Candidate(text: "alcune"), Candidate(text: "alternative"),
-            ])
-        }
+        self.results = self.model.spellCheck(tokens: self.tokens)
     }
     
     private func updateLayoutManagers() {
@@ -198,7 +215,7 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         
         for layoutManager in layoutManagers {
             for (token, result) in zip(self.tokens, self.results) {
-                if result.isMisspelled {
+                if result.isMispelled {
                     layoutManager.addTemporaryAttribute(.spellingState,
                                                         value: NSAttributedString.SpellingState.spelling.rawValue,
                                                         forCharacterRange: token.range)
