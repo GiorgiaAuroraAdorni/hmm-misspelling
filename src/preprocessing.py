@@ -10,14 +10,17 @@ for filename in os.listdir(directory):
     if filename.endswith(".txt"):
         clean_dataset(directory, filename)
 
-combined_csv = pd.concat([pd.read_csv(directory + f, names=['mispelled_word', 'correct_word'])
-                          for f in os.listdir(directory) if f.endswith(".csv")])
+clean_directory = directory + "clean/"
+
+combined_csv = pd.concat([pd.read_csv(clean_directory + f,
+                                      names=['mispelled_word', 'correct_word'])
+                          for f in os.listdir(clean_directory) if f.endswith(".csv")])
 
 # Split the typo dataset into train and test
 train, test = split_dataset(combined_csv)
 
-train.to_csv(directory + "new/train.csv", sep=',', header=None, index=False)
-test.to_csv(directory + "new/test.csv", sep=',', header=None, index=False)
+train.to_csv(directory + "clean/train.csv", sep=',', header=None, index=False)
+test.to_csv(directory + "clean/test.csv", sep=',', header=None, index=False)
 
 # Clean the dataset big
 with open("../data/texts/big.txt", "r") as f:

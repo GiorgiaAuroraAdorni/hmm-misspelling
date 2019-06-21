@@ -17,7 +17,7 @@ def read_dataset(dataset):
 def clean_dataset(directory, dataset):
     words = read_dataset(directory + dataset)
 
-    outfile = directory + "new/" + dataset.split(".txt")[0] + "_clean.csv"
+    outfile = directory + "clean/" + dataset.split(".txt")[0] + "_clean.csv"
 
     with open(outfile, "w+") as new_f:
         correct_word = ""
@@ -54,7 +54,7 @@ def perturb():
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
               sentences_ds="../data/texts/big_clean.txt",
-              typo_ds="../data/typo/new/test.csv")
+              typo_ds="../data/typo/clean/test.csv")
 
     cleaned = open("../data/texts/big_clean.txt", "r")
 
