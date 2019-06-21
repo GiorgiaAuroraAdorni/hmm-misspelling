@@ -14,7 +14,7 @@ pp = pprint.PrettyPrinter(indent=4)
 def prediction_hmm_candidate_test():
     print("### HMM Candidates - Evaluation")
 
-    hmm = HMM(1, max_edits=2, max_states=3)
+    hmm = HMM(1, max_edits=2, max_states=5)
 
     print("\n Starting training…")
     start = time.time()
@@ -31,7 +31,7 @@ def prediction_hmm_candidate_test():
     start = time.time()
 
     real = []
-    observed = []
+    observed = [[], [], [], [], []]
 
     with open("../data/typo/new/test.csv", "r") as f:
         reader = csv.reader(f)
@@ -44,88 +44,93 @@ def prediction_hmm_candidate_test():
             iterator += 1
 
             real.append(el[1])
-            if len(hmm.candidates(el[0])) > 0:
-                observed.append(hmm.candidates(el[0])[0][0])
-            else:
-                observed.append("") # if no word is bredicted by the model
-                print(el, "No words predicted", "\n")
+
+            candidates = hmm.candidates(el[0])
+
+            for idx in range(5):
+                if len(candidates) < idx + 1:
+                    observed[idx].append("")
+                else:
+                    observed[idx].append(candidates[idx][0])
 
     end = time.time()
     test_time = end - start
     print("Endend testing in {:6.2f} seconds \n".format(test_time))
 
     # save prediction to csv
-    d = {'real': real, 'observed': observed}
+    d = {'real':            real,
+         'first_observed':  observed[0],
+         'second_observed': observed[1],
+         'third_observed':  observed[2],
+         'fourth_observed': observed[3],
+         'fifth_observed':  observed[4]}
     prediction = pd.DataFrame(d)
 
     if not os.path.exists("../results"):
         os.makedirs("../results")
 
-    prediction.to_csv("../results/typo_evaluation.csv", sep=',', index=False)
+    prediction.to_csv("../results/typo_prediction.csv", sep=',', index=False)
+
+    m = {'obervation': [iterator], 'train_time': [train_time], 'test_time': [test_time]}
+    meta = pd.DataFrame(m)
+    meta.to_csv("../results/meta_typo_prediction.csv", sep=',', index=False)
 
 
 def evaluation_hmm_candidate_test():
-    predictions = pd.read_csv("../results/typo_evaluation.csv")
+    predictions = pd.read_csv("../results/typo_prediction.csv")
+    meta = pd.read_csv("../results/meta_typo_prediction.csv")
 
     print("\n Starting evaluation…")
     start = time.time()
-    predictions['count'] = np.where(predictions['real'] == predictions['observed'], True, False)
 
-    frequencies = predictions['count'].value_counts(True)
-    accuracy = frequencies[True]
+    predictions['count_first'] = np.where((predictions['real'] == predictions['first_observed']), True, False)
+    predictions['count_third'] = np.where((predictions['real'] == predictions['first_observed']) |
+                                          (predictions['real'] == predictions['second_observed']) |
+                                          (predictions['real'] == predictions['third_observed']), True, False)
+    predictions['count_fifth'] = np.where((predictions['real'] == predictions['first_observed']) |
+                                          (predictions['real'] == predictions['second_observed']) |
+                                          (predictions['real'] == predictions['third_observed']) |
+                                          (predictions['real'] == predictions['fourth_observed']) |
+                                          (predictions['real'] == predictions['fifth_observed']), True, False)
+
+    frequencies1 = predictions['count_first'].value_counts(True)
+    frequencies3 = predictions['count_third'].value_counts(True)
+    frequencies5 = predictions['count_fifth'].value_counts(True)
+
+    accuracy_top1 = frequencies1[True]
+    accuracy_top3 = frequencies3[True]
+    accuracy_top5 = frequencies5[True]
 
     end = time.time()
     eval_time = end - start
 
     print("Ended evaluation in {:6.2f} seconds \n".format(eval_time))
 
-    print("Accuracy: {:4.2f} %".format(accuracy*100))
+    print("Accuracy_top_1: {:4.2f} %".format(accuracy_top1 * 100))
 
+    meta['eval_time'] = eval_time
+    meta['accuracy_top_1'] = accuracy_top1 * 100
+    meta['accuracy_top_3'] = accuracy_top3 * 100
+    meta['accuracy_top_5'] = accuracy_top5 * 100
 
-def perturb(hmm):
-    cleaned = open("../data/texts/big_clean.txt", "r")
-
-    if not os.path.exists("../data/texts/perturbated/"):
-        os.makedirs("../data/texts/perturbated/")
-
-    perturbed = open("../data/texts/perturbated/big_perturbed.txt", "w")
-
-    for line in cleaned:
-        pos = 0
-        while pos < len(line):
-            if line[pos].isalpha():
-                char_select = line[pos]
-                c = random.random()
-                if c <= 0.1:
-                    # Given a char selected randomly from the line,
-                    # replace it with a new char chosen randomly from the given neighbours in the hmm error model
-                    cran = random.choice(list(hmm.error_model["sub"][char_select.lower()].keys()))
-                    initial = line[0:pos]
-                    final = line[pos + 1:]
-                    line = initial + cran + final
-                pos += 1
-            else:
-                pos += 1
-            if pos == len(line):
-                perturbed.write(line)
-
-    cleaned.close()
-    perturbed.close()
+    meta = meta.round(2)
+    meta.to_csv("../results/meta_typo_prediction.csv", sep=',', index=False)
 
 
 def prediction_hmm_sequence_test():
     print("### HMM Sequence Prediction - Evaluation")
 
     # Cleaning dataset
-    real = []
-
+    with open("../data/texts/big_clean.txt", "r") as f:
+        real = f.readlines()
+        real = [r.replace("\n", "") for r in real]
 
     print("\n Start training…")
 
     start = time.time()
 
     hmm = HMM(1, max_edits=2, max_states=3)
-    hmm.train(words_ds="../data/word_freq/frequency-all_clean_cut.txt",
+    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
               sentences_ds="../data/texts/big_clean.txt",
               typo_ds="../data/typo/new/train.csv")
 
@@ -133,15 +138,6 @@ def prediction_hmm_sequence_test():
     train_time = end - start
 
     print("Endend training in {:4.2f} seconds".format(train_time))
-
-    print("\n Starting perturbation…")
-    start = time.time()
-
-    perturb(hmm)
-
-    end = time.time()
-    perturbation_time = end - start
-    print("Endend perturbation in {:4.2f} seconds".format(perturbation_time))
 
     print("\n Start testing…")
     start = time.time()
@@ -156,8 +152,11 @@ def prediction_hmm_sequence_test():
         for sentence in perturbated:
             if sentence == '':
                 continue
-            if iterator % 10 == 0:
-                print(iterator)
+            if iterator % 20 == 0:
+                pp.pprint(iterator)
+            if iterator > 1000:
+                break
+
             iterator += 1
             corrected = hmm.predict_sequence(sentence)
             observed.append(corrected)
@@ -167,69 +166,123 @@ def prediction_hmm_sequence_test():
     print("Endend testing in {:6.2f} seconds \n".format(test_time))
 
     # save prediction to csv
-    d = {'target': real, 'perturbated': perturbated, 'observed': observed}
+    d = {'target': real[:1001], 'perturbated': perturbated[:1001], 'observed': observed}
     prediction = pd.DataFrame(d)
 
     if not os.path.exists("../results"):
         os.makedirs("../results")
 
-    prediction.to_csv("../results/sentence_evaluation.csv", sep=',', index=False)
+    prediction.to_csv("../results/sentence_prediction.csv", sep=',', index=False)
+
+    m = {'obervation': [iterator], 'train_time': [train_time], 'test_time': [test_time]}
+    meta = pd.DataFrame(m)
+    meta.to_csv("../results/meta_sentence_prediction.csv", sep=',', index=False)
 
 
 def evaluation_hmm_sequence_test():
-    predictions = pd.read_csv("../results/sentence_evaluation.csv")
+    predictions = pd.read_csv("../results/sentence_prediction.csv")
+    meta = pd.read_csv("../results/meta_sentence_prediction.csv")
 
     print("\n Starting evaluation…")
     start = time.time()
     predictions['exact_match'] = np.where(predictions['target'] == predictions['observed'], True, False)
 
     exact_match_frequencies = predictions['exact_match'].value_counts(True)
-    exact_match_accuracy = exact_match_frequencies[True]
+
+    if True not in exact_match_frequencies.keys():
+        exact_match_accuracy = 0
+    else:
+        exact_match_accuracy = exact_match_frequencies[True]
 
     for index, row in predictions.iterrows():
-        target = row["predicted"].split()
+        target = row["target"].split()
         prediction = row["observed"].split()
-        given = row["perturbated"].split()
+        noisy = row["perturbated"].split()
 
         total = len(target)
 
-        perturbated = set(given) - set(target)
-        not_perturbated = set(target).intersection(given)
+        perturbated = 0
+        not_perturbated = 0
 
-        total_correct = set(target).intersection(prediction)
-        total_not_correct = set(prediction) - set(target)
+        correct_prediction = 0
+        not_correct_prediction = 0
 
-        corrected_perturbated = set(perturbated) - set(total_not_correct)
-        not_corrected_perturbated = perturbated.intersection(total_not_correct)
+        correct_perturbated = 0
+        not_correct_perturbated = 0
 
-        corrected_not_perturbated = not_perturbated.intersection(total_correct)
-        not_corrected_not_perturbated = set(total_not_correct) - set(perturbated)
+        correct_not_perturbated = 0
+        not_correct_not_perturbated = 0
 
-        predictions.loc[index, 'correct PREV correct'] = len(corrected_not_perturbated)
-        predictions.loc[index, 'correct PREV not_correct'] = len(not_corrected_not_perturbated)
-        predictions.loc[index, 'not_correct PREV correct'] = len(corrected_perturbated)
-        predictions.loc[index, 'not_correct PREV not correct'] = len(not_corrected_perturbated)
-        predictions.loc[index, 'total correct'] = len(total_correct)
-        predictions.loc[index, 'total not correct'] = len(total_not_correct)
-        predictions.loc[index, 'accuracy'] = len(total_correct) / total
-        predictions.loc[index, 'precision'] = \
-            len(corrected_not_perturbated) / (len(corrected_not_perturbated) + len(corrected_perturbated))
-        predictions.loc[index, 'recall'] = \
-            len(corrected_not_perturbated) / (len(corrected_not_perturbated) + len(not_corrected_not_perturbated)) # same of sensitivity
-        predictions.loc[index, 'specificity'] = \
-            len(not_corrected_perturbated) / (len(not_corrected_perturbated) + len(corrected_not_perturbated))
+        for i, word in enumerate(target):
+            is_perturbated = (target[i] != noisy[i])
+            is_correct = (target[i] == prediction[i])
 
-        # not based on length only on word match
+            if is_perturbated:
+                perturbated += 1
+            else:
+                not_perturbated += 1
+
+            if is_correct:
+                correct_prediction += 1
+            else:
+                not_correct_prediction += 1
+
+            if is_perturbated and is_correct:
+                correct_perturbated += 1
+            elif is_perturbated and not is_correct:
+                not_correct_perturbated += 1
+            elif not is_perturbated and is_correct:
+                correct_not_perturbated += 1
+            else:
+                not_correct_not_perturbated += 1
+
+        if perturbated == 0:
+            predictions.loc[index, 'not_correct PREV correct'] = np.nan
+            predictions.loc[index, 'not_correct PREV not_correct'] = np.nan
+        else:
+            predictions.loc[index, 'not_correct PREV correct'] = correct_perturbated / perturbated
+            predictions.loc[index, 'not_correct PREV not_correct'] = not_correct_perturbated / perturbated
+
+        if not_perturbated == 0:
+            predictions.loc[index, 'correct PREV correct'] = np.nan
+            predictions.loc[index, 'correct PREV not_correct'] = np.nan
+        else:
+            predictions.loc[index, 'correct PREV correct'] = correct_not_perturbated / not_perturbated
+            predictions.loc[index, 'correct PREV not_correct'] = not_correct_not_perturbated / not_perturbated
+
+        predictions.loc[index, 'correct'] = perturbated / total
+        predictions.loc[index, 'not_correct'] = not_perturbated / total
+        predictions.loc[index, 'accuracy'] = correct_prediction / total
+
+        if correct_not_perturbated + correct_perturbated == 0:
+            predictions.loc[index, 'precision'] = np.nan
+        else:
+            predictions.loc[index, 'precision'] = correct_not_perturbated / (correct_not_perturbated + correct_perturbated)
+
+        if correct_not_perturbated + not_correct_not_perturbated == 0:
+            predictions.loc[index, 'recall'] = np.nan
+        else:
+            predictions.loc[index, 'recall'] = correct_not_perturbated / (correct_not_perturbated + not_correct_not_perturbated)  # same of sensitivity
+
+        if not_correct_perturbated + correct_not_perturbated == 0:
+            predictions.loc[index, 'specificity'] = np.nan
+        else:
+            predictions.loc[index, 'specificity'] = not_correct_perturbated / (not_correct_perturbated + correct_not_perturbated)
 
     word_accuracy = np.mean(predictions['accuracy'])
     word_precision = np.mean(predictions['precision'])
     word_recall = np.mean(predictions['recall'])
     word_specificity = np.mean(predictions['specificity'])
 
+    word_correct = np.nanmean(predictions['correct'])
+    word_not_correct = np.nanmean(predictions['not_correct'])
+    word_not_correct_PREV_correct = np.nanmean(predictions['not_correct PREV correct'])
+    word_not_correct_PREV_not_correct = np.nanmean(predictions['not_correct PREV not_correct'])
+    word_correct_PREV_correct = np.nanmean(predictions['correct PREV correct'])
+    word_correct_PREV_not_correct = np.nanmean(predictions['correct PREV not_correct'])
+
     end = time.time()
     eval_time = end - start
-
-    # Add accuracy top-3 and top-5
 
     print("Ended evaluation in {:6.2f} seconds \n".format(eval_time))
 
@@ -239,11 +292,28 @@ def evaluation_hmm_sequence_test():
     print("Word recall: {:4.2f} %".format(word_recall * 100))
     print("Word specificity: {:4.2f} %".format(word_specificity * 100))
 
+    predictions.to_csv("../results/sentence_evaluation_1000.csv", sep=',', index=False)
+
+    meta['eval_time'] = eval_time
+    meta['accuracy_top_1'] = word_accuracy * 100
+    meta['exact_match'] = exact_match_accuracy * 100
+    meta['precision'] = word_precision * 100
+    meta['recall'] = word_recall * 100
+    meta['specificity'] = word_specificity * 100
+
+    meta['correct'] = word_correct * 100
+    meta['not_correct'] = word_not_correct * 100
+    meta['not_correct_PREV_correct'] = word_not_correct_PREV_correct * 100
+    meta['not_correct_PREV_not_correct'] = word_not_correct_PREV_not_correct * 100
+    meta['correct_PREV_correct'] = word_correct_PREV_correct * 100
+    meta['correct_PREV_not_correct'] = word_correct_PREV_not_correct * 100
+
+    meta = meta.round(2)
+    meta.to_csv("../results/meta_sentence_prediction.csv", sep=',', index=False)
 
 
-prediction_hmm_candidate_test()
+# prediction_hmm_candidate_test()
 evaluation_hmm_candidate_test()
 
 # prediction_hmm_sequence_test()
 # evaluation_hmm_sequence_test()
-
