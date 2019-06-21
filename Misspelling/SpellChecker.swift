@@ -43,7 +43,10 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
     private var results = [CheckResult]()
     
     private var candidatesList: NSPopover?
+    private var candidatesViewController: CandidatesViewController? { return self.candidatesList?.contentViewController as? CandidatesViewController }
     private var isCandidatesListActive: Bool { return candidatesList != nil }
+    private var isCandidatesListClosing: Bool = false
+    private var lastActiveIndex: Int?
     
     // MARK: - NSTextViewDelegate
     func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
@@ -53,8 +56,17 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         case Selector(("noop:")) where event?.characters == "\0" && event?.modifierFlags.contains(.control) == true:
             self.toggleCandidatesList()
             return true
+        case Selector(("cancel:")) where self.isCandidatesListActive:
+            self.hideCandidatesList()
+            return true
+        case Selector(("insertNewline:")) where self.isCandidatesListActive:
+            self.commitSelectedCandidate()
+            return true
             
         default:
+            if let candidatesViewController = self.candidatesViewController {
+                return candidatesViewController.doCommand(by: commandSelector)
+            }
             return false
         }
     }
@@ -65,6 +77,11 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
     
     func textViewDidChangeSelection(_ notification: Notification) {
         self.refreshCandidatesList()
+    }
+    
+    func textShouldEndEditing(_ textObject: NSText) -> Bool {
+        self.hideCandidatesList()
+        return true
     }
     
     // MARK: - NSTextStorageDelegate
@@ -89,8 +106,13 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         var range: NSRange
     }
     
+    struct Candidate {
+        var text: String
+    }
+    
     struct CheckResult {
         var isMisspelled: Bool
+        var candidates: [Candidate]
     }
     
     private func invalidateSpellCheck() {
@@ -149,7 +171,10 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         assert(self.status == .inProgress)
         
         self.results = self.tokens.map {
-            CheckResult(isMisspelled: $0.text.count >= 5)
+            CheckResult(isMisspelled: $0.text.count >= 5, candidates: [
+                Candidate(text: "prova"), Candidate(text: "alcune"), Candidate(text: "alternative"),
+                Candidate(text: "prova"), Candidate(text: "alcune"), Candidate(text: "alternative"),
+            ])
         }
     }
     
@@ -190,7 +215,7 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         let popover = NSPopover()
         
         popover.delegate = self
-        popover.behavior = .transient
+//        popover.behavior = .transient
         popover.contentViewController = CandidatesViewController()
         popover.show(relativeTo: self.textView!.bounds, of: self.textView!, preferredEdge: .minY)
         
@@ -206,29 +231,69 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         self.candidatesList!.performClose(self)
     }
     
+    func commitSelectedCandidate() {
+        // TODO
+        self.hideCandidatesList()
+    }
+    
     // MARK: - NSPopoverDelegate
+    
+    func popoverWillClose(_ notification: Notification) {
+        self.isCandidatesListClosing = true
+    }
     
     func popoverDidClose(_ notification: Notification) {
         self.candidatesList = nil
+        self.lastActiveIndex = nil
+        self.isCandidatesListClosing = false
     }
     
     private func refreshCandidatesList() {
         guard let textView = self.textView,
-              let candidatesList = self.candidatesList else {
+              let candidatesList = self.candidatesList,
+              let candidatesViewController = self.candidatesViewController else {
             return
         }
         
-        guard let activeWord = self.indexOfActiveWord() else {
+        // Prevent glitches if a popover is refreshed while it's being closed
+        guard !self.isCandidatesListClosing else {
             return
         }
         
-        let wordRange = self.tokens[activeWord].range
-        let wordRect = textView.firstRect(forCharacterRange: wordRange, actualRange: nil)
+        let activeIndex = self.indexOfActiveWord()
         
-        let windowRect = textView.window!.convertFromScreen(wordRect)
-        let viewRect = textView.convert(windowRect, from: nil)
+        guard activeIndex != self.lastActiveIndex || activeIndex == nil else {
+            return
+        }
         
-        candidatesList.positioningRect = viewRect
+        self.lastActiveIndex = activeIndex
+        
+        if let activeIndex = activeIndex {
+            let activeWord = self.tokens[activeIndex]
+            let activeResult = self.results[activeIndex]
+        
+            let wordRange = activeWord.range
+            let wordRect = textView.firstRect(forCharacterRange: wordRange, actualRange: nil)
+        
+            let windowRect = textView.window!.convertFromScreen(wordRect)
+            let viewRect = textView.convert(windowRect, from: nil)
+        
+            candidatesList.positioningRect = viewRect
+            candidatesViewController.candidates = activeResult.candidates
+            candidatesViewController.selectedCandidate = activeResult.candidates.firstIndex { $0.text == activeWord.text }
+        } else {
+            let insertionPoint = textView.firstRect(forCharacterRange: textView.selectedRange(), actualRange: nil)
+            let windowRect = textView.window!.convertFromScreen(insertionPoint)
+            var viewRect = textView.convert(windowRect, from: nil)
+            
+            assert(viewRect.width == 0)
+            viewRect.origin.x -= 0.5
+            viewRect.size.width = 1
+            
+            candidatesList.positioningRect = viewRect
+            candidatesViewController.candidates = nil
+            candidatesViewController.selectedCandidate = nil
+        }
     }
     
     private func indexOfActiveWord() -> Int? {
@@ -257,6 +322,7 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
             textView.setSelectedRange(first, affinity: textView.selectionAffinity, stillSelecting: false)
         }
         
+        // FIXME: tokens is sorted by range, could use binary search.
         let firstWord = self.tokens.firstIndex {
             ($0.range.intersection(first) != nil) ||  (first.length == 0 && $0.range.upperBound == first.lowerBound)
         }
