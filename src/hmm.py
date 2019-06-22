@@ -1,5 +1,7 @@
 from networkx.drawing.nx_agraph import graphviz_layout
 from collections import Counter, OrderedDict, defaultdict
+import nltk
+from nltk.stem import WordNetLemmatizer
 import matplotlib.pyplot as plt
 import networkx as nx
 import edlib as el
@@ -11,7 +13,6 @@ import re
 
 pp = pprint.PrettyPrinter(indent=4)
 DEBUG = False
-
 
 class HMM:
 
@@ -31,6 +32,9 @@ class HMM:
         # Probability models
         self.language_model = Counter()
         self.error_model = {}
+
+        # Utils
+        self.lemmatizer = WordNetLemmatizer()
 
         return
 
@@ -284,15 +288,30 @@ class HMM:
                           for e2 in self.edits(e1, n - 1))
 
     def known(self, words):
-        return set(w for w in words if w in self.language_model)
+        res = set()
+        for w in words: 
+            if w in self.language_model:
+                res.add(w)
+            else:
+                lemma = self.lemmatizer.lemmatize(w)
+                if lemma != w and lemma in self.language_model:
+                    res.add(w)
+
+        return res
 
     def P(self, word):
         if word in self.language_model:
             return self.language_model[word]
         else:
-            return 1e-6
+            lemma = self.lemmatizer.lemmatize(word)
+            if lemma != word and lemma in self.language_model:
+                return self.language_model[lemma]
+            else:
+                return 1e-6
 
     def candidates(self, word):
+        word = word.lower()
+        
         cand = set()
         for i in range(1, self.max_edits + 1):
             c = self.known(self.edits(word, i))

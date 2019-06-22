@@ -3,6 +3,9 @@ from markov import Markov
 from hmm import HMM
 import pprint
 
+import nltk
+
+nltk.download("wordnet")
 
 def markov_test():
     print("### Markov Test")
