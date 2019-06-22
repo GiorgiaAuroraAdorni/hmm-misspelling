@@ -101,13 +101,13 @@ def gen_test():
     print("### HMM Candidates Test")
     pp = pprint.PrettyPrinter(indent=4)
 
-    hmm = HMM(1, max_edits=2, max_states=20)
+    hmm = HMM(1, max_edits=2, max_states=5)
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
               sentences_ds="../data/texts/big.txt",
               typo_ds="../data/typo/clean/train.csv")
 
-    pp.pprint("Typed: I")
-    x = hmm.candidates("I")
+    pp.pprint("Typed: ambigous")
+    x = hmm.candidates("ambigous")
     pp.pprint(x)
 
 

@@ -109,12 +109,14 @@ def evaluation_hmm_candidate_test():
 
     print("Ended evaluation in {:6.2f} seconds \n".format(eval_time))
 
-    print("Accuracy_top_1: {:4.2f} %".format(accuracy_top1 * 100))
-
     meta['eval_time'] = eval_time
     meta['accuracy_top_1'] = accuracy_top1 * 100
     meta['accuracy_top_3'] = accuracy_top3 * 100
     meta['accuracy_top_5'] = accuracy_top5 * 100
+
+    print("Accuracy_top_1: {:4.2f} %".format(accuracy_top1 * 100))
+    print("Accuracy_top_3: {:4.2f} %".format(accuracy_top3 * 100))
+    print("Accuracy_top_5: {:4.2f} %".format(accuracy_top5 * 100))
 
     meta = meta.round(2)
     meta.to_csv("../results/meta_typo_prediction.csv", sep=',', index=False)
@@ -322,8 +324,8 @@ def evaluation_hmm_sequence_test():
     meta.to_csv("../results/meta_sentence_prediction-5000.csv", sep=',', index=False)
 
 
-# prediction_hmm_candidate_test()
-# evaluation_hmm_candidate_test()
+prediction_hmm_candidate_test()
+evaluation_hmm_candidate_test()
 
-prediction_hmm_sequence_test()
-evaluation_hmm_sequence_test()
+# prediction_hmm_sequence_test()
+# evaluation_hmm_sequence_test()

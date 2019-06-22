@@ -89,13 +89,15 @@ class HMM:
             self.error_model["p"] += edit_info["editDistance"]
             correct_character_count += len(correct)
 
-            # If the alphabet of both typo and correct is equal to the length of correct, it means its the same alphabet as correct's, so it's a swap
-            # If it's a swap it's not any other error in this model
-            if edit_info["alphabetLength"] == len(correct):
+            # If typo and correct share the same letters, are of the same length, and the cigar has one sequence of 1 deletion, 1 match and 1 insertion. that means there are only swap errors in the typo
+            if set(correct) == set(typo) and len(correct) == len(typo) and "1D1=1I" in cigar:
                 l = zip(edited_typo, correct)
+                swaps = 0
                 for i, j in l:
                     if i != j:
-                        self.error_model["swap"] += 1
+                        swaps += 1
+                swaps /= 2
+                self.error_model["swap"] += swaps
             else:
                 edited_typo = typo
                 pos = 0
@@ -103,10 +105,10 @@ class HMM:
                     idx = int(idx)
                     pos += idx
                     if op == "I":
-                        self.error_model["ins"] += 1
+                        self.error_model["del"] += 1
                         edited_typo = edited_typo[:pos - 1] + "$" + edited_typo[pos - 1:]
                     elif op == "D":
-                        self.error_model["del"] += 1
+                        self.error_model["ins"] += 1
                         edited_typo = edited_typo[:pos - 1] + edited_typo[pos:]
                 
                 # Counting the frequency of substitutions and swaps between letters
@@ -139,9 +141,9 @@ class HMM:
                     self.error_model["sub"][key][subkey] /= c_sub[key]
 
         total = len(obs)
-        self.error_model["ins"] /= total
-        self.error_model["del"] /= total
-        self.error_model["swap"] /= total
+        self.error_model["ins"] /= correct_character_count
+        self.error_model["del"] /= correct_character_count
+        self.error_model["swap"] /= correct_character_count
         self.error_model["p"] /= correct_character_count
 
     def init_trellis(self):
@@ -291,62 +293,68 @@ class HMM:
             return 1e-6
 
     def candidates(self, word):
-        cand = {}
+        cand = set()
         for i in range(1, self.max_edits + 1):
-            # If the word is not in the language model, leave the word as the only candidate
             c = self.known(self.edits(word, i))
-            if not c:
-                c = {word}
-            cand[i] = c
+            cand = cand | c
+
+        # If no word was found not in the language model, leave the typo as the only candidate
+        if not cand:
+            cand = {word}
     
         tmp = defaultdict(float)
+        for c in cand:
+            typo = word
+            prob = 1
 
-        for k, v in cand.items():
-            for c in v:
-                typo = word
-                prob = 1
+            insertions = 0
+            deletions = 0
 
-                insertions = 0
-                deletions = 0
+            edit_info = el.align(c, typo, task="path")
+            cigar = edit_info["cigar"]
 
-                edit_info = el.align(c, typo, task="path")
-                cigar = edit_info["cigar"]
+            # If it's a swap it's not anything else
+            if set(c) == set(typo) and len(c) == len(typo) and "1D1=1I" in cigar:
 
-                # If it's a swap it's not anything else
-                if edit_info["alphabetLength"] == len(c):
-                    l = zip(typo, c)
-                    for i, j in l:
-                        if i != j:
-                            prob *= self.error_model["swap"]
-                else:
-                    # Editing typo to account for accidental insertions or deletions
-                    pos = 0
-                    for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
-                        idx = int(idx)
-                        pos += idx
-                        if op == "I":
-                            insertions += 1
-                            typo = typo[:pos - 1] + "$" + typo[pos - 1:]
-                        elif op == "D":
-                            deletions += 1
-                            typo = typo[:pos - 1] + typo[pos:]
+                l = zip(typo, c)
+                swaps = 0
+                for i, j in l:
+                    if i != j:
+                        swaps += 1
+                swaps /= 2
+                swaps = int(swaps)
+                for i in range(0, swaps):
+                    prob *= self.error_model["swap"]
 
-                    # Factoring in insertion or deletion probabilities
-                    for i in range(0, insertions):
-                        prob *= self.error_model["ins"]
-                    for i in range(0, deletions):
-                        prob *= self.error_model["del"]
+            else:
+                # Editing typo to account for accidental insertions or deletions
+                pos = 0
+                for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
+                    idx = int(idx)
+                    pos += idx
+                    if op == "I":
+                        insertions += 1
+                        typo = typo[:pos - 1] + "$" + typo[pos - 1:]
+                    elif op == "D":
+                        deletions += 1
+                        typo = typo[:pos - 1] + typo[pos:]
 
-                    # Factoring in substitution probabilities
-                    l = zip(typo, c)
-                    for i, j in l:
-                        if i == "$":
-                            continue
-                        prob *= self.error_model["sub"][i][j]
+                # Factoring in insertion or deletion probabilities
+                for i in range(0, insertions):
+                    prob *= self.error_model["ins"]
+                for i in range(0, deletions):
+                    prob *= self.error_model["del"]
 
-                prob *= self.P(c)
-                tmp[c] = prob
-  
+                # Factoring in substitution probabilities
+                l = zip(typo, c)
+                for i, j in l:
+                    if i == "$":
+                        continue
+                    prob *= self.error_model["sub"][i][j]
+
+            prob *= self.P(c)
+            tmp[c] = prob
+            
         tmp = OrderedDict(sorted(tmp.items(), key=lambda t: t[1], reverse=True))
 
         return list(tmp.items())[: self.max_states]
