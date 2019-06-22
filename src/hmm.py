@@ -300,7 +300,7 @@ class HMM:
             # If the word is not in the language model, leave the word as the only candidate
             c = self.known(self.edits(word, i))
             if not c:
-                c = set([word])
+                c = {word}
             cand[i] = c
     
         tmp = defaultdict(float)
@@ -313,7 +313,7 @@ class HMM:
                 insertions = 0
                 deletions = 0
 
-                edit_info = el.align(c, typo, task = "path")
+                edit_info = el.align(c, typo, task="path")
                 cigar = edit_info["cigar"]
 
                 # If it's a swap it's not anything else
@@ -325,7 +325,7 @@ class HMM:
                 else:
                     # Editing typo to account for accidental insertions or deletions
                     pos = 0
-                    for idx, op in re.findall('(\d+)([IDX=])?', cigar):
+                    for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
                         idx = int(idx)
                         pos += idx
                         if op == "I":
@@ -334,7 +334,6 @@ class HMM:
                         elif op == "D":
                             deletions += 1
                             typo = typo[:pos - 1] + typo[pos:]
-
 
                     # Factoring in insertion or deletion probabilities
                     for i in range(0, insertions):
