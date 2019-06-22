@@ -49,12 +49,12 @@ observed the output $y_1, y_2, \dots , y_t$, that is the sentence written with t
 likely state sequence $x_1, x_2, \dots , x_t$, the sentence intended, starting from the following expression:
 
 \begin{equation}
-	\begin{align}
+	\begin{aligned}
 		V_{1,t+1} &= P(x_1, \dots, x_t, x_{t+1}, y_1, \dots, y_t,  y_{t+1}) = \\
 						&= \arg\max_{x_{1:t}} p(x_1, \dots, x_t | y_1, \dots, y_t) = \\
-						& =  \alpha \cdot p(y_{t+1}|x_{t+1})\cdot\max_{x_t} \bigg( p(x_{t+1}|x_t) \max p(x_1, \dots, x_{t}|y_1, 
-						\dots, y_t)\bigg)
-	\end{align}
+						& =  \alpha \cdot p(y_{t+1}|x_{t+1})\cdot\max_{x_t} \Big( p(x_{t+1}|x_t) \max p(x_1, \dots, x_{t}|y_1, 
+						\dots, y_t)\Big)
+	\end{aligned}
 \end{equation}
 
 %FIXME
