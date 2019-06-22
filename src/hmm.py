@@ -34,6 +34,7 @@ class HMM:
 
         # Utils
         self.lemmatizer = WordNetLemmatizer()
+        self.lemma_toggle = True
 
         return
 
@@ -182,11 +183,15 @@ class HMM:
                 else:
                     obs_prob = self.graph[state]["obs"].count(word) / N_obs
 
-                if state in self.language_model:
-                    init_prob = self.language_model[state]
+
+                if self.lemma_toggle:
+                    if state in self.language_model:
+                        init_prob = self.language_model[state]
+                    else:
+                        lemma = self.lemmatizer.lemmatize(state)
+                        init_prob = self.language_model[lemma]       
                 else:
-                    lemma = self.lemmatizer.lemmatize(state)
-                    init_prob = self.language_model[lemma]       
+                    init_prob = self.language_model[state]
 
                 p = obs_prob * init_prob
 
@@ -302,10 +307,11 @@ class HMM:
 
     def known(self, words):
         res = set()
+
         for w in words: 
             if w in self.language_model:
                 res.add(w)
-            else:
+            elif self.lemma_toggle:
                 lemma = self.lemmatizer.lemmatize(w)
                 if lemma != w and lemma in self.language_model:
                     res.add(w)          
@@ -314,16 +320,16 @@ class HMM:
     def P(self, word):
         if word in self.language_model:
             return self.language_model[word]
-        else:
+        elif self.lemma_toggle:
             lemma = self.lemmatizer.lemmatize(word)
             if lemma != word and lemma in self.language_model:
                 return self.language_model[lemma]
-            else:
-                return 1e-6
+                
+        return 1e-6
 
     def candidates(self, word):
-        word = word.lower()
-
+        word = self.reduce_lengthening(word.lower())
+        
         cand = set()
         for i in range(1, self.max_edits + 1):
             c = self.known(self.edits(word, i))
@@ -389,3 +395,7 @@ class HMM:
         tmp = OrderedDict(sorted(tmp.items(), key=lambda t: t[1], reverse=True))
 
         return list(tmp.items())[: self.max_states]
+
+    def reduce_lengthening(self, word):
+        pattern = re.compile(r"(.)\1{2,}")
+        return pattern.sub(r"\1\1", word)

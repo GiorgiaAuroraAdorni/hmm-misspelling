@@ -28,22 +28,54 @@ def hmm_candidate_test():
               sentences_ds="../data/texts/big.txt",
               typo_ds="../data/typo/clean/train.csv")
 
-    pp.pprint("Typed: hoem")
-    x = hmm.candidates("hoem")
+    pp.pprint("Typed: boogs")
+    start = time.time()
+    x = hmm.candidates("boogs")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
-    pp.pprint("Typed: tome")
-    x = hmm.candidates("tome")
+    pp.pprint("Typed: ben")
+    start = time.time()
+    x = hmm.candidates("ben")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
     pp.pprint("Typed: ambigos")
+    start = time.time()
     x = hmm.candidates("ambigos")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
     pp.pprint("Typed: ambigous")
+    start = time.time()
     x = hmm.candidates("ambigous")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
-    
+
+    pp.pprint("Typed: hoem")
+    start = time.time()
+    x = hmm.candidates("hoem")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
+    pp.pprint("Typed: tome")
+    start = time.time()
+    x = hmm.candidates("tome")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
     pp.pprint("\n")
 
 
@@ -110,54 +142,23 @@ def gen_test():
               sentences_ds="../data/texts/big.txt",
               typo_ds="../data/typo/clean/train.csv")
 
-    pp.pprint("Typed: boogs")
+    pp.pprint("Typed: telephone")
     start = time.time()
-    x = hmm.candidates("boogs")
+    x = hmm.candidates("telephone")
     end = time.time()
     pred_time = end - start
     pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
-    pp.pprint("Typed: ben")
+    hmm.lemma_toggle = False
+
+    pp.pprint("Typed: telephone")
     start = time.time()
-    x = hmm.candidates("ben")
+    x = hmm.candidates("telephone")
     end = time.time()
     pred_time = end - start
     pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
-
-    pp.pprint("Typed: ambigos")
-    start = time.time()
-    x = hmm.candidates("ambigos")
-    end = time.time()
-    pred_time = end - start
-    pp.pprint("Time: " + str(pred_time))
-    pp.pprint(x)
-
-    pp.pprint("Typed: ambigous")
-    start = time.time()
-    x = hmm.candidates("ambigous")
-    end = time.time()
-    pred_time = end - start
-    pp.pprint("Time: " + str(pred_time))
-    pp.pprint(x)
-
-    pp.pprint("Typed: hoem")
-    start = time.time()
-    x = hmm.candidates("hoem")
-    end = time.time()
-    pred_time = end - start
-    pp.pprint("Time: " + str(pred_time))
-    pp.pprint(x)
-
-    pp.pprint("Typed: tome")
-    start = time.time()
-    x = hmm.candidates("tome")
-    end = time.time()
-    pred_time = end - start
-    pp.pprint("Time: " + str(pred_time))
-    pp.pprint(x)
-
 
 # markov_test()
 # hmm_candidate_test()
