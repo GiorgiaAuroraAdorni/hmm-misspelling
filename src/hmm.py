@@ -46,10 +46,15 @@ class HMM:
         with open(file, "wb") as f:
             pickle.dump(self, f)
 
-    @staticmethod
-    def _graph_init():
+    def _graph_init(self):
         return defaultdict(list)
-
+    
+    def _default_sub_probability(self):
+        return 1e-4
+    
+    def _error_model_sub_init(self):
+        return defaultdict(self._default_sub_probability)
+    
     def train(self, words_ds, sentences_ds, typo_ds):
 
         # Training the hidden markov chain
@@ -74,7 +79,7 @@ class HMM:
         with open(typo_ds, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
-            self.error_model = {"sub": defaultdict(lambda: defaultdict(lambda: 1e-4)), "swap": 0, "ins": 0, "del": 0, "p": 0}
+            self.error_model = {"sub": defaultdict(self._error_model_sub_init), "swap": 0, "ins": 0, "del": 0, "p": 0}
 
         c_sub = Counter()
         correct_character_count = 0
