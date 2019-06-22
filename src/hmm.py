@@ -277,13 +277,9 @@ class HMM:
             inserts = [L + c + R for L, R in splits for c in letters]
 
             return set(deletes + transposes + replaces + inserts)
-
-        elif n == 2:
-            return [e2 for e1 in self.edits(word, 1)
-                    for e2 in self.edits(e1, 1)]
         else:
-            return [e2 for e1 in self.edits(word, 1)
-                    for e2 in self.edits(e1, n - 1)]
+            return set(e2 for e1 in self.edits(word, 1)
+                          for e2 in self.edits(e1, n - 1))
 
     def known(self, words):
         return set(w for w in words if w in self.language_model)
