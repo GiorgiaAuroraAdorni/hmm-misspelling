@@ -1,10 +1,9 @@
 from collections import defaultdict
 from hmm import HMM
-import pandas as pd
 import numpy as np
 import random
 import string
-import os
+import time
 
 
 def read_dataset(dataset):
@@ -49,22 +48,19 @@ def split_dataset(combined_csv):
     return train, test
 
 
-def perturb():
+def perturb(perturbed, rumor_percentage):
     # Create a model for the test set
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds="../data/texts/big_clean.txt",
+              sentences_ds="../data/texts/LordOfTheRingsBook_clean.txt",
               typo_ds="../data/typo/clean/test.csv")
 
-    cleaned = open("../data/texts/big_clean.txt", "r")
-
-    if not os.path.exists("../data/texts/perturbated/"):
-        os.makedirs("../data/texts/perturbated/")
-
-    perturbed = open("../data/texts/perturbated/big_perturbed.txt", "w")
+    with open("../data/texts/LordOfTheRingsBook_clean.txt", "r") as myfile:
+        cleaned = myfile.readlines()
 
     # probability that a word has an edit
     p = hmm.error_model["p"]
+    p = p * rumor_percentage # introduce a certain percentage of error (10-15-20%)
 
     # probability of the various edit
     prob_swap = hmm.error_model["swap"]
@@ -88,7 +84,11 @@ def perturb():
             l[indices[j]] = np.random.choice(list(hmm.error_model["sub"][l[indices[j]]].keys()))
         return "".join(l)
 
+    print("\n Starting pertub…")
+    start = time.time()
+
     for line in cleaned:
+        line = line.replace("\n", "")
         line_words = line.split()
 
         for i, word in enumerate(line_words):
@@ -138,5 +138,10 @@ def perturb():
         line = " ".join(line_words)
         perturbed.write(line + '\n')
 
+    end = time.time()
+    perturb_time = end - start
+
     perturbed.close()
-    cleaned.close()
+
+    print("Endend pertubation in {:6.2f} seconds \n".format(perturb_time))
+
