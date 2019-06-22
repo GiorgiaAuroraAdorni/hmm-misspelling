@@ -31,6 +31,7 @@ def prediction_hmm_candidate_test():
     start = time.time()
 
     real = []
+    perturbed = []
     observed = [[], [], [], [], []]
 
     with open("../data/typo/clean/test.csv", "r") as f:
@@ -44,6 +45,7 @@ def prediction_hmm_candidate_test():
             iterator += 1
 
             real.append(el[1])
+            perturbed.append(el[0])
 
             candidates = hmm.candidates(el[0])
 
@@ -59,6 +61,7 @@ def prediction_hmm_candidate_test():
 
     # save prediction to csv
     d = {'real':            real,
+         'perturbed':       real,
          'first_observed':  observed[0],
          'second_observed': observed[1],
          'third_observed':  observed[2],
@@ -319,8 +322,8 @@ def evaluation_hmm_sequence_test():
     meta.to_csv("../results/meta_sentence_prediction-5000.csv", sep=',', index=False)
 
 
-prediction_hmm_candidate_test()
-evaluation_hmm_candidate_test()
+# prediction_hmm_candidate_test()
+# evaluation_hmm_candidate_test()
 
-# prediction_hmm_sequence_test()
-# evaluation_hmm_sequence_test()
+prediction_hmm_sequence_test()
+evaluation_hmm_sequence_test()
