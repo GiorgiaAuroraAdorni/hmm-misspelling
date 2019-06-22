@@ -182,7 +182,12 @@ class HMM:
                 else:
                     obs_prob = self.graph[state]["obs"].count(word) / N_obs
 
-                init_prob = self.language_model[state]
+                if state in self.language_model:
+                    init_prob = self.language_model[state]
+                else:
+                    lemma = self.lemmatizer.lemmatize(state)
+                    init_prob = self.language_model[lemma]       
+
                 p = obs_prob * init_prob
 
                 new_id = len(self.trellis)

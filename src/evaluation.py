@@ -40,6 +40,8 @@ def prediction_hmm_candidate_test():
         for el in obs:
             if iterator % 100 == 0:
                 print(iterator)
+            if iterator == 8000:
+                break
             iterator += 1
 
             real.append(el[1])
@@ -322,8 +324,8 @@ def evaluation_hmm_sequence_test():
     meta.to_csv("../results/meta_sentence_prediction-50-10%.csv", sep=',', index=False)
 
 
-prediction_hmm_candidate_test()
-evaluation_hmm_candidate_test()
+# prediction_hmm_candidate_test()
+# evaluation_hmm_candidate_test()
 
-# prediction_hmm_sequence_test()
-# evaluation_hmm_sequence_test()
+prediction_hmm_sequence_test()
+evaluation_hmm_sequence_test()
