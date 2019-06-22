@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 from markov import Markov
 from hmm import HMM
-import pprint
+import time
 
+import pprint
 import nltk
 
 nltk.download("wordnet")
@@ -109,8 +110,52 @@ def gen_test():
               sentences_ds="../data/texts/big.txt",
               typo_ds="../data/typo/clean/train.csv")
 
+    pp.pprint("Typed: boogs")
+    start = time.time()
+    x = hmm.candidates("boogs")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
+    pp.pprint("Typed: ben")
+    start = time.time()
+    x = hmm.candidates("ben")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
+    pp.pprint("Typed: ambigos")
+    start = time.time()
+    x = hmm.candidates("ambigos")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
     pp.pprint("Typed: ambigous")
+    start = time.time()
     x = hmm.candidates("ambigous")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
+    pp.pprint("Typed: hoem")
+    start = time.time()
+    x = hmm.candidates("hoem")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
+    pp.pprint("Typed: tome")
+    start = time.time()
+    x = hmm.candidates("tome")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
 

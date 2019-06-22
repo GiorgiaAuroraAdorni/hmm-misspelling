@@ -1,6 +1,5 @@
 from networkx.drawing.nx_agraph import graphviz_layout
 from collections import Counter, OrderedDict, defaultdict
-import nltk
 from nltk.stem import WordNetLemmatizer
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -68,7 +67,8 @@ class HMM:
             next(f)
             for line in f:
                 elem = line.split()
-                self.language_model[elem[1].lower()] = float(elem[3]) / 100
+                word = elem[1].lower()
+                self.language_model[word] = float(elem[3]) / 100
 
         # Training the error model
         with open(typo_ds, "r", encoding="utf-8") as f:
@@ -149,6 +149,9 @@ class HMM:
         self.error_model["del"] /= correct_character_count
         self.error_model["swap"] /= correct_character_count
         self.error_model["p"] /= correct_character_count
+
+        # Sorting by keys
+        self.language_model = dict(sorted(self.language_model.items()))
 
     def init_trellis(self):
         self.trellis.clear()
@@ -295,8 +298,7 @@ class HMM:
             else:
                 lemma = self.lemmatizer.lemmatize(w)
                 if lemma != w and lemma in self.language_model:
-                    res.add(w)
-
+                    res.add(w)          
         return res
 
     def P(self, word):
@@ -311,7 +313,7 @@ class HMM:
 
     def candidates(self, word):
         word = word.lower()
-        
+
         cand = set()
         for i in range(1, self.max_edits + 1):
             c = self.known(self.edits(word, i))
