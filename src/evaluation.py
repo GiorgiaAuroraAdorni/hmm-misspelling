@@ -21,7 +21,7 @@ def prediction_hmm_candidate_test():
 
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
               sentences_ds="../data/texts/big_clean.txt",
-              typo_ds="../data/typo/new/train.csv")
+              typo_ds="../data/typo/clean/train.csv")
 
     end = time.time()
     train_time = end - start
@@ -33,7 +33,7 @@ def prediction_hmm_candidate_test():
     real = []
     observed = [[], [], [], [], []]
 
-    with open("../data/typo/new/test.csv", "r") as f:
+    with open("../data/typo/clean/test.csv", "r") as f:
         reader = csv.reader(f)
         obs = [row for row in reader]
 
@@ -132,7 +132,7 @@ def prediction_hmm_sequence_test():
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
               sentences_ds="../data/texts/big_clean.txt",
-              typo_ds="../data/typo/new/train.csv")
+              typo_ds="../data/typo/clean/train.csv")
 
     end = time.time()
     train_time = end - start
@@ -154,7 +154,7 @@ def prediction_hmm_sequence_test():
                 continue
             if iterator % 20 == 0:
                 pp.pprint(iterator)
-            if iterator > 1000:
+            if iterator > 50:
                 break
 
             iterator += 1
@@ -166,22 +166,22 @@ def prediction_hmm_sequence_test():
     print("Endend testing in {:6.2f} seconds \n".format(test_time))
 
     # save prediction to csv
-    d = {'target': real[:1001], 'perturbated': perturbated[:1001], 'observed': observed}
+    d = {'target': real[:51], 'perturbated': perturbated[:51], 'observed': observed}
     prediction = pd.DataFrame(d)
 
     if not os.path.exists("../results"):
         os.makedirs("../results")
 
-    prediction.to_csv("../results/sentence_prediction.csv", sep=',', index=False)
+    prediction.to_csv("../results/sentence_prediction-5000.csv", sep=',', index=False)
 
     m = {'obervation': [iterator], 'train_time': [train_time], 'test_time': [test_time]}
     meta = pd.DataFrame(m)
-    meta.to_csv("../results/meta_sentence_prediction.csv", sep=',', index=False)
+    meta.to_csv("../results/meta_sentence_prediction-5000.csv", sep=',', index=False)
 
 
 def evaluation_hmm_sequence_test():
-    predictions = pd.read_csv("../results/sentence_prediction.csv")
-    meta = pd.read_csv("../results/meta_sentence_prediction.csv")
+    predictions = pd.read_csv("../results/sentence_prediction-5000.csv")
+    meta = pd.read_csv("../results/meta_sentence_prediction-5000.csv")
 
     print("\n Starting evaluation…")
     start = time.time()
@@ -239,9 +239,11 @@ def evaluation_hmm_sequence_test():
         if perturbated == 0:
             predictions.loc[index, 'not_correct PREV correct'] = np.nan
             predictions.loc[index, 'not_correct PREV not_correct'] = np.nan
+            predictions.loc[index, 'initial_error'] = np.nan
         else:
             predictions.loc[index, 'not_correct PREV correct'] = correct_perturbated / perturbated
             predictions.loc[index, 'not_correct PREV not_correct'] = not_correct_perturbated / perturbated
+            predictions.loc[index, 'initial_error'] = perturbated / total
 
         if not_perturbated == 0:
             predictions.loc[index, 'correct PREV correct'] = np.nan
@@ -250,6 +252,7 @@ def evaluation_hmm_sequence_test():
             predictions.loc[index, 'correct PREV correct'] = correct_not_perturbated / not_perturbated
             predictions.loc[index, 'correct PREV not_correct'] = not_correct_not_perturbated / not_perturbated
 
+        predictions.loc[index, 'error_rate'] = not_correct_prediction / total
         predictions.loc[index, 'correct'] = perturbated / total
         predictions.loc[index, 'not_correct'] = not_perturbated / total
         predictions.loc[index, 'accuracy'] = correct_prediction / total
@@ -280,6 +283,8 @@ def evaluation_hmm_sequence_test():
     word_not_correct_PREV_not_correct = np.nanmean(predictions['not_correct PREV not_correct'])
     word_correct_PREV_correct = np.nanmean(predictions['correct PREV correct'])
     word_correct_PREV_not_correct = np.nanmean(predictions['correct PREV not_correct'])
+    initial_error = np.nanmean(predictions['initial_error'])
+    error_rate = np.nanmean(predictions['error_rate'])
 
     end = time.time()
     eval_time = end - start
@@ -297,6 +302,8 @@ def evaluation_hmm_sequence_test():
     meta['eval_time'] = eval_time
     meta['accuracy_top_1'] = word_accuracy * 100
     meta['exact_match'] = exact_match_accuracy * 100
+    meta['initial_error'] = initial_error * 100
+    meta['error_rate'] = error_rate * 100
     meta['precision'] = word_precision * 100
     meta['recall'] = word_recall * 100
     meta['specificity'] = word_specificity * 100
@@ -309,10 +316,10 @@ def evaluation_hmm_sequence_test():
     meta['correct_PREV_not_correct'] = word_correct_PREV_not_correct * 100
 
     meta = meta.round(2)
-    meta.to_csv("../results/meta_sentence_prediction.csv", sep=',', index=False)
+    meta.to_csv("../results/meta_sentence_prediction-5000.csv", sep=',', index=False)
 
 
-# prediction_hmm_candidate_test()
+prediction_hmm_candidate_test()
 evaluation_hmm_candidate_test()
 
 # prediction_hmm_sequence_test()
