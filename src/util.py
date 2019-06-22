@@ -144,4 +144,3 @@ def perturb(perturbed, rumor_percentage):
     perturbed.close()
 
     print("Endend pertubation in {:6.2f} seconds \n".format(perturb_time))
-
