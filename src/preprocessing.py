@@ -29,10 +29,14 @@ with open("../data/texts/big.txt", "r") as f:
     real = [re.sub(r"[^a-zA-Z0-9]+", ' ', r) for r in real]
 
 filename = "../data/texts/big_clean.txt"
-
-with open(filename, mode="w") as outfile:
-    for r in real:
-        outfile.write("%s\n" % r)
-
 # Create a perturbated dataset
-perturb()
+if not os.path.exists("../data/texts/perturbated/"):
+    os.makedirs("../data/texts/perturbated/")
+
+perturbed1 = open("../data/texts/perturbated/big_perturbed-10%.txt", "w")
+perturbed2 = open("../data/texts/perturbated/big_perturbed-15%.txt", "w")
+perturbed3 = open("../data/texts/perturbated/big_perturbed-20%.txt", "w")
+
+perturb(perturbed1, 0.10)
+perturb(perturbed2, 0.20)
+perturb(perturbed3, 0.30)
