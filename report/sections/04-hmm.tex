@@ -2,7 +2,7 @@ We will consider two optimality criteria. The first one chooses the states that 
 expected number of correct individual states. The second criterion estimates the most likely state sequence, or 
 \textit{trellis path}. The algorithm used to implement these criteria is the \textbf{Viterbi} algorithm. %\ref
 
-\section{Noisy channel model}
+\section{Noisy Channel Model}
 
 This model is a sort of a local corrector. It consists of two components: a source model, corresponding to 
 $P(\text{candidate})$, and a channel model, 
@@ -31,7 +31,7 @@ When for a input typo we do not have any candidate ?? %FIXME
 \subsection{Common Errors}
 The following type of errors were considered:
 \begin{itemize}
-	%\item \textsc{transposed adjacent characters}
+	\item \textsc{transposed adjacent characters}
 	\item \textsc{omitted digit}
 	\item \textsc{additional digit}
 	\item \textsc{substituted digit}: this is the probability to type a
@@ -39,7 +39,7 @@ The following type of errors were considered:
 	probability was determined experimentally. %FIXME how? from where?
 \end{itemize}
 
-\section{Most likely state sequence}
+\section{Most Likely State Sequence}
 
 The Viterbi algorithm calculates the most probable sequence of hidden states, the words intended.
 
