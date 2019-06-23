@@ -355,6 +355,11 @@ class HMM:
             insertions = 0
             deletions = 0
 
+            # The word is most probably correct
+            if typo == c:
+                tmp[c] = 1
+                continue
+
             edit_info = el.align(c, typo, task="path")
             cigar = edit_info["cigar"]
 
