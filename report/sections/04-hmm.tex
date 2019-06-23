@@ -14,7 +14,7 @@ for example \textsl{adventure}, \textsl{adventurer}, \textsl{adventured}…
 Each candidate is scored by $P(\text{candidate})P(\text{typo}|\text{candidate})$ and then normalised by the sum of the 
 scores for all proposed candidates.
 
-(How is estimated the prior? How are computed the conditional probabilities?)%FIXME
+\textbf{FIXME}:  (How is estimated the prior? How are computed the conditional probabilities?)
 
 We choose the most likely candidate, the one with the highest probability.
 
@@ -25,7 +25,7 @@ We choose the most likely candidate, the one with the highest probability.
 	\label{fig:noisychannel}
 \end{figure}
 
-When for a input typo we do not have any candidate ?? %FIXME
+\textbf{FIXME}: When for a input typo we do not have any candidate ?? 
 
 
 \subsection{Common Errors}
@@ -36,7 +36,7 @@ The following type of errors were considered:
 	\item \textsc{additional digit}
 	\item \textsc{substituted digit}: this is the probability to type a
 	character $i$ when the character $j$ was intended ($P(i|j)$). This 
-	probability was determined experimentally. %FIXME how? from where?
+	probability was determined experimentally. \textbf{FIXME}: how? from where?
 \end{itemize}
 
 \section{Most Likely State Sequence}
@@ -76,8 +76,8 @@ In this example, we observed the sentence \textsl{my practice iu never iery abso
 likely state sequence \textsl{may practice is never very absorbing}. In this case, the algorithm partially fails, because the 
 intended sentence was \textsl{my practice is never very absorbing}.
 \\
-%(pi la probabilità iniziale del prima stato non lo abbiamo, non lo facciamo perchè dal nostro dataset non abbiamo 
-%sempre la prima parola…)
+\textbf{FIXME}: (pi la probabilità iniziale del prima stato non lo abbiamo, non lo facciamo perchè dal nostro dataset non 
+abbiamo sempre la prima parola…)
 
 We decide to implement the \textbf{Viterbi} based algorithm instead the Forward-Backward algorithm relying on the 
 experiments carried out in the literature.
@@ -92,7 +92,7 @@ inferior results.
 \section{Hidden Markov Model}
 
 
-%Hmm approach
-%description of hmm
+\textbf{FIXME}: Hmm approach
+\textbf{FIXME}: description of hmm
 
-%our application ...
+\textbf{FIXME}: our application ...

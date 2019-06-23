@@ -1,13 +1,5 @@
 \chapter{Dataset}
 
-%creazione del training set .. 
-
-%Per ogni modello, la creazione dei set di training e validation è stata 
-%realizzata utilizzando due tecniche diverse: in un primo esperimento è 
-%stato 
-%utilizzato un \textit{holdout} 80--20, in un secondo si è ricorso ad una 
-%\textit{10-fold cross validation}.
-
 \section{Dataset Acquisition}
 \label{section:dataset-exploration}
 \subsection{Error Model}
@@ -41,15 +33,16 @@ used as a test set (\num{15998} row).
 
 \subsection{Language Model}
 \label{subsection:languagemodel}
+\textbf{FIXME}: Abbiamo cambiato con il signore degli anelli
 The language model dataset is a concatenation of public domain book excerpts from 
 \href{http://www.gutenberg.org/wiki/Main_Page}{ \textcolor{blue}{Project Gutenberg}}  and lists of most frequent words 
 from \href{https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists}{ \textcolor{blue}{Wiktionary}} and the 
 \href{http://www.kilgarriff.co.uk/bnc-readme.html}{\textcolor{blue}{British National Corpus}}. 
 
 This dataset contains about a million word. It is use to estimate the probability of a word by counting the number of times 
-each word appears in this dataset. %Fixme: spiegare per cosa usiamo questo dataset  To do that, the text was breaks into 
-%words, then a variable holds a counter of how often each word appears. Than the  probability of each word, based on 
-%this Counter was estimated
+each word appears in this dataset. \textbf{FIXME}: spiegare per cosa usiamo questo dataset  To do that, the text was 
+breaks into words, then a variable holds a counter of how often each word appears. Than the  probability of each word, 
+based on this Counter was estimated
 
 \subsection{Frequency Model}
 The words frequency dataset includes wordlists derived from the \href{https://books.google.com/ngrams/}{ 
@@ -65,33 +58,39 @@ With the following dataset we found some problems due to the lack of proper name
 In order to evaluate our algorithm on whole sentences, we create a new perturbed dataset starting from the dataset 
 \texttt{big} described in the section \ref{subsection:languagemodel}.
 
-The disturbance introduced presents an error partly dependent on the error model previously presented, with the 
+The disturbance introduced presents an error dependent on the error model previously presented, with the 
 difference that it is created starting from the typos belonging to the test dataset.
 
-Three different texts have been generated, each of which has a percentage of errors in the text of \num{10}-\num{15}-
+Three different texts, of approximately \num{29000} sentences each, have been generated, each of which has a 
+percentage of errors in the text of \num{10}-\num{15}-
 \num{20}\% respectively. \\
 
 We implemented a perturbation algorithm, which for each line of our input file generates a new perturbed string.\\
 The input text is perturbed accordingly the following steps:
 
 \begin{enumerate}
-	\item Give us from the error model the value of $p$, the probability that a word has an edit, for each word  of length 
-	$n$, the number of edits to be introduced $x$ is calculated according to the relation $ x \sim \text{Bin}(n, 
-	p)$
-	\item FIXME % How are the character positions to be changed chosen?
-	\item FIXME % How is the type of edit chosen?
-	\item The disturbance goes to alter the letters designated not in a random manner. 
-	In fact, we use three different probabilities to define whether a letter will be deleted from the index in question, if a new 
-	letter will be hung (FIXME: come), or if the current character will be replaced with one of the possible letters (coming 
-	from the error model).
+	\item The probability that a word has an edit is computed by multiplying the value of $p$, coming from the error model, 
+	by the percentage of errors desired (10-15-20\%).
+	\item For each word of length $n$, the number of edits to be introduced $x$ is calculated according to the relation $x 
+	\sim \text{Bin}(n, p)$ \textbf{FIXME}: why
+	\item The characters to be changed within each word are chosen randomly.
+	\item \textbf{FIXME}:  The typo of edit to be introduced within each word is chosen according to the probability of each 
+	type of error.
+	The disturbance goes to alter the letters designated not in a random manner. 
+	In fact, we use four different probabilities to define whether a letter will be deleted from the index in question, if a new 
+	letter will be inserted after the actual character, or if the current character will be replaced with one of the possible 
+	letters according to the error model probability, or if the current character will be swapped with the next or the previous 
+	one.
 	
 \end{enumerate}
 
-Cases of elimination of a whole word are excluded, as these would heavily influence the evaluation metrics as they are 
-inconsistent with our model.
+Swap errors are only introduced if there are no further changes in the word. Cases of elimination of a whole word are 
+excluded, as these would heavily influence the evaluation metrics as they are 
+inconsistent with our model. 
+
+
 
 %(\num{58000} sentence)
-
 
 %\begin{lstlisting}[
 %label={code:perturbation-algorithm},
