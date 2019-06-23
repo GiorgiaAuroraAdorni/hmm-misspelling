@@ -184,15 +184,15 @@ class HMM:
                 else:
                     obs_prob = self.graph[state]["obs"].count(word) / N_obs
 
-
+           
                 if self.lemma_toggle:
-                    if state in self.language_model:
-                        init_prob = self.language_model[state]
-                    else:
-                        lemma = self.lemmatizer.lemmatize(state)
-                        init_prob = self.language_model[lemma]       
+                    if state in self.memo:
+                        init_prob = self.language_model[self.memo[word]]
+                        
+                if state in self.language_model:
+                    init_prob = self.language_model[state]   
                 else:
-                    init_prob = self.language_model[state]
+                    init_prob = 1e-6
 
                 p = obs_prob * init_prob
 
