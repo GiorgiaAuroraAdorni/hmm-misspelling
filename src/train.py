@@ -3,14 +3,20 @@ import sys
 from hmm import HMM
 
 data_dir = sys.argv[1]
-output_file = sys.argv[2]
+output_dir = sys.argv[2]
 
 hmm = HMM(1, max_edits=2, max_states=10)
 hmm.train(words_ds=os.path.join(data_dir, "word_freq", "frequency-alpha-gcide.txt"),
           sentences_ds=os.path.join(data_dir, "texts", "big.txt"),
           typo_ds=os.path.join(data_dir, "typo", "clean", "train.csv"))
 
-hmm.save(output_file)
+hmm_file = os.path.join(output_dir, "hmm.pickle")
+hmm.save(hmm_file)
 
 # Check that the model can be loaded
-HMM.load(output_file)
+HMM.load(hmm_file)
+
+import nltk
+
+nltk_data = os.path.join(output_dir, "nltk_data")
+nltk.download('wordnet', download_dir=nltk_data)

@@ -20,6 +20,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Append the src/ folder to PYTHONPATH to be able to import it
         sys.path.insert(0, pythonSources)
+        
+        let os = Python.import("os")
+        os.environ["NLTK_DATA"] = Bundle.main.path(forResource: "nltk_data", ofType: nil).pythonObject
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
