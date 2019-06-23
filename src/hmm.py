@@ -35,6 +35,7 @@ class HMM:
         # Utils
         self.lemmatizer = WordNetLemmatizer()
         self.lemma_toggle = True
+        self.memo = {}
 
         return
 
@@ -312,19 +313,26 @@ class HMM:
             if w in self.language_model:
                 res.add(w)
             elif self.lemma_toggle:
-                lemma = self.lemmatizer.lemmatize(w)
-                if lemma != w and lemma in self.language_model:
-                    res.add(w)          
+                if w in self.memo:
+                    res.add(w)
+                else:
+                    lemma = self.lemmatizer.lemmatize(w)
+                    if lemma != w and lemma in self.language_model:
+                        self.memo[w] = lemma
+                        res.add(w)
         return res
 
     def P(self, word):
         if word in self.language_model:
             return self.language_model[word]
         elif self.lemma_toggle:
-            lemma = self.lemmatizer.lemmatize(word)
-            if lemma != word and lemma in self.language_model:
-                return self.language_model[lemma]
-                
+            if word in self.memo:
+                return self.language_model[self.memo[word]]
+            else:
+                lemma = self.lemmatizer.lemmatize(word)
+                if lemma != word and lemma in self.language_model:
+                    return self.language_model[lemma]
+
         return 1e-6
 
     def candidates(self, word):
