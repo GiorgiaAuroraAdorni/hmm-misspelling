@@ -187,7 +187,7 @@ class HMM:
            
                 if self.lemma_toggle:
                     if state in self.memo:
-                        init_prob = self.language_model[self.memo[word]]
+                        init_prob = self.language_model[self.memo[state]]
                         
                 if state in self.language_model:
                     init_prob = self.language_model[state]   

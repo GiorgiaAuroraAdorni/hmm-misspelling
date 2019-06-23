@@ -61,7 +61,7 @@ def prediction_hmm_candidate_test():
 
     # save prediction to csv
     d = {'real':            real,
-         'perturbed':       real,
+         'perturbed':       perturbed,
          'first_observed':  observed[0],
          'second_observed': observed[1],
          'third_observed':  observed[2],

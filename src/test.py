@@ -142,19 +142,8 @@ def gen_test():
               sentences_ds="../data/texts/big.txt",
               typo_ds="../data/typo/clean/train.csv")
 
-    pp.pprint("Typed: telephone")
     start = time.time()
-    x = hmm.candidates("telephone")
-    end = time.time()
-    pred_time = end - start
-    pp.pprint("Time: " + str(pred_time))
-    pp.pprint(x)
-
-    hmm.lemma_toggle = False
-
-    pp.pprint("Typed: telephone")
-    start = time.time()
-    x = hmm.candidates("telephone")
+    x = hmm.predict_sequence("bhlbo was very rich and very peculiar and had been the wonder of the shire for sixty years ever nince his remarkable disappearanch and hnexpected eiurn")
     end = time.time()
     pred_time = end - start
     pp.pprint("Time: " + str(pred_time))
