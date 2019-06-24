@@ -1,4 +1,5 @@
 from collections import Counter, OrderedDict, defaultdict
+import itertools
 import networkx as nx
 import edlib as el
 import pprint
@@ -275,17 +276,18 @@ class HMM:
         if n == 1:
             letters = "abcdefghijklmnopqrstuvwxyz"
             splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
-            deletes = [L + R[1:] for L, R in splits if R]
-            transposes = [L + R[1] + R[0] + R[2:] for L, R in splits if len(R) > 1]
-            replaces = [L + c + R[1:] for L, R in splits if R for c in letters]
-            inserts = [L + c + R for L, R in splits for c in letters]
 
-            return set(deletes + transposes + replaces + inserts)
+            deletes = (L + R[1:] for L, R in splits if R)
+            transposes = (L + R[1] + R[0] + R[2:] for L, R in splits if len(R) > 1)
+            replaces = (L + c + R[1:] for L, R in splits if R for c in letters)
+            inserts = (L + c + R for L, R in splits for c in letters)
+
+            return itertools.chain(deletes, transposes, replaces, inserts)
         else:
-            return set(e2 for e1 in self.edits(word, 1)
-                          for e2 in self.edits(e1, n - 1))
+            return itertools.chain.from_iterable(self.edits(e1, n - 1) for e1 in self.edits(word, 1))
 
-    def known(self, words): return set(w for w in words if w in self.language_model)
+    def known(self, words):
+        return (w for w in words if w in self.language_model)
 
     def P(self, word):
         if word in self.language_model:
@@ -302,7 +304,7 @@ class HMM:
         cand = set()
         for i in range(1, self.max_edits + 1):
             c = self.known(self.edits(word, i))
-            cand = cand | c
+            cand.update(c)
 
         # If no word was found not in the language model, leave the typo as the only candidate
         if not cand:
