@@ -2,16 +2,36 @@ We will consider two optimality criteria. The first one chooses the states that 
 expected number of correct individual states. The second criterion estimates the most likely state sequence, or 
 \textit{trellis path}. The algorithm used to implement these criteria is the \textbf{Viterbi} algorithm. %\ref
 
-\section{Noisy Channel Model}
+\section{Hidden Markov Model}
 
-\textbf{FIXME}: Real word spelling error detection is a much more difficult task, since any word in the input text could be 
-an error. So we don’t...\\
+\textbf{FIXME}: Hmm approach
+\textbf{FIXME}: description of hmm
+
+\textbf{FIXME}: our application ...
+
+A \textbf{Hidden Markov Model} (HMM) allows us to talk about both observed events, like misspelled words that we see in 
+the input, and hidden events, like the intended words, that we think of as causal factors in our probabilistic model. 
+
+Our HMM is specified by the following components:
+\begin{itemize}
+	\item $Q = q_1q_2 \dots q_N$: a set of $N$ \textbf{states}
+	\item $A=a_{11}	\dots a_{ij} \dots a_{NN}$: a \textbf{transition probability matrix} $A$. \\ Each $a_{ij}$ representing 
+	the probability of moving from state $i$ to state $j$, such that $\sum_{j=1}^N a_{ij}=1 \quad \forall i$
+	\item $O = o_1o_2 \dots o_T$: a sequence of $T$ \textbf{observations}, each one drawn from a vocabulary $V = 
+	v_1,v_2,\dots,v_V$
+	\item $B = b_i (o_t )$: a sequence of \textbf{observation likelihoods}, also called \textbf{emission probabilities}, each 
+	expressing the probability of an observation ot being generated from a state $i$
+	\item $\pi = \pi_1,\pi_2,\dots,\pi_N$: an \textbf{initial probability distribution} over states. $\pi_i$ is the probability 
+	that the Markov chain will start in state $i$. 
+\end{itemize}
+
 \textbf{FIXME}{Aggiungere immagine }
 
+We consider a \textit{first-order} Hidden Markov Model, that instantiates two simplifying assumptions. First, as with a 
+first-order Markov chain, the probability of a particular state depends only on the previous state. Second, the probability 
+of an output observation $o_i$ depends only on the state that produced the observation $q_i$ and not on any other states 
+or any other observations.
 
-We will consider two optimality criteria. The first one chooses the states that are individually most likely and maximizes the 
-expected number of correct individual states. The second criterion estimates the most likely state sequence, or 
-\textit{trellis path}. The algorithm used to implement these criteria is the \textbf{Viterbi} algorithm. %\ref
 
 \section{Noisy Channel Model}
 \textbf{Non-word errors} are detected by looking for any word not found in a dictionary. To correct them we first 
@@ -100,6 +120,11 @@ The following type of errors were considered in our model:
 \section{Most Likely State Sequence}
 
 The Viterbi algorithm calculates the most probable sequence of hidden states, the words intended.
+The Viterbi algorithm is a probabilistic extension of minimum edit distance. Instead of computing the “minimum 
+edit distance” between two strings, Viterbi computes the “maximum probability alignment” of one string with 
+another. 
+
+
 
 The initial probability of being in a state $i$, $\pi_i$, in our case the probability of intend a word $i$, and the 
 transition probabilities $A_{ij}$, or the transition from the word $i$ to the next word $j$, are given. Since we have 
@@ -146,10 +171,3 @@ sequence may not be a valid succession of words in natural language (or a very u
 inferior results.
 
 
-\section{Hidden Markov Model}
-
-
-\textbf{FIXME}: Hmm approach
-\textbf{FIXME}: description of hmm
-
-\textbf{FIXME}: our application ...
