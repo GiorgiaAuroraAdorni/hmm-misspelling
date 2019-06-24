@@ -309,32 +309,35 @@ class HMM:
     def known(self, words):
         res = set()
 
-        for w in words: 
-            if w in self.language_model:
+        for w in words:
+            if self.lemmatize(w) is not None:
                 res.add(w)
-            elif self.lemma_toggle:
-                if w in self.memo:
-                    res.add(w)
-                else:
-                    lemma = self.lemmatizer.lemmatize(w)
-                    if lemma != w and lemma in self.language_model:
-                        self.memo[w] = lemma
-                        res.add(w)
+
         return res
 
     def P(self, word):
+        lemma = self.lemmatize(word)
+
+        if lemma is not None:
+            return self.language_model[lemma]
+        else:
+            return 1e-6
+
+    def lemmatize(self, word):
         if word in self.language_model:
-            return self.language_model[word]
+            return word
         elif self.lemma_toggle:
             if word in self.memo:
-                return self.language_model[self.memo[word]]
+                return self.memo[word]
             else:
                 lemma = self.lemmatizer.lemmatize(word)
+
                 if lemma != word and lemma in self.language_model:
-                    return self.language_model[lemma]
+                    self.memo[word] = lemma
+                    return lemma
 
-        return 1e-6
-
+        return None
+    
     def candidates(self, word):
         word = self.reduce_lengthening(word.lower())
         
