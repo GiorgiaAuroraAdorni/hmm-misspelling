@@ -133,7 +133,6 @@ def hmm_predict_sequence_test():
     correct = hmm.predict_sequence(sentence)
     pp.pprint("Corrected: " + correct)
 
-    plt.show()
 
 def gen_test():
     print("### HMM Candidates Test")
@@ -143,12 +142,21 @@ def gen_test():
               sentences_ds="../data/texts/lotr_clean.txt",
               typo_ds="../data/typo/clean/train.csv")
 
+    pp.pprint("Typed: a")
     start = time.time()
-    x = hmm.predict_sequence("bhlbo was very rich and very peculiar and had been the wonder of the shire for sixty years ever nince his remarkable disappearanch and hnexpected eiurn")
+    x = hmm.candidates("a")
     end = time.time()
     pred_time = end - start
     pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
+
+    pp.pprint("#3")
+    sentence = "a regular warren by all aucounts"
+    pp.pprint("Sentence: " + sentence)
+    correct = hmm.predict_sequence(sentence)
+    pp.pprint("Corrected: " + correct)
+    plt.show()
+
 
 # markov_test()
 # hmm_candidate_test()

@@ -11,7 +11,7 @@ import pickle
 import re
 
 pp = pprint.PrettyPrinter(indent=4)
-DEBUG = False
+DEBUG = True
 
 class HMM:
 
@@ -281,12 +281,10 @@ class HMM:
         for i in seq:
             corrected_words.append(self.trellis.nodes[i]["name"])
 
-        string = " ".join(corrected_words)
-        return string
+        return corrected_words
 
-    def predict_sequence(self, sequence):
+    def predict_sequence(self, words):
         self.init_trellis()
-        words = sequence.split()
 
         for word in words:
             self.build_trellis(word)
