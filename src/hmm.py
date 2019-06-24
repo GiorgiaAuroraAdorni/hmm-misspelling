@@ -10,6 +10,7 @@ import re
 
 pp = pprint.PrettyPrinter(indent=4)
 
+
 class HMM:
 
     def __init__(self, order, max_edits, max_states):
@@ -232,9 +233,11 @@ class HMM:
 
         self.trellis_depth += 1
 
-        self.plot_trellis()
+        # TODO: re-add a DEBUG flag if you need to enable this
+        # self.plot_trellis()
 
-    def most_likely_sequence(self):
+
+    def most_likely_sequence(self, output_str=True):
         leaves = [x for x, v in self.trellis.nodes(data=True)
                   if self.trellis.out_degree(x) == 0
                   and v["depth"] == self.trellis_depth - 1]
@@ -256,18 +259,26 @@ class HMM:
         for i in seq:
             corrected_words.append(self.trellis.nodes[i]["name"])
 
-        return corrected_words
+        if output_str:
+            out = " ".join(corrected_words)
+        else:
+            out = corrected_words
 
-    def predict_sequence(self, words):
-        
-        words = words.split()
+        return out
+
+    def predict_sequence(self, sequence, output_str=True):
         self.init_trellis()
+
+        if isinstance(sequence, str):
+            words = sequence.split()
+        else:
+            words = sequence
 
         for word in words:
             pp.pprint(word)
             self.build_trellis(word)
 
-        return self.most_likely_sequence()
+        return self.most_likely_sequence(output_str)
 
     def edits(self, word, n=1):
 
