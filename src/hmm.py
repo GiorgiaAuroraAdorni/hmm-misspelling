@@ -292,9 +292,12 @@ class HMM:
         else:
             return 1e-6
 
-    def candidates(self, word):
+    def candidates(self, word, max_states=None):
         word = self.reduce_lengthening(word.lower())
-        
+
+        if max_states is None:
+            max_states = self.max_states
+
         cand = set()
         for i in range(1, self.max_edits + 1):
             c = self.known(self.edits(word, i))
@@ -364,7 +367,7 @@ class HMM:
             
         tmp = OrderedDict(sorted(tmp.items(), key=lambda t: t[1], reverse=True))
 
-        return list(tmp.items())[: self.max_states]
+        return list(tmp.items())[:max_states]
 
     def reduce_lengthening(self, word):
         pattern = re.compile(r"(.)\1{2,}")
