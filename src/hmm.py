@@ -295,6 +295,55 @@ class HMM:
         else:
             return 1e-6
 
+    def compute_probability(self, typed, intended):
+        prob = 1
+        insertions = 0
+        deletions = 0
+
+        edit_info = el.align(intended, typed, task="path")
+        cigar = edit_info["cigar"]
+
+        # If it's a swap it's not anything else
+        if set(intended) == set(typed) and len(intended) == len(typed) and "1D1=1I" in cigar:
+
+            l = zip(typed, intended)
+            swaps = 0
+            for i, j in l:
+                if i != j:
+                    swaps += 1
+            swaps /= 2
+            swaps = int(swaps)
+
+            prob *= self.error_model["swap"] ** swaps
+
+        else:
+            # Editing typo to account for accidental insertions or deletions
+            pos = 0
+            for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
+                idx = int(idx)
+                pos += idx
+                if op == "I":
+                    insertions += 1
+                    typed = typed[:pos - 1] + "$" + typed[pos - 1:]
+                elif op == "D":
+                    deletions += 1
+                    typed = typed[:pos - 1] + typed[pos:]
+
+            # Factoring in insertion or deletion probabilities
+            prob *= self.error_model["ins"] ** insertions
+            prob *= self.error_model["del"] ** deletions
+
+            # Factoring in substitution probabilities
+            l = zip(typed, intended)
+            for i, j in l:
+                if i == "$":
+                    continue
+                prob *= self.error_model["sub"][i][j]
+
+        prob *= self.P(intended)
+
+        return prob
+
     def candidates(self, word, max_states=None):
         word = self.reduce_lengthening(word.lower())
 
@@ -312,65 +361,17 @@ class HMM:
     
         tmp = defaultdict(float)
         for c in cand:
-            typo = word
-            prob = 1
-
-            insertions = 0
-            deletions = 0
-
             # The word is most probably correct
-            if typo == c:
+            # FIXME: I'm not entirely sure of this - elia
+            if word == c:
                 tmp[c] = 1
                 continue
 
-            edit_info = el.align(c, typo, task="path")
-            cigar = edit_info["cigar"]
-
-            # If it's a swap it's not anything else
-            if set(c) == set(typo) and len(c) == len(typo) and "1D1=1I" in cigar:
-
-                l = zip(typo, c)
-                swaps = 0
-                for i, j in l:
-                    if i != j:
-                        swaps += 1
-                swaps /= 2
-                swaps = int(swaps)
-                for i in range(0, swaps):
-                    prob *= self.error_model["swap"]
-
-            else:
-                # Editing typo to account for accidental insertions or deletions
-                pos = 0
-                for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
-                    idx = int(idx)
-                    pos += idx
-                    if op == "I":
-                        insertions += 1
-                        typo = typo[:pos - 1] + "$" + typo[pos - 1:]
-                    elif op == "D":
-                        deletions += 1
-                        typo = typo[:pos - 1] + typo[pos:]
-
-                # Factoring in insertion or deletion probabilities
-                for i in range(0, insertions):
-                    prob *= self.error_model["ins"]
-                for i in range(0, deletions):
-                    prob *= self.error_model["del"]
-
-                # Factoring in substitution probabilities
-                l = zip(typo, c)
-                for i, j in l:
-                    if i == "$":
-                        continue
-                    prob *= self.error_model["sub"][i][j]
-
-            prob *= self.P(c)
-            tmp[c] = prob
+            tmp[c] = self.compute_probability(typed=word, intended=c)
             
-        tmp = OrderedDict(sorted(tmp.items(), key=lambda t: t[1], reverse=True))
+        tmp = sorted(tmp.items(), key=lambda t: t[1], reverse=True)
 
-        return list(tmp.items())[:max_states]
+        return tmp[:max_states]
 
     def reduce_lengthening(self, word):
         pattern = re.compile(r"(.)\1{2,}")

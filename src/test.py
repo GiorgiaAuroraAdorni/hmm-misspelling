@@ -74,6 +74,14 @@ def hmm_candidate_test():
     pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
+    pp.pprint("Typed: permforance")
+    start = time.time()
+    x = hmm.candidates("permforance")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
     print("\n")
 
 
