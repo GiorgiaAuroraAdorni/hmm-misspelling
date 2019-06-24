@@ -18,3 +18,6 @@ unigrams like the Google N-gram corpus
 - We can also improve the performance of the noisy channel model by changing how the prior and the likelihood 
 are combined. In the standard model they are just multiplied together.
 
+The fact that words are generally more frequent than their misspellings can be used in candidate suggestion, by 
+building a set of words and spelling variations that have similar contexts, sorting by frequency, treating the most 
+frequent variant as the source, and learning an error model from the difference

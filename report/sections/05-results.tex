@@ -1,52 +1,167 @@
 \textbf{FIXME} comparison
 \textbf{FIXME} performance
 
-The fact that words are generally more frequent than their misspellings can be used in candidate suggestion, by 
-building a set of words and spelling variations that have similar contexts, sorting by frequency, treating the most 
-frequent variant as the source, and learning an error model from the difference
+We performed three different types of experiments. \\
+
+The first one using as a transition model the dataset \texttt{big\_clean}, the associate perturbed dataset and test error 
+models, and the language model \texttt{frequency-alpha-gcide}.
+
+A second one using the same datasets but introducing a lemmatisation consisting in a simple dictionary lookup.
+
+The last one using as transition model the dataset \texttt{lotr\_clean}, the associate perturbed dataset and test error 
+models, and the language model \texttt{lotr\_language\_model}.\\
+
+In all the experiments to come, reference will be made to the following variables:
+\begin{itemize}
+	\item p: the probability that a word has an edit
+	\item ins: the probability that a word has a letter insertion
+	\item del: the probability that a word has a letter deletion
+	\item sub: the probability that a word has a letter substitution
+	\item swap: the probability that a word has a swap between two letters
+\end{itemize}
+
+\subsection{Experiment 1}
+
+\textbf{FIXME}
+Edit distance, perturbation dataset used
 
 
-\textbf{FIXME} Mostrare il nostro modello con p e la tabella delle probabilità
-We detected some problems with our dataset, in particular it lacks of plural forms and other things
-
-In order to avoid this problem, we decided to try a new approach that use lemmaisation (stemmisationj ......
-
-
-
-Analysis of spelling error data has shown that the majority of spelling errors consist of a single-letter change and 
-so we 
-often make the simplifying assumption that these candidates have an edit distance of 1 from the error word.
-
-
-
-Evaluating spell correction algorithms is generally done by holding out a train- ing, development and test set from 
-lists of errors like those on the Norvig and Mitton sites mentioned above.
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{ccccc}
+		\toprule
+		p 				 & ins 				 	& del  				&  sub 			   &   swap\\ \midrule
+		\num{0.5} & \num{0,70} & \num{0,70}  & \num{0,70} & \num{0,70}\\
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Error Model}
+	\label{tab:error_model1}
+\end{figure}
 
 % how many observation
 \begin{figure}[H]
 	\centering
 	\begin{tabular}{lcccc}
 		\toprule
-		 & Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
+		& Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
 		\midrule
-		Train & \num{20985,70} & 41,38\%  & 57,28 \% & 61,60 \%  \\
-		Test &	\num{5270,06}  & 41,54\%  & 57,18 \% & 61,15 \%  \\
+		Train & \num{} & \%  &  \% &  \%  \\
+		Test &	\num{1220}  & \num{40,96}\%  & \num{56,34} \% & \num{60,03} \%  \\
 		\bottomrule
 	\end{tabular}
 	\captionof{table}{Typos performance evaluation}
-	\label{tab:typo-eval}
+	\label{tab:typo-eval1}
 \end{figure}
 
 
 \begin{figure}[H]
 	\centering
-	\begin{tabular}{lcccc}
+	\begin{tabular}{ccccccc}
 		\toprule
-		& Time (sec)  & Accuracy & Initial Error  &  Accuracy Top5 \\
+		\#sentence & Time (sec)  & Accuracy & Initial Error  &  Precision & Recall & Specificity \\
 		\midrule
-		Test &	\num{2695,01}  & 47,99\%  & 15,01\% & 61,15 \%  \\
+		\num{5000}	& \num{3549}  & \num{44,40}\%  & \num{14,77}\% & \num{89,43}\% & \num{45,42}\%  & 
+		\num{14,81}\%  
+		\\
 		\bottomrule
 	\end{tabular}
 	\captionof{table}{Sentences performance evaluation}
-	\label{tab:sentence-eval}
+	\label{tab:sentence-eval1}
+\end{figure}
+
+\subsection{Experiment 2}
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{ccccc}
+		\toprule
+		p 				 & ins 				 	& del  				&  sub 			   &   swap\\ \midrule
+		\num{0.5} & \num{0,70} & \num{0,70}  & \num{0,70} & \num{0,70}\\
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Error Model}
+	\label{tab:error_model2}
+\end{figure}
+
+We detected some problems with our dataset, in particular it lacks of plural forms and other things
+
+In order to avoid this problem, we decided to try a new approach that use lemmaisation (stemmisationj ......
+
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{lcccc}
+		\toprule
+		& Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
+		\midrule
+		Train & \num{20986} & \num{41,38}\%  & \num{57,28} \% & \num{61,60} \% \\
+		Test &	\num{5270}  & \num{41,54}\%  & \num{57,18} \% & \num{61,15} \%  \\
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Typos performance evaluation}
+	\label{tab:typo-eval2}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{ccccccc}
+		\toprule
+		\#sentence & Time (sec)  & Accuracy & Initial Error  &  Precision & Recall & Specificity \\
+		\midrule
+		\num{1000}	& \num{2705}  & \num{53,46}\%  & \num{15,01}\% & \num{90,96}\% & \num{54,50}\%  & 
+		\num{10,52}\%  
+		\\
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Sentences performance evaluation}
+	\label{tab:sentence-eval2}
+\end{figure}
+
+\subsection{Experiment 3}
+
+Edit distance, perturbation dataset used
+
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{ccccc}
+		\toprule
+		p 				 & ins 				 	& del  				&  sub 			   &   swap\\ \midrule
+		\num{0.5} & \num{0,70} & \num{0,70}  & \num{0,70} & \num{0,70}\\
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Error Model}
+	\label{tab:error_model3}
+\end{figure}
+
+Analysis of spelling error data has shown that the majority of spelling errors consist of a single-letter change and 
+so we often make the simplifying assumption that these candidates have an edit distance of 1 from the error word.
+
+\textbf{FIXME}
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{lcccc}
+		\toprule
+		& Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
+		\midrule
+		Train & \num{20986} & \num{41,38}\%  & \num{57,28} \% & \num{61,60} \% \\
+		Test &	\num{5270}  & \num{56,78}\%  & \num{74,75} \% & \num{80,59} \%  \\
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Typos performance evaluation}
+	\label{tab:typo-eval3}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{ccccccc}
+		\toprule
+		\#sentence & Time (sec)  & Accuracy & Initial Error  &  Precision & Recall & Specificity \\
+		\midrule
+		\num{1620}	& \num{2705}  & \num{58,21}\%  & \num{17,39}\% & \num{90,30}\% & \num{58,62}\%  & 
+		\num{8,43}\%  
+		\\
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Sentences performance evaluation}
+	\label{tab:sentence-eval3}
 \end{figure}
