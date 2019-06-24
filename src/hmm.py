@@ -350,28 +350,20 @@ class HMM:
         if max_states is None:
             max_states = self.max_states
 
-        cand = set()
+        results = []
         for i in range(1, self.max_edits + 1):
-            c = self.known(self.edits(word, i))
-            cand.update(c)
+            candidates = self.known(self.edits(word, i))
+            probabilities = (self.compute_probability(typed=word, intended=c) for c in candidates)
+
+            results.extend(zip(candidates, probabilities))
+
+        results = sorted(results, key=lambda c: c[1], reverse=True)
 
         # If no word was found not in the language model, leave the typo as the only candidate
-        if not cand:
-            cand = {word}
-    
-        tmp = defaultdict(float)
-        for c in cand:
-            # The word is most probably correct
-            # FIXME: I'm not entirely sure of this - elia
-            if word == c:
-                tmp[c] = 1
-                continue
+        if len(results) == 0:
+            results = [(word, 1)]
 
-            tmp[c] = self.compute_probability(typed=word, intended=c)
-            
-        tmp = sorted(tmp.items(), key=lambda t: t[1], reverse=True)
-
-        return tmp[:max_states]
+        return results[:max_states]
 
     def reduce_lengthening(self, word):
         pattern = re.compile(r"(.)\1{2,}")
