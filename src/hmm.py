@@ -1,3 +1,4 @@
+import multiprocessing
 from collections import Counter, OrderedDict, defaultdict
 import itertools
 import networkx as nx
@@ -8,6 +9,29 @@ import pickle
 import re
 
 pp = pprint.PrettyPrinter(indent=4)
+
+
+def process_init(_hmm):
+    global hmm
+    
+    # Store a copy of the HMM model in each process
+    hmm = _hmm
+
+
+def process_map(input):
+    global hmm
+
+    word, i, max_states, pid, nprocesses = input
+
+    candidates = set(hmm.known(hmm.edits(word, i, pid, nprocesses)))
+    results = [(c, hmm.compute_probability(typed=word, intended=c)) for c in candidates]
+
+    results = sorted(results, key=lambda c: c[1], reverse=True)
+    
+    # Conjecture: If each process returns `max_states` distinct results, then
+    # merging and deduplicating all the results will yield at least `max_states`
+    # globally distinct results.
+    return results[:max_states]
 
 
 class HMM:
@@ -29,16 +53,31 @@ class HMM:
         self.language_model = Counter()
         self.error_model = {}
 
+        # Multiprocessing
+        # Do not initialize the pool here because it'd then throw an exception
+        # in save(...) since it can't be pickled.
+        self.pool = None
+
         return
 
     @staticmethod
     def load(file):
         with open(file, "rb") as f:
-            return pickle.load(f)
+            model = pickle.load(f)
+
+        # Hide the latency of setting up the worker processes by starting them
+        # before a request comes in.
+        model.setup_multiprocessing()
+
+        return model
 
     def save(self, file):
         with open(file, "wb") as f:
             pickle.dump(self, f)
+
+    def setup_multiprocessing(self):
+        if self.pool is None:
+            self.pool = multiprocessing.Pool(initializer=process_init, initargs=[self])
 
     def _graph_init(self):
         return defaultdict(list)
@@ -272,10 +311,26 @@ class HMM:
 
         return self.most_likely_sequence(output_str)
 
-    def edits(self, word, n=1):
+    def edits(self, word, n=1, pid=None, nprocesses=None):
         if n == 1:
+            if pid is not None:
+                # Operate on a portion of the possible splits
+                total = len(word) + 1
+
+                count = total // nprocesses
+
+                begin = pid * count
+                end = begin + count
+
+                if pid == nprocesses - 1:
+                    end += total % nprocesses
+
+                split_range = range(begin, end)
+            else:
+                split_range = range(len(word) + 1)
+
             letters = "abcdefghijklmnopqrstuvwxyz"
-            splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
+            splits = [(word[:i], word[i:]) for i in split_range]
 
             deletes = (L + R[1:] for L, R in splits if R)
             transposes = (L + R[1] + R[0] + R[2:] for L, R in splits if len(R) > 1)
@@ -284,7 +339,7 @@ class HMM:
 
             return itertools.chain(deletes, transposes, replaces, inserts)
         else:
-            return itertools.chain.from_iterable(self.edits(e1, n - 1) for e1 in self.edits(word, 1))
+            return itertools.chain.from_iterable(self.edits(e1, n - 1) for e1 in self.edits(word, 1, pid, nprocesses))
 
     def known(self, words):
         return (w for w in words if w in self.language_model)
@@ -297,8 +352,6 @@ class HMM:
 
     def compute_probability(self, typed, intended):
         prob = 1
-        insertions = 0
-        deletions = 0
 
         edit_info = el.align(intended, typed, task="path")
         cigar = edit_info["cigar"]
@@ -319,6 +372,9 @@ class HMM:
         else:
             # Editing typo to account for accidental insertions or deletions
             pos = 0
+            insertions = 0
+            deletions = 0
+
             for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
                 idx = int(idx)
                 pos += idx
@@ -345,20 +401,25 @@ class HMM:
         return prob
 
     def candidates(self, word, max_states=None):
+        self.setup_multiprocessing()
+
         word = self.reduce_lengthening(word.lower())
 
         if max_states is None:
             max_states = self.max_states
 
-        results = []
+        results = dict()
         for i in range(1, self.max_edits + 1):
-            candidates = self.known(self.edits(word, i))
-            probabilities = (self.compute_probability(typed=word, intended=c) for c in candidates)
+            nprocesses = multiprocessing.cpu_count()
+            input = [(word, i, max_states, pid, nprocesses) for pid in range(nprocesses)]
 
-            results.extend(zip(candidates, probabilities))
+            subprocesses = self.pool.imap_unordered(process_map, input)
 
-        results = sorted(results, key=lambda c: c[1], reverse=True)
+            for subprocess in subprocesses:
+                results.update(subprocess)
 
+        results = sorted(results.items(), key=lambda c: c[1], reverse=True)
+        
         # If no word was found not in the language model, leave the typo as the only candidate
         if len(results) == 0:
             results = [(word, 1)]
