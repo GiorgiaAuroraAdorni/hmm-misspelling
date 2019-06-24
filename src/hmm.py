@@ -384,12 +384,17 @@ class HMM:
         pattern = re.compile(r"(.)\1{2,}")
         return pattern.sub(r"\1\1", word)
 
-    def plot_trellis(self):
-        plt.figure()
+    def plot_trellis(self, show=True):
+        plt.figure(1)
         G = self.trellis
 
         labels = {e[0]: e[1]["name"] + " " + str(e[0]) for e in G.nodes(data=True)}
         pos = graphviz_layout(G, prog='dot')
 
         nx.draw(G, pos=pos, labels=labels)
-        plt.show()
+
+        if show:
+            # show() should not be called when opening plots from the GUI, since
+            # it blocks the whole application. The GUI code takes care of
+            # correctly showing the figure.
+            plt.show()

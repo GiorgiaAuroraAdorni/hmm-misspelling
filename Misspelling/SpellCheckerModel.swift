@@ -76,4 +76,24 @@ class SpellCheckerModel {
             Candidate(text: $0.text, likelihood: $0.likelihood / total)
         }
     }
+    
+    func mostLikelySequence(tokens: [Token]) -> [String] {
+        var result: [String]!
+        
+        let time = measure {
+            self.queue.sync {
+                let mostLikelySeq = self.model.predict_sequence(tokens.map { $0.text }, output_str: false)
+                
+                result = [String](mostLikelySeq) ?? []
+                
+                plt.figure(1)
+                self.model.plot_trellis(show: false)
+            }
+        }
+        
+        print("Most Likely Sequence: \(time) ms")
+        print(result!)
+        
+        return result
+    }
 }

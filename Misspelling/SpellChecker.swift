@@ -224,6 +224,10 @@ class SpellChecker: NSObject, NSTextViewDelegate, NSTextStorageDelegate, NSPopov
         }
     }
     
+    func mostLikelySequence() {
+        self.model.mostLikelySequence(tokens: self.tokens)
+    }
+    
     // MASK: - Candidates User Interface
     func toggleCandidatesList() {
         self.performSpellCheck()
