@@ -1,5 +1,11 @@
 % ...
 
+it is important to use larger language models than unigrams
+
+
+For this reason modern systems often use much larger dictionaries automatically derived from very large lists of 
+unigrams like the Google N-gram corpus
+
 \section{Future Works}
 
 - update the various dataset: in particular we can use a new frequency dataset consistent with the language model one.\\
@@ -9,5 +15,6 @@
 - Use other algorithms, such as the forward-backward (smooothing) instead Viterbi\\
 - Optimise the code, in particular the lemmatisation/stemming \\
 - Use recurrent neural network instead the hidden markov models.\\
-
+- We can also improve the performance of the noisy channel model by changing how the prior and the likelihood 
+are combined. In the standard model they are just multiplied together.
 

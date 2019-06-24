@@ -1,0 +1,52 @@
+\textbf{FIXME} comparison
+\textbf{FIXME} performance
+
+The fact that words are generally more frequent than their misspellings can be used in candidate suggestion, by 
+building a set of words and spelling variations that have similar contexts, sorting by frequency, treating the most 
+frequent variant as the source, and learning an error model from the difference
+
+
+\textbf{FIXME} Mostrare il nostro modello con p e la tabella delle probabilità
+We detected some problems with our dataset, in particular it lacks of plural forms and other things
+
+In order to avoid this problem, we decided to try a new approach that use lemmaisation (stemmisationj ......
+
+
+
+Analysis of spelling error data has shown that the majority of spelling errors consist of a single-letter change and 
+so we 
+often make the simplifying assumption that these candidates have an edit distance of 1 from the error word.
+
+
+
+Evaluating spell correction algorithms is generally done by holding out a train- ing, development and test set from 
+lists of errors like those on the Norvig and Mitton sites mentioned above.
+
+% how many observation
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{lcccc}
+		\toprule
+		 & Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
+		\midrule
+		Train & \num{20985,70} & 41,38\%  & 57,28 \% & 61,60 \%  \\
+		Test &	\num{5270,06}  & 41,54\%  & 57,18 \% & 61,15 \%  \\
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Typos performance evaluation}
+	\label{tab:typo-eval}
+\end{figure}
+
+
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{lcccc}
+		\toprule
+		& Time (sec)  & Accuracy & Initial Error  &  Accuracy Top5 \\
+		\midrule
+		Test &	\num{2695,01}  & 47,99\%  & 15,01\% & 61,15 \%  \\
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Sentences performance evaluation}
+	\label{tab:sentence-eval}
+\end{figure}

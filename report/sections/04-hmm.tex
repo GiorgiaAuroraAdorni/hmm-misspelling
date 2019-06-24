@@ -6,49 +6,70 @@ expected number of correct individual states. The second criterion estimates the
 
 \textbf{FIXME}: Real word spelling error detection is a much more difficult task, since any word in the input text could be 
 an error. So we don’t...\\
+\textbf{FIXME}{Aggiungere immagine }
 
 
-Estimates for the frequency of spelling errors in human-typed text vary from 1-2\% for carefully retyping already printed 
-text to 10-15\% for web queries.
+We will consider two optimality criteria. The first one chooses the states that are individually most likely and maximizes the 
+expected number of correct individual states. The second criterion estimates the most likely state sequence, or 
+\textit{trellis path}. The algorithm used to implement these criteria is the \textbf{Viterbi} algorithm. %\ref
 
-Non-word errors are detected by looking for any word not found in a dictionary. To correct non-word spelling errors we 
-first generate candidates: real words that have a similar letter sequence to the error. FIXME: We generates candidates 
-according to distance given as a parameter to te model (max\_edit\_distance). 
+\section{Noisy Channel Model}
+\textbf{Non-word errors} are detected by looking for any word not found in a dictionary. To correct them we first 
+generate \textbf{candidates}, according to a distance given as a parameter to the model (\texttt{edit\_distance}), 
+that are 
+real words with a similar letter sequence to the error. 
 
-The intuition of the noisy channel model (see Fig. B.1) is to treat the misspelled word as if a correctly spelled word had 
+The intuition of the noisy channel model is to treat the misspelled word as if a correctly spelled word had 
 been “distorted” by being passed through a noisy communication channel. 
-This channel introduces “noise” in the form of substitutions or other changes to the letters, making it hard to recognise 
-the “true” word. 
+This channel introduces “noise” in the form of substitutions or other changes to the letters, making it hard to 
+recognise 
+the “true” word. \\
 
-This noisy channel model is a kind of Bayesian inference. We see an observation x (a misspelled word) and our job is to 
-find the word w that generated this misspelled word.
-Out of all possible words in the vocabulary V we want to find the word w such that P(w|x) is highest. We use the hat 
-notation ˆ to mean “our estimate of the correct word”.
-The intuition of Bayesian classification is to use Bayes’ rule to transform Eq. B.1 into a set of other probabilities.
-But P(x) doesn’t change for each word; we P(x)
-are always asking about the most likely word for the same observed error x, which must have the same probability P(x).
-The prior probability of a hidden word is modelled by P(w). 
+We see an observation $x$ (a misspelled word) and we want to find the word $w$ that generated this misspelled 
+word 
+(the intended word).
+Out of all possible words in the vocabulary $V$ we want to find the word $\hat{w}$ such that $P(\hat{w}|x)$ is 
+highest 
+among all the candidates $w$
+\begin{equation}\label{eq:4.1}
+	\hat{w} = \arg\max_{w \in V} P(w|x) \mbox{.}
+\end{equation}
 
-We apply the noisy channel approach to correcting non-word spelling errors by taking any word not in our spell 
-dictionary, generating a list of candidate words, ranking them according to Eq. B.4, and picking the highest-ranked one.
+This noisy channel model is, therefore, a kind of Bayesian inference, in which it is possible to transform the 
+equation 
+\ref{eq:4.1} into a set of other probabilities
+\begin{equation}\label{eq:4.2}
+\hat{w} = \arg\max_{w \in V} \frac{P(x|w)P(w)}{P(x)} \mbox{.}
+\end{equation}
 
-\[\overbrace{w} = \arg\max_{w \in V} P(w|x) = \arg\max_{w \in V} \frac{P(x|w)P(w)}{P(x)} = \arg\max_{w \in V} 
-{P(x|w)P(w)}\]
+Since $P(x)$ doesn’t change for each word because we are always asking about the most likely word for the same 
+observed error $x$, we can conveniently simplify the equation \ref{eq:4.2} by dropping the denominator
+\begin{equation}\label{eq:4.3}
+\hat{w} = \arg\max_{w \in V} {P(x|w)P(w)} \mbox{.}
+\end{equation}
+
+\textbf{FIXME}: We apply the noisy channel approach to correcting non-word spelling errors by taking any word not 
+in our 
+spell dictionary, for example \textsl{adventhre}, generating a list of candidate words like \textsl{adventure}, 
+\textsl{adventurer}, \textsl{adventured}, ranking them according to \ref{eq:4.3}, and picking the highest-ranked 
+one, 
+\textsl{adventure}. \textbf{FIXME}: We choose the most likely candidate, the one with the highest probability.
+
+The two components of the equation are, respectively, $P(x|w)$ the \textbf{channel model} and $P(w)$ the prior 
+probability of a hidden word (a candidate).
+The prior probability of each correction is the language model probability of the word $w$ in context, which is 
+computed using a \textbf{FIXME} \textit{unigram} language model. 
+The likelihood is estimated just using the number of times that the a letter $i$ was substituted for the letter $j$ in 
+the large corpus of errors \textbf{FIXME} QUALE=? 
+To compute the probability for each edit we used a confusion matrix that contains counts of errors. \textbf{FIXME} 
+How? 
 
 
-This model is a sort of a local corrector. It consists of two components: a source model, corresponding to 
-$P(\text{candidate})$, and a channel model, 
-that is $P(\text{typo}|\text{candidate})$.
 
-
-Given an input typo, for example \textsl{adventhre}, the first stage generates a set of candidate corrections for the word, 
-for example \textsl{adventure}, \textsl{adventurer}, \textsl{adventured}…
-Each candidate is scored by $P(\text{candidate})P(\text{typo}|\text{candidate})$ and then normalised by the sum of the 
-scores for all proposed candidates.
+Each candidate is scored by $P(\mbox{candidate})P(\mbox{typo}|\mbox{candidate})$ and then normalised by the 
+sum of the scores for all proposed candidates.
 
 \textbf{FIXME}:  (How is estimated the prior? How are computed the conditional probabilities?)
-
-We choose the most likely candidate, the one with the highest probability.
 
 \begin{figure}[H]
 	\centering
@@ -59,24 +80,22 @@ We choose the most likely candidate, the one with the highest probability.
 
 \textbf{FIXME}: When for a input typo we do not have any candidate ?? 
 
+\textbf{FIXME}: Real word spelling error detection is a much more difficult task, since any word in the input text 
+could be 
+an error. So we don’t...\\
 
-\subsection{Common Errors}
-The following type of errors were considered:
+
+To find this list of candidates we uses a minimum edit distance algorithm in the extended version with 
+transposition called \textbf{Damerau-Levenshtein} edit distance \ref{}.	\\
+
+The following type of errors were considered in our model:
 \begin{itemize}
-	\item \textsc{transposed adjacent characters}
-	\item \textsc{omitted digit}
-	\item \textsc{additional digit}
-	\item \textsc{substituted digit}: this is the probability to type a
-	character $i$ when the character $j$ was intended ($P(i|j)$). This 
-	probability was determined experimentally. \textbf{FIXME}: how? from where?
+	\item \textsc{digits deletions}
+	\item \textsc{digits insertions}
+	\item \textsc{substitutions of digits}: this is the probability to type a character $i$ when the character $j$ was 
+	intended ($P(i|j)$). This probability was determined experimentally. \textbf{FIXME}: how? from where?
+	\item \textsc{transpositions of adjacent digits}: two letters are swapped.
 \end{itemize}
-
-\subsection{Edit Distance Algorithm}
-To find this list of candidates we’ll use the minimum edit distance algorithm introduced in Chapter 2, but extended so that 
-in addition to insertions, deletions, and substitutions, we’ll add a fourth type of edit, transpositions, in which two letters 
-are swapped.
-The version of edit distance with transposition is called Damerau-Levenshtein edit distance
-
 
 \section{Most Likely State Sequence}
 
@@ -98,10 +117,11 @@ likely state sequence $x_1, x_2, \dots , x_t$, the sentence intended, starting f
 
 %FIXME
 The initial state probabilities $\pi$ are actually the word frequencies (? We don’t estimate it in a proper way), the state 
-transition probabilities are given by the probability of a word given its predecessor, and the emission probabilities are the 
-probabilities to type word $i$ when word $j$ was intended.
+transition probabilities are given by the probability of a word given its predecessor, \textbf{FIXME}: {come vengono prese} 
+and the emission probabilities are the probabilities to type word $i$ when word $j$ was intended.
 
-In our implementation, we construct the \textit{trellis} choosing the locally/globally best state. As we can see in the 
+In our implementation, we construct the \textit{trellis} choosing the \textbf{FIXME}: {locally/globally} best state. As we can 
+see in the 
 picture below, we display an example of the trellis drawing only the best predecessor of each state.
 
 \begin{figure}[H]
