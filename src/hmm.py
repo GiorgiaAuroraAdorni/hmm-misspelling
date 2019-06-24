@@ -4,14 +4,12 @@ from nltk.stem import WordNetLemmatizer
 import matplotlib.pyplot as plt
 import networkx as nx
 import edlib as el
-import random
 import pprint
 import csv
 import pickle
 import re
 
 pp = pprint.PrettyPrinter(indent=4)
-DEBUG = True
 
 class HMM:
 
@@ -245,17 +243,6 @@ class HMM:
 
         self.trellis_depth += 1
 
-        if DEBUG:
-            plt.figure()
-            G = self.trellis
-            # FIXME: labels are very ugly
-            labels = {e[0]: e[1]["name"] + " " + str(e[0]) for e in G.nodes(data=True)}
-            topological_node = list(reversed(list(nx.topological_sort(G))))
-
-            pos = graphviz_layout(G, prog='dot')
-            nx.draw(G, pos=pos, labels=labels)
-            # nx.draw_networkx_edge_labels(G, pos)
-
     def most_likely_sequence(self):
         leaves = [x for x in self.trellis.nodes()
                   if self.trellis.out_degree(x) == 0]
@@ -412,3 +399,13 @@ class HMM:
     def reduce_lengthening(self, word):
         pattern = re.compile(r"(.)\1{2,}")
         return pattern.sub(r"\1\1", word)
+
+    def plot_trellis(self):
+        plt.figure()
+        G = self.trellis
+
+        labels = {e[0]: e[1]["name"] + " " for e in G.nodes(data=True)}
+        pos = graphviz_layout(G, prog='dot')
+
+        nx.draw(G, pos=pos, labels=labels)
+        plt.show()
