@@ -109,28 +109,28 @@ def hmm_predict_sequence_test():
     sentence = "becasue shee hes said tat"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
-    " ".join(correct)
+    correct = " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#2")
     sentence = "Pierre cae up t hin ad caugt hom by te ams"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
-    " ".join(correct)
+    correct = " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#3")
     sentence = "Toady evenqs mawks an epovh tge gteates eioch im pur jistoty"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
-    " ".join(correct)
+    correct = " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#4")
     sentence = "the psojuct ghtenyerg ebook of the adventures wv sherlock hslmes by sir jrthur conan doyld 15 in our series by sir arthur conan doyee copyfight laws are changing all over the world"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
-    " ".join(correct)
+    correct = " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
 
@@ -161,6 +161,6 @@ def gen_test():
 # markov_test()
 
 # hmm_candidate_test()
-hmm_build_trellis_test()
-# hmm_predict_sequence_test()
+# hmm_build_trellis_test()
+hmm_predict_sequence_test()
 # gen_test()

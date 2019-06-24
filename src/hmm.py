@@ -235,9 +235,6 @@ class HMM:
         self.plot_trellis()
 
     def most_likely_sequence(self):
-        leaves = [x for x in self.trellis.nodes()
-                  if self.trellis.out_degree(x) == 0]
-
         leaves = [x for x, v in self.trellis.nodes(data=True)
                   if self.trellis.out_degree(x) == 0
                   and v["depth"] == self.trellis_depth - 1]
@@ -262,9 +259,12 @@ class HMM:
         return corrected_words
 
     def predict_sequence(self, words):
+        
+        words = words.split()
         self.init_trellis()
 
         for word in words:
+            pp.pprint(word)
             self.build_trellis(word)
 
         return self.most_likely_sequence()
