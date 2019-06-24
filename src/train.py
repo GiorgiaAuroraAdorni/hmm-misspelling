@@ -15,8 +15,3 @@ hmm.save(hmm_file)
 
 # Check that the model can be loaded
 HMM.load(hmm_file)
-
-import nltk
-
-nltk_data = os.path.join(output_dir, "nltk_data")
-nltk.download('wordnet', download_dir=nltk_data)
