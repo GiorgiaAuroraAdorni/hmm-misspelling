@@ -30,23 +30,7 @@ class SpellCheckerModel {
             }
             
             print("Python init: \(time) ms")
-            
-//            time = measure {
-//                self.model = hmm.HMM(order: 1, max_edits: 2, max_states: 3)
-//            }
-//
-//            print("Constructor: \(time) ms")
-//
-//            time = measure {
-//                self.model.train(
-//                    words_ds: Bundle.main.path(forResource: "data/word_freq/frequency-alpha-gcide", ofType: "txt")!,
-//                    sentences_ds: Bundle.main.path(forResource: "data/texts/big", ofType: "txt")!,
-//                    typo_ds: Bundle.main.path(forResource: "data/typo/new/train", ofType: "csv")!
-//                )
-//            }
-//
-//            print("Training: \(time) ms")
-            
+
             time = measure {
                 self.model = hmm.HMM.load(
                     file: Bundle.main.path(forResource: "hmm", ofType: "pickle")!
@@ -66,7 +50,7 @@ class SpellCheckerModel {
                     var result = self.cache[token]
                     
                     if result == nil {
-                        let candidates = [Candidate](self.model.candidates(word: token.text)) ?? []
+                        let candidates = [Candidate](self.model.candidates(word: token.text, max_states: 10)) ?? []
                         let isMispelled = candidates.allSatisfy { token.text != $0.text }
                     
                         result = CheckResult(isMispelled: isMispelled,
