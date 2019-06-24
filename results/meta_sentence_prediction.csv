@@ -1,2 +1,0 @@
-obervation,train_time,test_time,eval_time,accuracy_top_1,exact_match,precision,recall,specificity,correct,not_correct,not_correct_PREV_correct,not_correct_PREV_not_correct,correct_PREV_correct,correct_PREV_not_correct
-1001,2.38,668.13,6.04,64.9,0.2,84.62,81.14,28.09,32.06,67.94,31.89,68.11,81.14,18.86
