@@ -12,19 +12,6 @@ pp = pprint.PrettyPrinter(indent=4)
 def prediction_hmm_candidate_test():
     print("### HMM Candidates - Evaluation")
 
-    hmm = HMM(1, max_edits=2, max_states=5)
-
-    print("\n Starting training…")
-    start = time.time()
-
-    hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
-              sentences_ds="../data/texts/lotr_clean.txt",
-              typo_ds="../data/typo/clean/train.csv")
-
-    end = time.time()
-    train_time = end - start
-
-    print("Endend training in {:4.2f} seconds".format(train_time))
     print("\n Starting testing…")
     start = time.time()
 
@@ -32,7 +19,7 @@ def prediction_hmm_candidate_test():
     perturbed = []
     observed = [[], [], [], [], []]
 
-    with open("../data/typo/clean/test.csv", "r") as f:
+    with open(typo_ds_test, "r") as f:
         reader = csv.reader(f)
         obs = [row for row in reader]
 
@@ -40,8 +27,6 @@ def prediction_hmm_candidate_test():
         for el in obs:
             if iterator % 100 == 0:
                 print(iterator)
-            if iterator == 8000:
-                break
             iterator += 1
 
             real.append(el[1])
@@ -69,19 +54,16 @@ def prediction_hmm_candidate_test():
          'fifth_observed':  observed[4]}
     prediction = pd.DataFrame(d)
 
-    if not os.path.exists("../results"):
-        os.makedirs("../results")
-
-    prediction.to_csv("../results/typo_prediction-test.csv", sep=',', index=False)
+    prediction.to_csv(prediction_typo_filename, sep=',', index=False)
 
     m = {'obervation': [iterator], 'train_time': [train_time], 'test_time': [test_time]}
     meta = pd.DataFrame(m)
-    meta.to_csv("../results/meta_typo_prediction-test.csv", sep=',', index=False)
+    meta.to_csv(meta_typo_filename, sep=',', index=False)
 
 
 def evaluation_hmm_candidate_test():
-    predictions = pd.read_csv("../results/typo_prediction-test.csv")
-    meta = pd.read_csv("../results/meta_typo_prediction-test.csv")
+    predictions = pd.read_csv(prediction_typo_filename)
+    meta = pd.read_csv(meta_typo_filename)
 
     print("\n Starting evaluation…")
     start = time.time()
@@ -110,6 +92,13 @@ def evaluation_hmm_candidate_test():
     print("Ended evaluation in {:6.2f} seconds \n".format(eval_time))
 
     meta['eval_time'] = eval_time
+
+    meta['language_ds'] = words_ds
+    meta['sentence_ds'] = sentences_ds
+    meta['typo_ds_train'] = typo_ds_train
+    meta['typo_ds_test'] = typo_ds_train
+    meta['edit_distance'] = edit_distance
+
     meta['accuracy_top_1'] = accuracy_top1 * 100
     meta['accuracy_top_3'] = accuracy_top3 * 100
     meta['accuracy_top_5'] = accuracy_top5 * 100
@@ -119,37 +108,23 @@ def evaluation_hmm_candidate_test():
     print("Accuracy_top_5: {:4.2f} %".format(accuracy_top5 * 100))
 
     meta = meta.round(2)
-    meta.to_csv("../results/meta_typo_prediction-test.csv", sep=',', index=False)
+    meta.to_csv(meta_typo_filename, sep=',', index=False)
 
 
 def prediction_hmm_sequence_test():
     print("### HMM Sequence Prediction - Evaluation")
 
     # Cleaning dataset
-    with open("../data/texts/lotr_clean.txt", "r") as f:
+    with open(sentences_ds, "r") as f:
         real = f.readlines()
         real = [r.replace("\n", "") for r in real]
-
-    print("\n Start training…")
-
-    start = time.time()
-
-    hmm = HMM(1, max_edits=2, max_states=3)
-    hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
-              sentences_ds="../data/texts/lotr_clean.txt",
-              typo_ds="../data/typo/clean/train.csv")
-
-    end = time.time()
-    train_time = end - start
-
-    print("Endend training in {:4.2f} seconds".format(train_time))
 
     print("\n Start testing…")
     start = time.time()
 
     observed = []
 
-    with open("../data/texts/perturbated/lotr_clean_perturbed-10%.txt", "r") as f:
+    with open(perturbed_ds, "r") as f:
         perturbated = f.readlines()
         perturbated = [p.replace("\n", "") for p in perturbated]
 
@@ -159,7 +134,7 @@ def prediction_hmm_sequence_test():
                 continue
             if iterator % 20 == 0:
                 pp.pprint(iterator)
-            if iterator > 1000:
+            if iterator > 10000:
                 break
 
             iterator += 1
@@ -171,22 +146,19 @@ def prediction_hmm_sequence_test():
     print("Endend testing in {:6.2f} seconds \n".format(test_time))
 
     # save prediction to csv
-    d = {'target': real[:1001], 'perturbated': perturbated[:1001], 'observed': observed}
+    d = {'target': real[:10001], 'perturbated': perturbated[:10001], 'observed': observed}
     prediction = pd.DataFrame(d)
 
-    if not os.path.exists("../results"):
-        os.makedirs("../results")
-
-    prediction.to_csv("../results/sentence_prediction-1000-10%.csv", sep=',', index=False)
+    prediction.to_csv(prediction_sentence_filename, sep=',', index=False)
 
     m = {'obervation': [iterator], 'train_time': [train_time], 'test_time': [test_time]}
     meta = pd.DataFrame(m)
-    meta.to_csv("../results/meta_sentence_prediction-1000-10%.csv", sep=',', index=False)
+    meta.to_csv(meta_sentence_filename, sep=',', index=False)
 
 
 def evaluation_hmm_sequence_test():
-    predictions = pd.read_csv("../results/sentence_prediction-1000-10%.csv")
-    meta = pd.read_csv("../results/meta_sentence_prediction-1000-10%.csv")
+    predictions = pd.read_csv(prediction_sentence_filename)
+    meta = pd.read_csv(meta_sentence_filename)
 
     print("\n Starting evaluation…")
     start = time.time()
@@ -302,9 +274,16 @@ def evaluation_hmm_sequence_test():
     print("Word recall: {:4.2f} %".format(word_recall * 100))
     print("Word specificity: {:4.2f} %".format(word_specificity * 100))
 
-    predictions.to_csv("../results/sentence_evaluation-1000-10%.csv", sep=',', index=False)
+    predictions.to_csv("../results/sentence_evaluation.csv", sep=',', index=False)
 
     meta['eval_time'] = eval_time
+
+    meta['language_ds'] = words_ds
+    meta['sentence_ds'] = sentences_ds
+    meta['typo_ds_train'] = typo_ds_train
+    meta['perturbated_ds'] = perturbed_ds
+    meta['edit_distance'] = edit_distance
+
     meta['accuracy_top_1'] = word_accuracy * 100
     meta['exact_match'] = exact_match_accuracy * 100
     meta['initial_error'] = initial_error * 100
@@ -321,11 +300,43 @@ def evaluation_hmm_sequence_test():
     meta['correct_PREV_not_correct'] = word_correct_PREV_not_correct * 100
 
     meta = meta.round(2)
-    meta.to_csv("../results/meta_sentence_prediction-1000-10%.csv", sep=',', index=False)
+    meta.to_csv(meta_sentence_filename, sep=',', index=False)
 
 
-# prediction_hmm_candidate_test()
-# evaluation_hmm_candidate_test()
+### Check all the following variables before starting the prediction/evaluation
+words_ds = "../data/word_freq/lotr_language_model.txt"
+sentences_ds = "../data/texts/lotr_clean.txt"
+typo_ds_train = "../data/typo/clean/train.csv"
+typo_ds_test = "../data/typo/clean/test.csv"
+perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-10%.txt"
+# perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-15%.txt"
+# perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-20%.txt"
+edit_distance = 2
+####
+
+print("\n Starting training…")
+start = time.time()
+
+hmm = HMM(1, max_edits=edit_distance, max_states=5)
+hmm.train(words_ds=words_ds,
+          sentences_ds=sentences_ds,
+          typo_ds=typo_ds_train)
+
+end = time.time()
+train_time = end - start
+
+print("Endend training in {:4.2f} seconds".format(train_time))
+
+if not os.path.exists("../results"):
+    os.makedirs("../results")
+
+prediction_typo_filename = "../results/typo_prediction-test.csv"
+prediction_sentence_filename = "../results/sentence_prediction.csv"
+meta_typo_filename = "../results/meta_typo_prediction-test.csv"
+meta_sentence_filename = "../results/meta_sentence_prediction.csv"
+
+prediction_hmm_candidate_test()
+evaluation_hmm_candidate_test()
 
 prediction_hmm_sequence_test()
 evaluation_hmm_sequence_test()
