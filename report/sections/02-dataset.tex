@@ -32,8 +32,15 @@ The dataset obtained is divided into two corpora: \num{80}\% is used as a train 
 used as a test set (\num{15998} row).
 
 \subsection{Language Model}
-\label{subsection:languagemodel}
-\textbf{FIXME}: Abbiamo cambiato con il signore degli anelli
+The words frequency dataset includes wordlists derived from the \href{https://books.google.com/ngrams/}{ 
+\textcolor{blue}{Google's ngram corpora}}. In particular we use the dataset \texttt{frequency-alpha-gcide.txt}, a smaller 
+version of the original dataset, cleaned up and limited to only the top \num{65538} words.
+
+Each row of the corpus contains the ranking of the word, the word itself, the count of the occurrences of the word, a 
+percentage of how often each word was being used and a cumulative percentage.
+
+With the following dataset we found some problems due to the lack of proper names, city names, countries, brands etc.
+
 The language model dataset is a concatenation of public domain book excerpts from 
 \href{http://www.gutenberg.org/wiki/Main_Page}{ \textcolor{blue}{Project Gutenberg}}  and lists of most frequent words 
 from \href{https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists}{ \textcolor{blue}{Wiktionary}} and the 
@@ -44,15 +51,11 @@ each word appears in this dataset. \textbf{FIXME}: spiegare per cosa usiamo ques
 breaks into words, then a variable holds a counter of how often each word appears. Than the  probability of each word, 
 based on this Counter was estimated
 
-\subsection{Frequency Model}
-The words frequency dataset includes wordlists derived from the \href{https://books.google.com/ngrams/}{ 
-\textcolor{blue}{Google's ngram corpora}}. In particular we use the dataset \texttt{frequency-alpha-gcide.txt}, a smaller 
-version of the original dataset, cleaned up and limited to only the top \num{65538} words.
+\subsection{Transition Model}
+\label{subsection:languagemodel}
+Abbiamo cambiato con il signore degli anelli
 
-Each row of the corpus contains the ranking of the word, the word itself, the count of the occurrences of the word, a 
-percentage of how often each word was being used and a cumulative percentage.
 
-With the following dataset we found some problems due to the lack of proper names, city names, countries, brands etc.
 
 \subsection{Perturbated Dataset}
 In order to evaluate our algorithm on whole sentences, we create a new perturbed dataset starting from the dataset 

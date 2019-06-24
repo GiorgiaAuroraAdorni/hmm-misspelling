@@ -4,6 +4,38 @@ expected number of correct individual states. The second criterion estimates the
 
 \section{Noisy Channel Model}
 
+\textbf{FIXME}: Real word spelling error detection is a much more difficult task, since any word in the input text could be 
+an error. So we don’t...\\
+
+
+Estimates for the frequency of spelling errors in human-typed text vary from 1-2\% for carefully retyping already printed 
+text to 10-15\% for web queries.
+
+Non-word errors are detected by looking for any word not found in a dictionary. To correct non-word spelling errors we 
+first generate candidates: real words that have a similar letter sequence to the error. FIXME: We generates candidates 
+according to distance given as a parameter to te model (max\_edit\_distance). 
+
+The intuition of the noisy channel model (see Fig. B.1) is to treat the misspelled word as if a correctly spelled word had 
+been “distorted” by being passed through a noisy communication channel. 
+This channel introduces “noise” in the form of substitutions or other changes to the letters, making it hard to recognise 
+the “true” word. 
+
+This noisy channel model is a kind of Bayesian inference. We see an observation x (a misspelled word) and our job is to 
+find the word w that generated this misspelled word.
+Out of all possible words in the vocabulary V we want to find the word w such that P(w|x) is highest. We use the hat 
+notation ˆ to mean “our estimate of the correct word”.
+The intuition of Bayesian classification is to use Bayes’ rule to transform Eq. B.1 into a set of other probabilities.
+But P(x) doesn’t change for each word; we P(x)
+are always asking about the most likely word for the same observed error x, which must have the same probability P(x).
+The prior probability of a hidden word is modelled by P(w). 
+
+We apply the noisy channel approach to correcting non-word spelling errors by taking any word not in our spell 
+dictionary, generating a list of candidate words, ranking them according to Eq. B.4, and picking the highest-ranked one.
+
+\[\overbrace{w} = \arg\max_{w \in V} P(w|x) = \arg\max_{w \in V} \frac{P(x|w)P(w)}{P(x)} = \arg\max_{w \in V} 
+{P(x|w)P(w)}\]
+
+
 This model is a sort of a local corrector. It consists of two components: a source model, corresponding to 
 $P(\text{candidate})$, and a channel model, 
 that is $P(\text{typo}|\text{candidate})$.
@@ -38,6 +70,13 @@ The following type of errors were considered:
 	character $i$ when the character $j$ was intended ($P(i|j)$). This 
 	probability was determined experimentally. \textbf{FIXME}: how? from where?
 \end{itemize}
+
+\subsection{Edit Distance Algorithm}
+To find this list of candidates we’ll use the minimum edit distance algorithm introduced in Chapter 2, but extended so that 
+in addition to insertions, deletions, and substitutions, we’ll add a fourth type of edit, transpositions, in which two letters 
+are swapped.
+The version of edit distance with transposition is called Damerau-Levenshtein edit distance
+
 
 \section{Most Likely State Sequence}
 
@@ -85,8 +124,6 @@ The HMM-Based Error Correction Mechanism for Five-Key Chording Keyboards article
 that the Forward-Backward algorithm estimates the most likely state for each observation, but the resulting state 
 sequence may not be a valid succession of words in natural language (or a very unlikely word sequence) and produce 
 inferior results.
-
-\section{Myers' Algorithm}
 
 
 \section{Hidden Markov Model}
