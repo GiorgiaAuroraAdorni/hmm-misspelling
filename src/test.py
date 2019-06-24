@@ -8,11 +8,13 @@ import nltk
 
 nltk.download("wordnet")
 
+pp = pprint.PrettyPrinter(indent=4)
+
+
 def markov_test():
     print("### Markov Test")
-    pp = pprint.PrettyPrinter(indent=4)
     m = Markov(3, "word")
-    m.train("../data/texts/lotr_intro.txt")
+    m.train("../data/texts/lotr_clean.txt")
 
     generated = m.generate(10)
     pp.pprint(generated)
@@ -24,8 +26,8 @@ def hmm_candidate_test():
     pp = pprint.PrettyPrinter(indent=4)
 
     hmm = HMM(1, max_edits=2, max_states=10)
-    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds="../data/texts/big.txt",
+    hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
+              sentences_ds="../data/texts/lotr_clean.txt",
               typo_ds="../data/typo/clean/train.csv")
 
     pp.pprint("Typed: boogs")
@@ -84,8 +86,8 @@ def hmm_build_trellis_test():
     pp = pprint.PrettyPrinter(indent=4)
 
     hmm = HMM(1, max_edits=2, max_states=3)
-    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds="../data/texts/big.txt",
+    hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
+              sentences_ds="../data/texts/lotr_clean.txt",
               typo_ds="../data/typo/clean/train.csv")
 
     sentence = "becasue shee hes siad tat she woud sendd it o thhe dai".split()
@@ -103,8 +105,8 @@ def hmm_predict_sequence_test():
     pp = pprint.PrettyPrinter(indent=4)
 
     hmm = HMM(1, max_edits=2, max_states=3)
-    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds="../data/texts/big_clean.txt",
+    hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
+              sentences_ds="../data/texts/lotr_clean.txt",
               typo_ds="../data/typo/clean/train.csv")
 
     pp.pprint("#1")
@@ -135,11 +137,10 @@ def hmm_predict_sequence_test():
 
 def gen_test():
     print("### HMM Candidates Test")
-    pp = pprint.PrettyPrinter(indent=4)
 
     hmm = HMM(1, max_edits=2, max_states=5)
-    hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds="../data/texts/big.txt",
+    hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
+              sentences_ds="../data/texts/lotr_clean.txt",
               typo_ds="../data/typo/clean/train.csv")
 
     start = time.time()

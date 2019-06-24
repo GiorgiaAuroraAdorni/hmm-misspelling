@@ -1,9 +1,10 @@
-from collections import defaultdict
+from collections import Counter
 from hmm import HMM
 import numpy as np
 import random
 import string
 import time
+import csv
 
 
 def read_dataset(dataset):
@@ -52,10 +53,10 @@ def perturb(perturbed, rumor_percentage):
     # Create a model for the test set
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/frequency-alpha-gcide.txt",
-              sentences_ds="../data/texts/LordOfTheRingsBook_clean.txt",
+              sentences_ds="../data/texts/lotr_clean.txt",
               typo_ds="../data/typo/clean/test.csv")
 
-    with open("../data/texts/LordOfTheRingsBook_clean.txt", "r") as myfile:
+    with open("../data/texts/lotr_clean.txt", "r") as myfile:
         cleaned = myfile.readlines()
 
     # probability that a word has an edit
@@ -112,7 +113,7 @@ def perturb(perturbed, rumor_percentage):
                 if value == 0 and x == 1:
                     # if the letter to switch is the last one, switch with the previous one
                     if len(indices) <= j + 1:
-                        word = word[0:indices[j] - 1] + word[indices[j]] + word[indices[j] - 1] +  word[indices[j] + 1:]
+                        word = word[0:indices[j] - 1] + word[indices[j]] + word[indices[j] - 1] + word[indices[j] + 1:]
                     else:
                         word = word[0:indices[j]] + word[indices[j] + 1] + word[indices[j]] + word[indices[j] + 2:]
 
@@ -144,3 +145,38 @@ def perturb(perturbed, rumor_percentage):
     perturbed.close()
 
     print("Endend pertubation in {:6.2f} seconds \n".format(perturb_time))
+
+
+def create_model_language():
+    with open("../data/texts/lotr_clean.txt", "r") as myfile:
+        cleaned = myfile.readlines()
+
+    counter = Counter()
+    total_word = 0
+
+    for line in cleaned:
+        for word in line.split():
+            counter[word] += 1
+            total_word += 1
+
+    for el in counter:
+        counter[el] /= total_word
+
+    with open("../data/word_freq/lotr_language_model.txt", "w") as file:
+        writer = csv.writer(file)
+
+        for key, value in counter.items():
+            writer.writerow([key, value])
+
+
+def split_list(lst, n):
+    result = list()
+
+    while lst:
+        if not len(lst[:n]) < n/2:
+            result.append(" ".join(lst[:n]))
+        else:
+            result[-1] += " " + " ".join(lst[:n])
+        lst = lst[n:]
+
+    return result

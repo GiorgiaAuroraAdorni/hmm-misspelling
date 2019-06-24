@@ -15,7 +15,7 @@ DEBUG = False
 
 class HMM:
 
-    def __init__(self, order, max_edits, max_states):  # FIXME order parameter not used
+    def __init__(self, order, max_edits, max_states):
 
         # HMM parameters
         self.order = 1
@@ -71,11 +71,13 @@ class HMM:
 
         # Importing the language model
         with open(words_ds, "r", encoding="utf-8") as f:
-            next(f)
-            for line in f:
-                elem = line.split()
-                word = elem[1].lower()
-                self.language_model[word] = float(elem[3]) / 100
+            reader = csv.reader(f)
+            lines = [row for row in reader]
+
+            for line in lines:
+
+                word = line[0]
+                self.language_model[word] = float(line[1]) / 100
 
         # Training the error model
         with open(typo_ds, "r", encoding="utf-8") as f:
