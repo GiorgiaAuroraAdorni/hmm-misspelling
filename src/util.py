@@ -202,14 +202,6 @@ def create_typo_dataset(typo_writer):
               sentences_ds="../data/texts/lotr_clean.txt",
               typo_ds="../data/typo/clean/train.csv")
 
-    def substitute(word):
-        l = list(word)
-        if not l[indices[j]] in hmm.error_model["sub"]:
-            l[indices[j]] = random.choice(string.ascii_letters).lower().replace(l[indices[j]], "")
-        else:
-            l[indices[j]] = np.random.choice(list(hmm.error_model["sub"][l[indices[j]]].keys()-l[indices[j]]))
-        return "".join(l)
-
     with open("../data/word_freq/lotr_language_model.txt", "r") as myfile:
         reader = csv.reader(myfile)
         words_ds = [row for row in reader]

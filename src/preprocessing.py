@@ -34,7 +34,9 @@ with open('../data/texts/LordOfTheRingsBook.json') as json_data:
     splitted = list()
 
     for line in real:
-        if len(line.split()) > 10:
+        if len(line.split()) == 0:
+            continue
+        elif len(line.split()) > 10:
             line = split_list(line.split(), 10)
 
             splitted.extend(line)
