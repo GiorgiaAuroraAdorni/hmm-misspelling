@@ -1,6 +1,4 @@
-from networkx.drawing.nx_agraph import graphviz_layout
 from collections import Counter, OrderedDict, defaultdict
-import matplotlib.pyplot as plt
 import networkx as nx
 import edlib as el
 import pprint
@@ -68,7 +66,6 @@ class HMM:
             lines = [row for row in reader]
 
             for line in lines:
-
                 word = line[0]
                 self.language_model[word] = float(line[1]) / 100
 
@@ -152,9 +149,6 @@ class HMM:
         self.error_model["swap"] /= correct_character_count
         self.error_model["p"] /= correct_character_count
 
-        # Sorting by keys
-        self.language_model = dict(sorted(self.language_model.items()))
-
     def init_trellis(self):
         self.trellis.clear()
         self.trellis_depth = 1
@@ -191,7 +185,6 @@ class HMM:
                 self.trellis.add_edge(0, new_id, weight=p)
         else:
             # Get leaf nodes representing last states
-
             leaves = [x for x, v in self.trellis.nodes(data=True)
                       if self.trellis.out_degree(x) == 0
                       and v["depth"] == self.trellis_depth - 1]
@@ -236,7 +229,6 @@ class HMM:
         # TODO: re-add a DEBUG flag if you need to enable this
         # self.plot_trellis()
 
-
     def most_likely_sequence(self, output_str=True):
         leaves = [x for x, v in self.trellis.nodes(data=True)
                   if self.trellis.out_degree(x) == 0
@@ -275,13 +267,11 @@ class HMM:
             words = sequence
 
         for word in words:
-            pp.pprint(word)
             self.build_trellis(word)
 
         return self.most_likely_sequence(output_str)
 
     def edits(self, word, n=1):
-
         if n == 1:
             letters = "abcdefghijklmnopqrstuvwxyz"
             splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
@@ -385,10 +375,13 @@ class HMM:
         return pattern.sub(r"\1\1", word)
 
     def plot_trellis(self, show=True):
+        import matplotlib.pyplot as plt
+        from networkx.drawing.nx_agraph import graphviz_layout
+
         plt.figure(1)
         G = self.trellis
 
-        labels = {e[0]: e[1]["name"] + " " + str(e[0]) for e in G.nodes(data=True)}
+        labels = {e[0]: e[1]["name"] for e in G.nodes(data=True)}
         pos = graphviz_layout(G, prog='dot')
 
         nx.draw(G, pos=pos, labels=labels)
