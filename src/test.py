@@ -4,12 +4,8 @@ from hmm import HMM
 import time
 
 import pprint
-import nltk
-
-nltk.download("wordnet")
 
 pp = pprint.PrettyPrinter(indent=4)
-
 
 def markov_test():
     print("### Markov Test")
@@ -18,7 +14,7 @@ def markov_test():
 
     generated = m.generate(10)
     pp.pprint(generated)
-    pp.pprint("\n")
+    print("\n")
 
 
 def hmm_candidate_test():
@@ -78,7 +74,7 @@ def hmm_candidate_test():
     pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
-    pp.pprint("\n")
+    print("\n")
 
 
 def hmm_build_trellis_test():
@@ -96,7 +92,7 @@ def hmm_build_trellis_test():
     hmm.build_trellis(sentence[1])
     hmm.build_trellis(sentence[2])
     hmm.build_trellis(sentence[3])
-    pp.pprint("\n")
+    print("\n")
     plt.show()
 
 
@@ -113,24 +109,28 @@ def hmm_predict_sequence_test():
     sentence = "becasue shee hes said tat"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
+    " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#2")
     sentence = "Pierre cae up t hin ad caugt hom by te ams"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
+    " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#3")
     sentence = "Toady evenqs mawks an epovh tge gteates eioch im pur jistoty"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
+    " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#4")
     sentence = "the psojuct ghtenyerg ebook of the adventures wv sherlock hslmes by sir jrthur conan doyld 15 in our series by sir arthur conan doyee copyfight laws are changing all over the world"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
+    " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
 
@@ -159,7 +159,8 @@ def gen_test():
 
 
 # markov_test()
+
 # hmm_candidate_test()
-# hmm_build_trellis_test()
+hmm_build_trellis_test()
 # hmm_predict_sequence_test()
-gen_test()
+# gen_test()

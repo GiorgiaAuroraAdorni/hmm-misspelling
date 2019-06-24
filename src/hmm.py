@@ -1,6 +1,5 @@
 from networkx.drawing.nx_agraph import graphviz_layout
 from collections import Counter, OrderedDict, defaultdict
-from nltk.stem import WordNetLemmatizer
 import matplotlib.pyplot as plt
 import networkx as nx
 import edlib as el
@@ -29,11 +28,6 @@ class HMM:
         # Probability models
         self.language_model = Counter()
         self.error_model = {}
-
-        # Utils
-        self.lemmatizer = WordNetLemmatizer()
-        self.lemma_toggle = True
-        self.memo = {}
 
         return
 
@@ -184,11 +178,6 @@ class HMM:
                 else:
                     obs_prob = self.graph[state]["obs"].count(word) / N_obs
 
-           
-                if self.lemma_toggle:
-                    if state in self.memo:
-                        init_prob = self.language_model[self.memo[state]]
-                        
                 if state in self.language_model:
                     init_prob = self.language_model[state]   
                 else:
@@ -208,20 +197,20 @@ class HMM:
 
             for state in states:
                 p = {}
+                # Emission probability of observation word for the current state
+                N_obs = len(self.graph[state]["obs"])
+                obs_freq = self.graph[state]["obs"].count(word)
+                if N_obs == 0 or obs_freq == 0:
+                    obs_prob = 1e-6
+                else:
+                    obs_prob = obs_freq / N_obs
+
                 for leaf_id in leaves:
                     leaf = self.trellis.node[leaf_id]["name"]
 
-                    # Emission probability of observation word for the current state
-                    N_obs = len(self.graph[state]["obs"])
-                    obs_freq = self.graph[state]["obs"].count(word)
-                    if N_obs == 0 or obs_freq == 0:
-                        obs_prob = 0.1e-6
-                    else:
-                        obs_prob = obs_freq / N_obs
-
                     # Transition probability from the leaf state (previous one) to the current state
-                    N_trans = len(self.graph[leaf_id]["next"])
-                    trans_freq = self.graph[leaf_id]["next"].count(state)
+                    N_trans = len(self.graph[leaf]["next"])
+                    trans_freq = self.graph[leaf]["next"].count(state)
                     if N_trans == 0 or trans_freq == 0:
                         trans_prob = 1e-6
                     else:
@@ -242,6 +231,8 @@ class HMM:
                 self.trellis.add_edge(max_key, new_id, weight=p[max_key])
 
         self.trellis_depth += 1
+
+        self.plot_trellis()
 
     def most_likely_sequence(self):
         leaves = [x for x in self.trellis.nodes()
@@ -293,34 +284,13 @@ class HMM:
             return set(e2 for e1 in self.edits(word, 1)
                           for e2 in self.edits(e1, n - 1))
 
-    def known(self, words):
-        res = set()
-
-        for w in words: 
-            if w in self.language_model:
-                res.add(w)
-            elif self.lemma_toggle:
-                if w in self.memo:
-                    res.add(w)
-                else:
-                    lemma = self.lemmatizer.lemmatize(w)
-                    if lemma != w and lemma in self.language_model:
-                        self.memo[w] = lemma
-                        res.add(w)
-        return res
+    def known(self, words): return set(w for w in words if w in self.language_model)
 
     def P(self, word):
         if word in self.language_model:
             return self.language_model[word]
-        elif self.lemma_toggle:
-            if word in self.memo:
-                return self.language_model[self.memo[word]]
-            else:
-                lemma = self.lemmatizer.lemmatize(word)
-                if lemma != word and lemma in self.language_model:
-                    return self.language_model[lemma]
-
-        return 1e-6
+        else:
+            return 1e-6
 
     def candidates(self, word):
         word = self.reduce_lengthening(word.lower())
@@ -404,7 +374,7 @@ class HMM:
         plt.figure()
         G = self.trellis
 
-        labels = {e[0]: e[1]["name"] + " " for e in G.nodes(data=True)}
+        labels = {e[0]: e[1]["name"] + " " + str(e[0]) for e in G.nodes(data=True)}
         pos = graphviz_layout(G, prog='dot')
 
         nx.draw(G, pos=pos, labels=labels)
