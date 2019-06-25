@@ -2,10 +2,16 @@
 \textbf{FIXME} performance
 
 \subsection{Evaluation Metrics}
+We evaluate the local model performances, or that carried out on individual typos, through various measures of 
+accuracy. 
+We compute the \textsc{Top-1 Accuracy} comparing the misspelt word and the best candidate predicted by the 
+model. 
+Than we also compute the \textsc{Top-3 Accuracy} and \textsc{Top-5 Accuracy}, comparing the misspelt word 
+with the first $N$ candidates, in this case \num{3} and \num{5}, given from the model.\\
+
 
 As regards the performance evaluation of the entire sequences, after every training and prediction we save a csv 
-file 
-containing the sentences with the perturbations, the sentences that we want to predict (hidden truth) and the 
+file containing the sentences with the perturbations, the sentences that we want to predict (hidden truth) and the 
 sentences provided by the model.
 
 The idea to evaluate the performance of the model is very simple: we scroll through the lines containing the 
