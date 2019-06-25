@@ -557,17 +557,12 @@ class HMM:
                 results.update(subprocess)
 
         results = sorted(results.items(), key=lambda c: c[1], reverse=True)
-
+        
         # If no word was found not in the language model, leave the typo as the only candidate
         if len(results) == 0:
             results = [(word, 1)]
 
         return results[:max_states]
-        
-            
-        tmp = OrderedDict(sorted(tmp.items(), key=lambda t: t[1], reverse=True))
-
-        return list(tmp.items())[: self.max_states]
 
     def reduce_lengthening(self, word):
         pattern = re.compile(r"(.)\1{2,}")
