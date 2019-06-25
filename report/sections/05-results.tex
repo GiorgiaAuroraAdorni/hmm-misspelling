@@ -207,7 +207,8 @@ Edit distance, perturbation dataset used
 \end{figure}
 
 Analysis of spelling error data has shown that the majority of spelling errors consist of a single-letter change and 
-so we often make the simplifying assumption that these candidates have an edit distance of 1 from the error word.
+so we often make the simplifying assumption that these candidates have an edit distance of 1 from the error 
+model.
 
 \textbf{FIXME}
 \begin{figure}[H]
@@ -222,6 +223,38 @@ so we often make the simplifying assumption that these candidates have an edit d
 	\end{tabular}
 	\captionof{table}{Typos performance evaluation}
 	\label{tab:typo-eval3}
+\end{figure}
+
+% con 10% ho il 17% di errore
+% con 10% ho il 25% di errore
+% con 20% ho il 40% 31 di errore
+
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{lccc|ccc}
+		\toprule
+		\textbf{Edit Distance} & \multicolumn{3}{c|}{1} & \multicolumn{3}{c}{2}\\
+		\textbf{Dataset Perturbation} & \num{10}\% & \num{15}\%& \num{20}\% & \num{10}\% & \num{15}\%& 
+		\num{20}\% \\
+		\midrule
+		Time (sec) &\num{165}&\num{157}& \num{147}&\num{2920}&\num{2835}&\num{2869}\\
+		\midrule
+		Perturbed correct & \num{81,33}\% &\num{76,48}\%& \num{71,58}\%& \num{61,33}\% 
+		&\num{60,99}\% 
+		&\num{59,91}\%\\
+		Unperturbed not correc. &\num{41,62}\%&\num{42,34}\% & \num{43,94}\% & \num{61,75}\% & 
+		\num{61,61}\% & 
+		\num{62,09}\%\\
+		Exact match &\num{5,49}\%&\num{5,35}\%&\num{5,06}\%&\num{1,76}\%&\num{2,06}\%&\num{2,06}\%\\
+		Accuracy &\num{60,84}\% &\num{61,49}\% &\num{60,59}\% &\num{40,70}\% &\num{43,08}\% 
+		&\num{44,39}\% \\
+		Precision&\num{21,94}\%&\num{33,61}\% &\num{39,7}\%&\num{12,41}\%&\num{21,22}\%&\num{27,06}\%\\
+		Recall&\num{94,59}\%&\num{90,05}\%&\num{85,97}\%&\num{99,41}\%&\num{98,58}\%&\num{97,71}\%\\
+		F-Measure&\num{50,55}\%&\num{54,58}\%&\num{57,09}\%&\num{39,16}\%&\num{43,67}\%&\num{47,36}\%\\
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Sentences performance evaluation}
+	\label{tab:sentence-eval3a}
 \end{figure}
 
 
