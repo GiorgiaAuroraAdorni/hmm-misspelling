@@ -1,3 +1,4 @@
+import multiprocessing
 from collections import Counter, OrderedDict, defaultdict
 import itertools
 import networkx as nx
@@ -8,6 +9,29 @@ import pickle
 import re
 
 pp = pprint.PrettyPrinter(indent=4)
+
+
+def process_init(_hmm):
+    global hmm
+    
+    # Store a copy of the HMM model in each process
+    hmm = _hmm
+
+
+def process_map(input):
+    global hmm
+
+    word, i, max_states, pid, nprocesses = input
+
+    candidates = set(hmm.known(hmm.edits(word, i, pid, nprocesses)))
+    results = [(c, hmm.compute_probability(typed=word, intended=c)) for c in candidates]
+
+    results = sorted(results, key=lambda c: c[1], reverse=True)
+    
+    # Conjecture: If each process returns `max_states` distinct results, then
+    # merging and deduplicating all the results will yield at least `max_states`
+    # globally distinct results.
+    return results[:max_states]
 
 
 class HMM:
@@ -29,16 +53,31 @@ class HMM:
         self.language_model = Counter()
         self.error_model = {}
 
+        # Multiprocessing
+        # Do not initialize the pool here because it'd then throw an exception
+        # in save(...) since it can't be pickled.
+        self.pool = None
+
         return
 
     @staticmethod
     def load(file):
         with open(file, "rb") as f:
-            return pickle.load(f)
+            model = pickle.load(f)
+
+        # Hide the latency of setting up the worker processes by starting them
+        # before a request comes in.
+        model.setup_multiprocessing()
+
+        return model
 
     def save(self, file):
         with open(file, "wb") as f:
             pickle.dump(self, f)
+
+    def setup_multiprocessing(self):
+        if self.pool is None:
+            self.pool = multiprocessing.Pool(initializer=process_init, initargs=[self])
 
     def _graph_init(self):
         return defaultdict(list)
@@ -272,10 +311,26 @@ class HMM:
 
         return self.most_likely_sequence(output_str)
 
-    def edits(self, word, n=1):
+    def edits(self, word, n=1, pid=None, nprocesses=None):
         if n == 1:
+            if pid is not None:
+                # Operate on a portion of the possible splits
+                total = len(word) + 1
+
+                count = total // nprocesses
+
+                begin = pid * count
+                end = begin + count
+
+                if pid == nprocesses - 1:
+                    end += total % nprocesses
+
+                split_range = range(begin, end)
+            else:
+                split_range = range(len(word) + 1)
+
             letters = "abcdefghijklmnopqrstuvwxyz"
-            splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
+            splits = [(word[:i], word[i:]) for i in split_range]
 
             deletes = (L + R[1:] for L, R in splits if R)
             transposes = (L + R[1] + R[0] + R[2:] for L, R in splits if len(R) > 1)
@@ -284,7 +339,7 @@ class HMM:
 
             return itertools.chain(deletes, transposes, replaces, inserts)
         else:
-            return itertools.chain.from_iterable(self.edits(e1, n - 1) for e1 in self.edits(word, 1))
+            return itertools.chain.from_iterable(self.edits(e1, n - 1) for e1 in self.edits(word, 1, pid, nprocesses))
 
     def known(self, words):
         return (w for w in words if w in self.language_model)
@@ -295,82 +350,81 @@ class HMM:
         else:
             return 1e-6
 
+    def compute_probability(self, typed, intended):
+        prob = 1
+
+        edit_info = el.align(intended, typed, task="path")
+        cigar = edit_info["cigar"]
+
+        # If it's a swap it's not anything else
+        if set(intended) == set(typed) and len(intended) == len(typed) and "1D1=1I" in cigar:
+
+            l = zip(typed, intended)
+            swaps = 0
+            for i, j in l:
+                if i != j:
+                    swaps += 1
+            swaps /= 2
+            swaps = int(swaps)
+
+            prob *= self.error_model["swap"] ** swaps
+
+        else:
+            # Editing typo to account for accidental insertions or deletions
+            pos = 0
+            insertions = 0
+            deletions = 0
+
+            for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
+                idx = int(idx)
+                pos += idx
+                if op == "I":
+                    insertions += 1
+                    typed = typed[:pos - 1] + "$" + typed[pos - 1:]
+                elif op == "D":
+                    deletions += 1
+                    typed = typed[:pos - 1] + typed[pos:]
+
+            # Factoring in insertion or deletion probabilities
+            prob *= self.error_model["ins"] ** insertions
+            prob *= self.error_model["del"] ** deletions
+
+            # Factoring in substitution probabilities
+            l = zip(typed, intended)
+            for i, j in l:
+                if i == "$":
+                    continue
+                prob *= self.error_model["sub"][i][j]
+
+        prob *= self.P(intended)
+
+        return prob
+
     def candidates(self, word, max_states=None):
+        self.setup_multiprocessing()
+
         word = self.reduce_lengthening(word.lower())
 
         if max_states is None:
             max_states = self.max_states
 
-        cand = set()
+        results = dict()
         for i in range(1, self.max_edits + 1):
-            c = self.known(self.edits(word, i))
-            cand.update(c)
+            nprocesses = multiprocessing.cpu_count()
+            input = [(word, i, max_states, pid, nprocesses) for pid in range(nprocesses)]
 
+            subprocesses = self.pool.imap_unordered(process_map, input)
+
+            for subprocess in subprocesses:
+                results.update(subprocess)
+
+        results = sorted(results.items(), key=lambda c: c[1], reverse=True)
+        
         # If no word was found not in the language model, leave the typo as the only candidate
-        if not cand:
-            cand = {word}
-    
-        tmp = defaultdict(float)
-        for c in cand:
-            typo = word
-            prob = 1
+        if len(results) == 0:
+            results = [(word, 1)]
 
-            insertions = 0
-            deletions = 0
-
-            # The word is most probably correct
-            if typo == c:
-                tmp[c] = 1
-                continue
-
-            edit_info = el.align(c, typo, task="path")
-            cigar = edit_info["cigar"]
-
-            # If it's a swap it's not anything else
-            if set(c) == set(typo) and len(c) == len(typo) and "1D1=1I" in cigar:
-
-                l = zip(typo, c)
-                swaps = 0
-                for i, j in l:
-                    if i != j:
-                        swaps += 1
-                swaps /= 2
-                swaps = int(swaps)
-                for i in range(0, swaps):
-                    prob *= self.error_model["swap"]
-
-            else:
-                # Editing typo to account for accidental insertions or deletions
-                pos = 0
-                for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
-                    idx = int(idx)
-                    pos += idx
-                    if op == "I":
-                        insertions += 1
-                        typo = typo[:pos - 1] + "$" + typo[pos - 1:]
-                    elif op == "D":
-                        deletions += 1
-                        typo = typo[:pos - 1] + typo[pos:]
-
-                # Factoring in insertion or deletion probabilities
-                for i in range(0, insertions):
-                    prob *= self.error_model["ins"]
-                for i in range(0, deletions):
-                    prob *= self.error_model["del"]
-
-                # Factoring in substitution probabilities
-                l = zip(typo, c)
-                for i, j in l:
-                    if i == "$":
-                        continue
-                    prob *= self.error_model["sub"][i][j]
-
-            prob *= self.P(c)
-            tmp[c] = prob
-            
-        tmp = OrderedDict(sorted(tmp.items(), key=lambda t: t[1], reverse=True))
-
-        return list(tmp.items())[:max_states]
+        return results[:max_states]
 
     def reduce_lengthening(self, word):
         pattern = re.compile(r"(.)\1{2,}")
