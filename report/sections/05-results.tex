@@ -1,7 +1,75 @@
 \textbf{FIXME} comparison
 \textbf{FIXME} performance
 
-We performed three different types of experiments. \\
+\subsection{Evaluation Metrics}
+
+As regards the performance evaluation of the entire sequences, after every training and prediction we save a csv 
+file 
+containing the sentences with the perturbations, the sentences that we want to predict (hidden truth) and the 
+sentences provided by the model.
+
+The idea to evaluate the performance of the model is very simple: we scroll through the lines containing the 
+perturbed, the predicted and the original (intended) text and, for each word we verify if it was disturbed or not and 
+if it corresponds to the original truth.
+Therefore, for each word, the following cases can occur:
+\begin{enumerate}
+	\item \textit{Perturbed word not correctly provided}
+	\begin{enumerate}
+		\item the word was not the subject of attempted correction by the model
+		\item the word has been the subject of attempted correction by the model but without success
+	\end{enumerate}
+	\item \textit{Perturbed word correctly provided}
+	\item \textit{Unperturbed word not correctly provided}
+	\item \textit{Unperturbed word correctly provided}
+\end{enumerate}
+
+We can therefore represent the confusion matrix of the data in output through table \ref{tab:confmat}:
+
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{lc|cc}
+		\toprule
+		& & \multicolumn{2}{c}{\textbf{Model prediction}}\\
+		& & \textsc{True}  & \textsc{False} \\
+		\midrule
+		\multirow{4}{*}{\textbf{Hidden Truth}} 
+		& \multirow{2}{*}{\textsc{True}}   & True Positive & False Negative	\\ 
+			& & Case 2. & Case 1(a).	\\ 
+		& \multirow{2}{*}{\textsc{False}}  & False Positive & True Negative	\\
+		& &  Case 3. \& 1(b).  & Case 4.	\\ 
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Confusion matrix}
+	\label{tab:confmat}
+\end{figure}
+
+From the confusion matrix defined in the table above, it is possible to calculate the following performance 
+metrics in a simple way:
+\begin{itemize}
+	\item \textsc{Rate of perturbed words correctly predicted}:
+	\[ \frac{\mbox{True Positive}}{\sum \mbox{Perturbed}} = \frac{\mbox{Case 2.}}{\mbox{Case 2.} + \mbox{Case 
+	1.}}\]
+	\item \textsc{Rate of unperturbed words not correctly predicted}:
+	\[ \frac{\mbox{True Negative}}{\sum \mbox{Unperturbed}} = \frac{\mbox{Case 2.}}{\mbox{Case 3.} + 
+	\mbox{Case 4.}}\]
+	\item \textsc{Accuracy}: measures the goodness of the model among the positive correction results obtained
+	\[ \frac{\mbox{True Positive} + \mbox{True Negative}}{\sum \mbox{All}} = \frac{\mbox{Case 2.} + \mbox{Case 
+	4.}}{\mbox{Case 1.} + \mbox{Case 2.} + \mbox{Case 3.} + \mbox{Case 4.}}\]
+	\item \textsc{Precision}: proportion of all the correct results \textbf{FIXME}
+		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Positive}} = \frac{\mbox{Case 
+		2.}}{\mbox{Case 1(b).} + \mbox{Case 2.} + \mbox{Case 3.}}\]
+	\item \textsc{Recall}: ration of the corrected predictions with respect to the significant values returned by the 
+	model (the corrections made) \textbf{FIXME}
+		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Negative}} = \frac{\mbox{Case 
+		2.}}{\mbox{Case 1(a).} + \mbox{Case 2.}}\]
+	\item \textsc{F-Measure}: weighted average (between 0 and 1) with respect to precision and recall
+			\[ 2 * \frac{\mbox{Precision} * \mbox{Recall}}{\mbox{Precision} + \mbox{Recall}} \]
+\end{itemize}
+
+Based on these metrics, it is then possible to define whether the models have behaved more or less correctly.
+
+\subsection{Experiments}
+We performed three different types of experiments.
 
 The first one using as a transition model the dataset \texttt{big\_clean}, the associate perturbed dataset and test error 
 models, and the language model \texttt{frequency-alpha-gcide}.
@@ -20,7 +88,7 @@ In all the experiments to come, reference will be made to the following variable
 	\item swap: the probability that a word has a swap between two letters
 \end{itemize}
 
-\subsection{Experiment 1}
+\subsubsection{Experiment 1}
 
 \textbf{FIXME}
 Edit distance, perturbation dataset used
@@ -69,7 +137,7 @@ Edit distance, perturbation dataset used
 	\label{tab:sentence-eval1}
 \end{figure}
 
-\subsection{Experiment 2}
+\subsubsection{Experiment 2}
 \begin{figure}[H]
 	\centering
 	\begin{tabular}{ccccc}
@@ -116,7 +184,7 @@ In order to avoid this problem, we decided to try a new approach that use lemmai
 	\label{tab:sentence-eval2}
 \end{figure}
 
-\subsection{Experiment 3}
+\subsubsection{Experiment 3}
 
 Edit distance, perturbation dataset used
 
