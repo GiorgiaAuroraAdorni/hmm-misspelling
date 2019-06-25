@@ -1,0 +1,2 @@
+obervation,train_time,test_time,language_ds,sentence_ds,typo_ds,eval_time,typo_ds_train,typo_ds_test,edit_distance,accuracy_top_1,accuracy_top_3,accuracy_top_5
+12701,1.44,1073.83,../data/word_freq/lotr_language_model.txt,../data/texts/lotr_clean.txt,train-generic,0.04,../data/typo/clean/lotr_train.txt,../data/typo/clean/lotr_train.txt,2,66.84,80.84,85.19

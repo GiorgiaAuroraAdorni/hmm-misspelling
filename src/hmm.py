@@ -80,6 +80,7 @@ class HMM:
                                 "del": defaultdict(self._error_model_sub_init), 
                                 "p": 0}
 
+        
         ngram_counter = Counter()
         
         correct_character_count = 0
@@ -134,7 +135,7 @@ class HMM:
 
                         self.error_model["del"][prev][correct[pos]] += 1
 
-                        edited_typo = edited_typo[:pos] + "$"*idx + edited_typo[pos :]
+                        edited_typo = edited_typo[:pos] + "$"*idx + edited_typo[pos:]
                     elif op == "D":
                         if pos == 1 or pos > len(correct):
                             prev = "$"
@@ -142,7 +143,7 @@ class HMM:
                             prev = edited_typo[pos - 1]
 
                         self.error_model["ins"][prev][edited_typo[pos]] += 1
-                        edited_typo = edited_typo[:pos - idx + 1] + edited_typo[pos + 1:]
+                        edited_typo = edited_typo[:pos - idx + 1] + edited_typo[pos:]
                         pos -= idx
 
                 l = zip(edited_typo, correct)
@@ -348,7 +349,6 @@ class HMM:
 
         if not self.known([word]): 
             # Correcting non-word errors
-            cand = ["dad"]
             for c in cand:
                 typo = word
                 prob = 1
@@ -371,17 +371,10 @@ class HMM:
                     # Editing typo to account for accidental insertions or deletions
                     # Also factoring in insertion or deletion probabilities
                     pos = -1
-                    edited_typo = ""
+                    edited_typo = typo
                     for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
                         idx = int(idx)
                         pos += idx
-
-                        pp.pprint(c)
-                        pp.pprint(typo)
-                        pp.pprint(edited_typo)
-                        pp.pprint(pos)
-                        pp.pprint(cigar)
-                        pp.pprint("----")
 
                         if op == "I":
                             if pos == 1 or pos > len(c):
@@ -389,24 +382,19 @@ class HMM:
                             else:
                                 prev = c[pos - 1]
                           
-                            edited_typo += "$" * idx
-                            pos -= idx
-                            pp.pprint(edited_typo)
-                            pp.pprint("----")
-
+                            edited_typo = edited_typo[:pos] + "$"*idx + edited_typo[pos:]
                             prob *= self.error_model["del"][prev][c[pos]]
 
                         elif op == "D":
                             if pos == 1 or pos > len(c):
                                 prev = "#"
                             else:
-                                prev = typo[pos - 1]
+                                prev = c[pos - 1]
 
                             prob *= self.error_model["ins"][prev][edited_typo[pos]]
 
-                        else:
-                            for i in range(pos - idx, pos):
-                                edited_typo += typo[i]
+                            edited_typo = edited_typo[:pos - idx + 1] + word[pos:]
+                            pos -= idx
 
                     # Factoring in substitution probabilities
                     l = zip(edited_typo, c)

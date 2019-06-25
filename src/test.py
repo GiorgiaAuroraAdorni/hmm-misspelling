@@ -103,31 +103,31 @@ def hmm_predict_sequence_test():
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
               sentences_ds="../data/texts/lotr_clean.txt",
-              typo_ds="../data/typo/clean/train.csv")
+              typo_ds="../data/typo/clean/lotr_train.txt")
 
     pp.pprint("#1")
-    sentence = "becasue shee hes said tat"
+    sentence = "wpen mr bilbo bagginx of bag end announcwd that he"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
     correct = " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#2")
-    sentence = "Pierre cae up t hin ad caugt hom by te ams"
+    sentence = "now beclml a local legend and it wos popultrly believed"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
     correct = " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#3")
-    sentence = "Toady evenqs mawks an epovh tge gteates eioch im pur jistoty"
+    sentence = "was too much of f goof thing it seemed unfair"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
     correct = " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#4")
-    sentence = "the psojuct ghtenyerg ebook of the adventures wv sherlock hslmes by sir jrthur conan doyld 15 in our series by sir arthur conan doyee copyfight laws are changing all over the world"
+    sentence = "so fap trouble had not come and as mr baggins"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
     correct = " ".join(correct)
@@ -150,17 +150,10 @@ def gen_test():
     pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
-    """ pp.pprint("#3")
-    sentence = "a regular warren by all aucounts"
-    pp.pprint("Sentence: " + sentence)
-    correct = hmm.predict_sequence(sentence)
-    pp.pprint("Corrected: " + " ".join(correct))
-    plt.show() """
-
 
 # markov_test()
 
 # hmm_candidate_test()
 # hmm_build_trellis_test()
-# hmm_predict_sequence_test()
-gen_test()
+hmm_predict_sequence_test()
+# gen_test()
