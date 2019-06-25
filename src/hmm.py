@@ -80,7 +80,6 @@ class HMM:
                                 "del": defaultdict(self._error_model_sub_init), 
                                 "p": 0}
 
-        
         ngram_counter = Counter()
         
         correct_character_count = 0
