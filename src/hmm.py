@@ -1,6 +1,6 @@
-from networkx.drawing.nx_agraph import graphviz_layout
+import multiprocessing
 from collections import Counter, OrderedDict, defaultdict
-import matplotlib.pyplot as plt
+import itertools
 import networkx as nx
 import edlib as el
 import pprint
@@ -9,6 +9,28 @@ import pickle
 import re
 
 pp = pprint.PrettyPrinter(indent=4)
+
+
+def process_init(_hmm):
+    global hmm
+
+    # Store a copy of the HMM model in each process
+    hmm = _hmm
+
+def process_map(input):
+    global hmm
+
+    word, i, max_states, pid, nprocesses = input
+
+    candidates = set(hmm.known(hmm.edits(word, i, pid, nprocesses)))
+    results = [(c, hmm.compute_probability(typed=word, intended=c)) for c in candidates]
+
+    results = sorted(results, key=lambda c: c[1], reverse=True)
+    
+    # Conjecture: If each process returns `max_states` distinct results, then
+    # merging and deduplicating all the results will yield at least `max_states`
+    # globally distinct results.
+    return results[:max_states]
 
 class HMM:
 
@@ -29,16 +51,31 @@ class HMM:
         self.language_model = Counter()
         self.error_model = {}
 
+        # Multiprocessing
+        # Do not initialize the pool here because it'd then throw an exception
+        # in save(...) since it can't be pickled.
+        self.pool = None
+
         return
 
     @staticmethod
     def load(file):
         with open(file, "rb") as f:
-            return pickle.load(f)
+            model = pickle.load(f)
+
+        # Hide the latency of setting up the worker processes by starting them
+        # before a request comes in.
+        model.setup_multiprocessing()
+
+        return model
 
     def save(self, file):
         with open(file, "wb") as f:
             pickle.dump(self, f)
+
+    def setup_multiprocessing(self):
+        if self.pool is None:
+            self.pool = multiprocessing.Pool(initializer=process_init, initargs=[self])
 
     def _graph_init(self):
         return defaultdict(list)
@@ -276,7 +313,10 @@ class HMM:
 
         self.trellis_depth += 1
 
-    def most_likely_sequence(self):
+        # TODO: re-add a DEBUG flag if you need to enable this
+        # self.plot_trellis()
+
+    def most_likely_sequence(self, output_str = True):
         leaves = [x for x, v in self.trellis.nodes(data=True)
                   if self.trellis.out_degree(x) == 0
                   and v["depth"] == self.trellis_depth - 1]
@@ -298,32 +338,55 @@ class HMM:
         for i in seq:
             corrected_words.append(self.trellis.nodes[i]["name"])
 
-        return corrected_words
+        if output_str:
+            out = " ".join(corrected_words)
+        else:
+            out = corrected_words
 
-    def predict_sequence(self, words):
+        return out
 
-        words = words.split()
+    def predict_sequence(self, words, output_str = True):
         self.init_trellis()
+
+        if isinstance(sequence, str):
+            words = sequence.split()
+        else:
+            words = sequence
 
         for word in words:
             self.build_trellis(word)
 
-        return self.most_likely_sequence()
+        return self.most_likely_sequence(output_str)
 
-    def edits(self, word, n=1):
-
+    def edits(self, word, n=1, pid=None, nprocesses=None):
         if n == 1:
-            letters = "abcdefghijklmnopqrstuvwxyz"
-            splits = [(word[:i], word[i:]) for i in range(len(word) + 1)]
-            deletes = [L + R[1:] for L, R in splits if R]
-            transposes = [L + R[1] + R[0] + R[2:] for L, R in splits if len(R) > 1]
-            replaces = [L + c + R[1:] for L, R in splits if R for c in letters]
-            inserts = [L + c + R for L, R in splits for c in letters]
+            if pid is not None:
+                # Operate on a portion of the possible splits
+                total = len(word) + 1
 
-            return set(deletes + transposes + replaces + inserts)
+                count = total // nprocesses
+
+                begin = pid * count
+                end = begin + count
+
+                if pid == nprocesses - 1:
+                    end += total % nprocesses
+
+                split_range = range(begin, end)
+            else:
+                split_range = range(len(word) + 1)
+
+            letters = "abcdefghijklmnopqrstuvwxyz"
+            splits = [(word[:i], word[i:]) for i in split_range]
+
+            deletes = (L + R[1:] for L, R in splits if R)
+            transposes = (L + R[1] + R[0] + R[2:] for L, R in splits if len(R) > 1)
+            replaces = (L + c + R[1:] for L, R in splits if R for c in letters)
+            inserts = (L + c + R for L, R in splits for c in letters)
+
+            return itertools.chain(deletes, transposes, replaces, inserts)
         else:
-            return set(e2 for e1 in self.edits(word, 1)
-                          for e2 in self.edits(e1, n - 1))
+            return itertools.chain.from_iterable(self.edits(e1, n - 1) for e1 in self.edits(word, 1, pid, nprocesses))
 
     def known(self, words): 
         return set(w for w in words if w in self.language_model)
@@ -334,144 +397,173 @@ class HMM:
         else:
             return 1e-6
 
-    def candidates(self, word):
-        word = self.reduce_lengthening(word.lower())
+    def compute_probability(self, typed, intended):
 
-        cand = set()
-        for i in range(1, self.max_edits + 1):
-            c = self.known(self.edits(word, i))
-            cand = cand | c
+        edit_info = el.align(intended, typed, task="path")
+        cigar = edit_info["cigar"]
 
-        # If no word was found not in the language model, leave the typo as the only candidate
-        if not cand:
-            cand = {word}
-        tmp = defaultdict(float)
+        if not self.known([typed]): 
+            # Correcting non-word errors - typed word is not in the vocabulary
 
-        if not self.known([word]): 
-            # Correcting non-word errors
-            for c in cand:
-                typo = word
-                prob = 1
+            prob = 1
 
-                edit_info = el.align(c, typo, task="path")
-                cigar = edit_info["cigar"]
+            edit_info = el.align(intended, typed, task="path")
+            cigar = edit_info["cigar"]
 
-                # If it's a swap it's not anything else
-                if set(c) == set(typo) and len(c) == len(typo) and "1D1=1I" in cigar:
-                    l = zip(word, c)
-                    already_swapped = False
-                    for i, j in l:
-                        if i != j and not already_swapped:
-                            prob *= self.error_model["swap"][j][i]
-                            already_swapped = True
+            # If it's a swap it's not anything else
+            if set(intended) == set(typed) and \
+               len(intended) == len(typed) and \
+               "1D1=1I" in cigar:
+
+                l = zip(typed, intended)
+                already_swapped = False
+
+                for i, j in l:
+                    if i != j and not already_swapped:
+                        prob *= self.error_model["swap"][j][i]
+                        already_swapped = True
+                    else:
+                        already_swapped = False
+
+            else:
+                # Editing typed to account for accidental insertions or deletions
+                # Also factoring in insertion or deletion probabilities
+                pos = -1
+                edited = typed
+
+                for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
+                    idx = int(idx)
+                    pos += idx
+
+                    if op == "I":
+                        if pos == 1 or pos > len(intended):
+                            prev = "#"
                         else:
-                            already_swapped = False
+                            prev = intended[pos - 1]
+                        
+                        edited = edited[:pos] + "$"*idx + edited[pos:]
+                        prob *= self.error_model["del"][prev][intended[pos]]
 
-                else:
-                    # Editing typo to account for accidental insertions or deletions
-                    # Also factoring in insertion or deletion probabilities
-                    pos = -1
-                    edited_typo = typo
-                    for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
-                        idx = int(idx)
-                        pos += idx
+                    elif op == "D":
+                        if pos == 1 or pos > len(intended):
+                            prev = "#"
+                        else:
+                            prev = intended[pos - 1]
 
-                        if op == "I":
-                            if pos == 1 or pos > len(c):
-                                prev = "#"
-                            else:
-                                prev = c[pos - 1]
-                          
-                            edited_typo = edited_typo[:pos] + "$"*idx + edited_typo[pos:]
-                            prob *= self.error_model["del"][prev][c[pos]]
+                        prob *= self.error_model["ins"][prev][edited[pos]]
 
-                        elif op == "D":
-                            if pos == 1 or pos > len(c):
-                                prev = "#"
-                            else:
-                                prev = c[pos - 1]
+                        edited = edited[:pos - idx + 1] + edited[pos:]
+                        pos -= idx
 
-                            prob *= self.error_model["ins"][prev][edited_typo[pos]]
+                # Factoring in substitution probabilities
+                l = zip(edited, intended)
+                for i, j in l:
+                    if i == "$":
+                        continue
+                    prob *= self.error_model["sub"][i][j]
 
-                            edited_typo = edited_typo[:pos - idx + 1] + word[pos:]
-                            pos -= idx
-
-                    # Factoring in substitution probabilities
-                    l = zip(edited_typo, c)
-                    for i, j in l:
-                        if i == "$":
-                            continue
-                        prob *= self.error_model["sub"][i][j]
-
-                prob *= self.P(c) * int(edit_info["editDistance"])
-                tmp[c] = prob
+                # Boosting parameter to rank higher up candidates at shorter edit distances
+                parameter = 1/ (int(edit_info["editDistance"]) + 1)
+                prob *= self.P(intended) * parameter
 
         else:
-            # Correcting real-word errors
-            # Probability of mistaking a word for another
-            alpha = 0.99
-            for c in cand:
-                typo = word
-                prob = 1
+            # Correcting real-word errors - typed word is in the vocabulary
 
-                edit_info = el.align(c, typo, task="path")
-                cigar = edit_info["cigar"]
+            # Probability of mistaking a word for another, assumed to vary for different tasks
+            alpha = 0.98
+            
+            prob = 1
 
-                if word == c: 
-                    const = alpha
-                    prob *= const
-                else:
-                    const = (1 - alpha) / len(cand)
+            if typed == intended: 
+                const = alpha
+                prob *= const
+            else:
+                # If typed != intended, redistribute 1 - alpha evenly for all other candidate corrections of the noisy channel
+                const = (1 - alpha) / len(cand)
 
-                # If it's a swap it's not anything else
-                if set(c) == set(typo) and len(c) == len(typo) and "1D1=1I" in cigar:
+            # If it's a swap it's not anything else
+            if set(intended) == set(typed) and \
+                len(intended) == len(typed) and \
+                "1D1=1I" in cigar:
 
-                    l = zip(word, c)
-                    already_swapped = False
-                    for i, j in l:
-                        if i != j and not already_swapped:
-                            prob *= const
-                            already_swapped = True
+                l = zip(typed, intended)
+                already_swapped = False
+                for i, j in l:
+                    if i != j and not already_swapped:
+                        prob *= const
+                        already_swapped = True
+                    else:
+                        already_swapped = False
+
+            else:
+                # Editing typo to account for accidental insertions or deletions
+                # Also factoring in insertion or deletion probabilities
+                pos = -1
+                edited = typed
+
+                for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
+                    idx = int(idx)
+                    pos += idx
+
+                    if op == "I":
+                        if pos == 1 or pos > len(intended):
+                            prev = "$"
                         else:
-                            already_swapped = False
+                            prev = intended[pos - 1]
 
-                else:
-                    # Editing typo to account for accidental insertions or deletions
-                    # Also factoring in insertion or deletion probabilities
-                    pos = -1
-                    for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
-                        idx = int(idx)
-                        pos += idx
-                        if op == "I":
-                            if pos == 1 or pos > len(c):
-                                prev = "$"
-                            else:
-                                prev = c[pos - 1]
+                        edited = edited[:pos - 1] + "$" + edited[pos - 1:]
+                        prob *= const
 
-                            typo = word[:pos - 1] + "$" + word[pos - 1:]
-                            prob *= const
-                        elif op == "D":
-                            if pos == 1 or pos > len(c):
-                                prev = "$"
-                            else:
-                                prev = c[pos - 1]
+                    elif op == "D":
+                        if pos == 1 or pos > len(intended):
+                            prev = "$"
+                        else:
+                            prev = intended[pos - 1]
 
-                            typo = word[:pos - 1] + word[pos:]
-                            prob *= const
-                            pos -= idx
+                        edited = edited[:pos - 1] + edited[pos:]
+                        prob *= const
+                        pos -= idx
 
-                    # Factoring in substitution probabilities
-                    l = zip(typo, c)
-                    for i, j in l:
-                        if i == "$":
-                            continue
-                        if i != j:
-                            prob *= const
+                # Factoring in substitution probabilities
+                l = zip(edited, intended)
+                for i, j in l:
+                    if i == "$":
+                        continue
+                    if i != j:
+                        prob *= const
 
-                    parameter = 1/ (int(edit_info["editDistance"]) + 1)
-                    prob *= self.P(c) * parameter
-                    tmp[c] = prob
+                parameter = 1/ (int(edit_info["editDistance"]) + 1)
+                prob *= self.P(c) * parameter
 
+            return prob
+
+
+    def candidates(self, word, max_states=None):
+        self.setup_multiprocessing()
+
+        word = self.reduce_lengthening(word.lower())
+
+        if max_states is None:
+            max_states = self.max_states
+
+        results = dict()
+        for i in range(1, self.max_edits + 1):
+            nprocesses = multiprocessing.cpu_count()
+            input = [(word, i, max_states, pid, nprocesses) for pid in range(nprocesses)]
+
+            subprocesses = self.pool.imap_unordered(process_map, input)
+
+            for subprocess in subprocesses:
+                results.update(subprocess)
+
+        results = sorted(results.items(), key=lambda c: c[1], reverse=True)
+
+        # If no word was found not in the language model, leave the typo as the only candidate
+        if len(results) == 0:
+            results = [(word, 1)]
+
+        return results[:max_states]
+        
             
         tmp = OrderedDict(sorted(tmp.items(), key=lambda t: t[1], reverse=True))
 
@@ -481,16 +573,23 @@ class HMM:
         pattern = re.compile(r"(.)\1{2,}")
         return pattern.sub(r"\1\1", word)
 
-    def plot_trellis(self):
-        plt.figure()
+    def find_ngrams(self, input_list, n):
+        return list("".join(x) for x in zip(*[input_list[i:] for i in range(n)]))
+
+    def plot_trellis(self, show=True):
+        import matplotlib.pyplot as plt
+        from networkx.drawing.nx_agraph import graphviz_layout
+
+        plt.figure(1)
         G = self.trellis
 
-        labels = {e[0]: e[1]["name"] + " " + str(e[0]) for e in G.nodes(data=True)}
+        labels = {e[0]: e[1]["name"] for e in G.nodes(data=True)}
         pos = graphviz_layout(G, prog='dot')
 
         nx.draw(G, pos=pos, labels=labels)
-        plt.show()
 
-
-    def find_ngrams(self, input_list, n):
-        return list("".join(x) for x in zip(*[input_list[i:] for i in range(n)]))
+        if show:
+            # show() should not be called when opening plots from the GUI, since
+            # it blocks the whole application. The GUI code takes care of
+            # correctly showing the figure.
+            plt.show()

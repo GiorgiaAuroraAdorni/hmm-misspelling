@@ -153,7 +153,7 @@ def gen_test():
 
 # markov_test()
 
-# hmm_candidate_test()
+hmm_candidate_test()
 # hmm_build_trellis_test()
-hmm_predict_sequence_test()
+# hmm_predict_sequence_test()
 # gen_test()
