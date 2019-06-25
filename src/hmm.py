@@ -23,8 +23,8 @@ def process_map(input):
     word, i, max_states, pid, nprocesses = input
 
     candidates = set(hmm.known(hmm.edits(word, i, pid, nprocesses)))
-
-    results = [(c, hmm.compute_probability(typed=word, intended=c)) for c in candidates]
+    n_candidates = len(candidates)
+    results = [(c, hmm.compute_probability(typed=word, intended=c, n_candidates=n_candidates)) for c in candidates]
 
     results = sorted(results, key=lambda c: c[1], reverse=True)
     
@@ -398,7 +398,7 @@ class HMM:
         else:
             return 1e-6
 
-    def compute_probability(self, typed, intended):
+    def compute_probability(self, typed, intended, n_candidates):
 
         edit_info = el.align(intended, typed, task="path")
         cigar = edit_info["cigar"]
@@ -480,8 +480,8 @@ class HMM:
                 prob *= const
             else:
                 # If typed != intended, redistribute 1 - alpha evenly for all other candidate corrections of the noisy channel
-                const = (1 - alpha) / max_states
-                
+                const = (1 - alpha) / n_candidates
+
             # If it's a swap it's not anything else
             if set(intended) == set(typed) and \
                 len(intended) == len(typed) and \
@@ -534,7 +534,7 @@ class HMM:
                         prob *= const
 
                 parameter = 1/ (int(edit_info["editDistance"]) + 1)
-                prob *= self.P(c) * parameter
+                prob *= self.P(intended) * parameter
 
         return prob
 
