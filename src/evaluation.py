@@ -366,5 +366,5 @@ meta_sentence_filename = "../results/meta_sentence_prediction.csv"
 prediction_hmm_candidate_test()
 evaluation_hmm_candidate_test()
 
-# prediction_hmm_sequence_test()
-# evaluation_hmm_sequence_test()
+prediction_hmm_sequence_test()
+evaluation_hmm_sequence_test()
