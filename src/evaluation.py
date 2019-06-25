@@ -221,7 +221,6 @@ def evaluation_hmm_sequence_test():
             else:
                 not_correct_not_perturbated += 1
 
-
         if perturbated == 0:
             predictions.loc[index, 'not_correct PREV correct'] = np.nan
             predictions.loc[index, 'not_correct PREV not_correct'] = np.nan
@@ -238,7 +237,8 @@ def evaluation_hmm_sequence_test():
             predictions.loc[index, 'correct PREV correct'] = correct_not_perturbated / not_perturbated
             predictions.loc[index, 'correct PREV not_correct'] = not_correct_not_perturbated / not_perturbated
 
-        predictions.loc[index, 'error_rate'] = not_correct_prediction / total
+        predictions.loc[index, 'not_correct_modified PREV not_correct'] = not_correct_modified_perturbated
+        # predictions.loc[index, 'error_rate'] = not_correct_prediction / total
         predictions.loc[index, 'correct'] = perturbated / total
         predictions.loc[index, 'not_correct'] = not_perturbated / total
         predictions.loc[index, 'accuracy'] = correct_prediction / total
@@ -247,12 +247,14 @@ def evaluation_hmm_sequence_test():
         if correct_perturbated + not_correct_not_perturbated + not_correct_modified_perturbated == 0:
             predictions.loc[index, 'precision'] = np.nan
         else:
-            predictions.loc[index, 'precision'] = correct_perturbated / (correct_perturbated + not_correct_not_perturbated + not_correct_modified_perturbated )
+            predictions.loc[index, 'precision'] = correct_perturbated / (
+                        correct_perturbated + not_correct_not_perturbated + not_correct_modified_perturbated)
 
         if correct_perturbated + not_correct_perturbated == 0:
             predictions.loc[index, 'recall'] = np.nan
         else:
-            predictions.loc[index, 'recall'] = correct_perturbated / (correct_perturbated + not_correct_perturbated)  # same of sensitivity
+            predictions.loc[index, 'recall'] = correct_perturbated / (
+                        correct_perturbated + not_correct_perturbated)  # same of sensitivity
 
         # if not_correct_perturbated + correct_not_perturbated == 0:
         #     predictions.loc[index, 'specificity'] = np.nan
@@ -262,7 +264,9 @@ def evaluation_hmm_sequence_test():
         if predictions.loc[index, 'precision'] + predictions.loc[index, 'recall'] == 0:
             predictions.loc[index, 'F1-score'] = np.nan
         else:
-            predictions.loc[index, 'F1-score'] = 2 * (predictions.loc[index, 'precision'] * predictions.loc[index, 'recall'] / (predictions.loc[index, 'precision'] + predictions.loc[index, 'recall']))
+            predictions.loc[index, 'F1-score'] = 2 * (
+                        predictions.loc[index, 'precision'] * predictions.loc[index, 'recall'] / (
+                            predictions.loc[index, 'precision'] + predictions.loc[index, 'recall']))
 
     word_accuracy = np.mean(predictions['accuracy'])
     word_precision = np.mean(predictions['precision'])
@@ -276,6 +280,7 @@ def evaluation_hmm_sequence_test():
     word_not_correct_PREV_not_correct = np.nanmean(predictions['not_correct PREV not_correct'])
     word_correct_PREV_correct = np.nanmean(predictions['correct PREV correct'])
     word_correct_PREV_not_correct = np.nanmean(predictions['correct PREV not_correct'])
+    word_not_correct_modified_PREV_not_correct = np.nanmean(predictions['not_correct_modified PREV not_correct'])
     initial_error = np.nanmean(predictions['initial_error'])
     # error_rate = np.nanmean(predictions['error_rate'])
 
@@ -319,6 +324,7 @@ def evaluation_hmm_sequence_test():
     meta['correct'] = word_correct * 100
     meta['not_correct'] = word_not_correct * 100
     meta['not_correct_PREV_not_correct'] = word_not_correct_PREV_not_correct * 100
+    meta['not_correct_modified_PREV_not_correct'] = word_not_correct_modified_PREV_not_correct * 100
     meta['correct_PREV_correct'] = word_correct_PREV_correct * 100
 
     meta = meta.round(2)
@@ -333,7 +339,7 @@ typo_ds_test = "../data/typo/clean/test.csv"
 perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-10%.txt"
 # perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-15%.txt"
 # perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-20%.txt"
-edit_distance = 2
+edit_distance = 1
 ####
 
 print("\n Starting training…")
@@ -357,8 +363,8 @@ prediction_sentence_filename = "../results/sentence_prediction.csv"
 meta_typo_filename = "../results/meta_typo_prediction-test.csv"
 meta_sentence_filename = "../results/meta_sentence_prediction.csv"
 
-prediction_hmm_candidate_test()
-evaluation_hmm_candidate_test()
+# prediction_hmm_candidate_test()
+# evaluation_hmm_candidate_test()
 
 # prediction_hmm_sequence_test()
-# evaluation_hmm_sequence_test()
+evaluation_hmm_sequence_test()
