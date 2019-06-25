@@ -21,38 +21,38 @@ def hmm_candidate_test():
     print("### HMM Candidates Test")
     pp = pprint.PrettyPrinter(indent=4)
 
-    hmm = HMM(1, max_edits=2, max_states=10)
+    hmm = HMM(1, max_edits=2, max_states=5)
     hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
               sentences_ds="../data/texts/lotr_clean.txt",
               typo_ds="../data/typo/clean/train.csv")
 
-    pp.pprint("Typed: boogs")
+    pp.pprint("Typed: bools")
     start = time.time()
-    x = hmm.candidates("boogs")
+    x = hmm.candidates("bools")
     end = time.time()
     pred_time = end - start
     pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
-    pp.pprint("Typed: ben")
+    pp.pprint("Typed: peculair")
     start = time.time()
-    x = hmm.candidates("ben")
+    x = hmm.candidates("peculair")
     end = time.time()
     pred_time = end - start
     pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
-    pp.pprint("Typed: ambigos")
+    pp.pprint("Typed: migt")
     start = time.time()
-    x = hmm.candidates("ambigos")
+    x = hmm.candidates("migt")
     end = time.time()
     pred_time = end - start
     pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
-    pp.pprint("Typed: ambigous")
+    pp.pprint("Typed: littele")
     start = time.time()
-    x = hmm.candidates("ambigous")
+    x = hmm.candidates("littele")
     end = time.time()
     pred_time = end - start
     pp.pprint("Time: " + str(pred_time))
@@ -137,30 +137,30 @@ def hmm_predict_sequence_test():
 def gen_test():
     print("### HMM Candidates Test")
 
-    hmm = HMM(1, max_edits=2, max_states=5)
+    hmm = HMM(1, max_edits=1, max_states=5)
     hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
               sentences_ds="../data/texts/lotr_clean.txt",
               typo_ds="../data/typo/clean/train.csv")
 
-    pp.pprint("Typed: a")
+    pp.pprint("Typed: andd")
     start = time.time()
-    x = hmm.candidates("a")
+    x = hmm.candidates("andd")
     end = time.time()
     pred_time = end - start
     pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
-    pp.pprint("#3")
+    """ pp.pprint("#3")
     sentence = "a regular warren by all aucounts"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
-    pp.pprint("Corrected: " + correct)
-    plt.show()
+    pp.pprint("Corrected: " + " ".join(correct))
+    plt.show() """
 
 
 # markov_test()
 
 # hmm_candidate_test()
 # hmm_build_trellis_test()
-hmm_predict_sequence_test()
-# gen_test()
+# hmm_predict_sequence_test()
+gen_test()

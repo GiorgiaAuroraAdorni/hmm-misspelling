@@ -324,8 +324,8 @@ def evaluation_hmm_sequence_test():
     meta.to_csv("../results/meta_sentence_prediction-1000-10%.csv", sep=',', index=False)
 
 
-# prediction_hmm_candidate_test()
-# evaluation_hmm_candidate_test()
+prediction_hmm_candidate_test()
+evaluation_hmm_candidate_test()
 
-prediction_hmm_sequence_test()
-evaluation_hmm_sequence_test()
+# prediction_hmm_sequence_test()
+# evaluation_hmm_sequence_test()

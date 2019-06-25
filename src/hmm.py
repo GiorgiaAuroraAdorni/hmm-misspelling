@@ -67,22 +67,35 @@ class HMM:
             lines = [row for row in reader]
 
             for line in lines:
-
                 word = line[0]
-                self.language_model[word] = float(line[1]) / 100
+                self.language_model[word] = float(line[1])
 
         # Training the error model
         with open(typo_ds, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
-            self.error_model = {"sub": defaultdict(self._error_model_sub_init), "swap": 0, "ins": 0, "del": 0, "p": 0}
+            self.error_model = {"sub": defaultdict(self._error_model_sub_init), 
+                                "swap": defaultdict(self._error_model_sub_init), 
+                                "ins": defaultdict(self._error_model_sub_init), 
+                                "del": defaultdict(self._error_model_sub_init), 
+                                "p": 0}
 
-        c_sub = Counter()
+        
+        ngram_counter = Counter()
+        
         correct_character_count = 0
 
         for elem in obs:
+
             typo = edited_typo = elem[0]
             correct = elem[1]
+
+            special = '[@_!#$%^&*()<>?/\\|}{~:]'
+            if any([x for x in correct if x in special]):
+                continue
+            if any([x for x in typo if x in special]):
+                continue
+
 
             # Editing typed string to account for accidental insertions, deletions and swaps to align letters, counting them:
             # Ex: steet = st$eet (accidental deletion, index accounted by special char $)
@@ -97,62 +110,93 @@ class HMM:
             # If typo and correct share the same letters, are of the same length, and the cigar has one sequence of 1 deletion, 1 match and 1 insertion. that means there are only swap errors in the typo
             if set(correct) == set(typo) and len(correct) == len(typo) and "1D1=1I" in cigar:
                 l = zip(edited_typo, correct)
-                swaps = 0
+
+                already_swapped = False
                 for i, j in l:
-                    if i != j:
-                        swaps += 1
-                swaps /= 2
-                self.error_model["swap"] += swaps
+                    if i != j and not already_swapped:
+                        self.error_model["swap"][j][i] += 1
+                        already_swapped = True
+                    else:
+                        already_swapped = False
+                
             else:
+                pos = -1
                 edited_typo = typo
-                pos = 0
+
                 for idx, op in re.findall('(\d+)([IDX=])?', cigar):
                     idx = int(idx)
                     pos += idx
+              
                     if op == "I":
-                        self.error_model["del"] += 1
-                        edited_typo = edited_typo[:pos - 1] + "$" + edited_typo[pos - 1:]
+                        if pos == 1 or pos > len(correct):
+                            prev = "$"
+                        else:
+                            prev = correct[pos - 1]
+
+                        self.error_model["del"][prev][correct[pos]] += 1
+
+                        edited_typo = edited_typo[:pos] + "$"*idx + edited_typo[pos :]
                     elif op == "D":
-                        self.error_model["ins"] += 1
-                        edited_typo = edited_typo[:pos - 1] + edited_typo[pos:]
-                
-                # Counting the frequency of substitutions and swaps between letters
-                # A typed word contains a swap between two adjacent letters if given two adjacent letters x, y of the typed word, the 
+                        if pos == 1 or pos > len(correct):
+                            prev = "$"
+                        else:
+                            prev = edited_typo[pos - 1]
+
+                        self.error_model["ins"][prev][edited_typo[pos]] += 1
+                        edited_typo = edited_typo[:pos - idx + 1] + edited_typo[pos + 1:]
+                        pos -= idx
+
                 l = zip(edited_typo, correct)
                 for i, j in l:
                     if i == "$":
                         continue
-                    c_sub[j] += 1
                     self.error_model["sub"][i][j] += 1
+
+                ngrams = self.find_ngrams(correct, 1) + self.find_ngrams(correct, 2)
+
+                for gram in ngrams:
+                    ngram_counter[gram] += 1
 
             if correct in self.graph:
                 self.graph[correct]["obs"].append(typo)
 
-        # Removing special characters
-        special = '[@_!#$%^&*()<>?/\\|}{~:]'
-        keys = [k for k, v in self.error_model["sub"].items() if k in special]
-        for k in keys:
-            self.error_model["sub"].pop(k, None)
-
         # Normalization
-        avg = sum(c for c in c_sub.values()) / len(c_sub)
+        unigrams_counter = [v for k, v in ngram_counter.items() if len(k) == 1]
+        avg_uni = sum(unigrams_counter) / len(unigrams_counter)
         for key in self.error_model["sub"]:
             for subkey in self.error_model["sub"][key]:
-                if c_sub[key] == 0:
-                    # The letter (key) doesn't appear in the dataset as a correct letter, dividing by the mean of c_sub
+                if ngram_counter[key] == 0:
+                    # The letter (key) doesn't appear in the dataset as a correct letter, dividing by the mean of unigram_counter
                     
-                    self.error_model["sub"][key][subkey] /= avg
+                    self.error_model["sub"][key][subkey] /= avg_uni
                 else:
-                    self.error_model["sub"][key][subkey] /= c_sub[key]
+                    self.error_model["sub"][key][subkey] /= ngram_counter[key]
 
-        total = len(obs)
-        self.error_model["ins"] /= correct_character_count
-        self.error_model["del"] /= correct_character_count
-        self.error_model["swap"] /= correct_character_count
+
+        for key in self.error_model["ins"]:
+            for subkey in self.error_model["ins"][key]:
+                    if ngram_counter[key] == 0:
+                        self.error_model["ins"][key][subkey] /= avg_uni
+                    else:
+                        self.error_model["ins"][key][subkey] /= ngram_counter[key]
+
+        bigrams_counter = [v for k, v in ngram_counter.items() if len(k) == 2]
+        avg_bi = sum(bigrams_counter) / len(bigrams_counter)
+        for key in self.error_model["del"]:
+            for subkey in self.error_model["del"][key]:
+                    if ngram_counter[key + subkey] == 0:
+                        self.error_model["del"][key][subkey] /= avg_bi
+                    else:
+                        self.error_model["del"][key][subkey] /= ngram_counter[key + subkey]
+
+        for key in self.error_model["swap"]:
+            for subkey in self.error_model["swap"][key]:
+                    if ngram_counter[key + subkey] == 0:
+                        self.error_model["swap"][key][subkey] /= avg_bi
+                    else:
+                        self.error_model["swap"][key][subkey] /= ngram_counter[key + subkey]
+
         self.error_model["p"] /= correct_character_count
-
-        # Sorting by keys
-        self.language_model = dict(sorted(self.language_model.items()))
 
     def init_trellis(self):
         self.trellis.clear()
@@ -232,8 +276,6 @@ class HMM:
 
         self.trellis_depth += 1
 
-        self.plot_trellis()
-
     def most_likely_sequence(self):
         leaves = [x for x, v in self.trellis.nodes(data=True)
                   if self.trellis.out_degree(x) == 0
@@ -259,12 +301,11 @@ class HMM:
         return corrected_words
 
     def predict_sequence(self, words):
-        
+
         words = words.split()
         self.init_trellis()
 
         for word in words:
-            pp.pprint(word)
             self.build_trellis(word)
 
         return self.most_likely_sequence()
@@ -284,7 +325,8 @@ class HMM:
             return set(e2 for e1 in self.edits(word, 1)
                           for e2 in self.edits(e1, n - 1))
 
-    def known(self, words): return set(w for w in words if w in self.language_model)
+    def known(self, words): 
+        return set(w for w in words if w in self.language_model)
 
     def P(self, word):
         if word in self.language_model:
@@ -294,7 +336,7 @@ class HMM:
 
     def candidates(self, word):
         word = self.reduce_lengthening(word.lower())
-        
+
         cand = set()
         for i in range(1, self.max_edits + 1):
             c = self.known(self.edits(word, i))
@@ -303,64 +345,146 @@ class HMM:
         # If no word was found not in the language model, leave the typo as the only candidate
         if not cand:
             cand = {word}
-    
         tmp = defaultdict(float)
-        for c in cand:
-            typo = word
-            prob = 1
 
-            insertions = 0
-            deletions = 0
+        if not self.known([word]): 
+            # Correcting non-word errors
+            cand = ["dad"]
+            for c in cand:
+                typo = word
+                prob = 1
 
-            # The word is most probably correct
-            if typo == c:
-                tmp[c] = 1
-                continue
+                edit_info = el.align(c, typo, task="path")
+                cigar = edit_info["cigar"]
 
-            edit_info = el.align(c, typo, task="path")
-            cigar = edit_info["cigar"]
+                # If it's a swap it's not anything else
+                if set(c) == set(typo) and len(c) == len(typo) and "1D1=1I" in cigar:
+                    l = zip(word, c)
+                    already_swapped = False
+                    for i, j in l:
+                        if i != j and not already_swapped:
+                            prob *= self.error_model["swap"][j][i]
+                            already_swapped = True
+                        else:
+                            already_swapped = False
 
-            # If it's a swap it's not anything else
-            if set(c) == set(typo) and len(c) == len(typo) and "1D1=1I" in cigar:
+                else:
+                    # Editing typo to account for accidental insertions or deletions
+                    # Also factoring in insertion or deletion probabilities
+                    pos = -1
+                    edited_typo = ""
+                    for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
+                        idx = int(idx)
+                        pos += idx
 
-                l = zip(typo, c)
-                swaps = 0
-                for i, j in l:
-                    if i != j:
-                        swaps += 1
-                swaps /= 2
-                swaps = int(swaps)
-                for i in range(0, swaps):
-                    prob *= self.error_model["swap"]
+                        pp.pprint(c)
+                        pp.pprint(typo)
+                        pp.pprint(edited_typo)
+                        pp.pprint(pos)
+                        pp.pprint(cigar)
+                        pp.pprint("----")
 
-            else:
-                # Editing typo to account for accidental insertions or deletions
-                pos = 0
-                for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
-                    idx = int(idx)
-                    pos += idx
-                    if op == "I":
-                        insertions += 1
-                        typo = typo[:pos - 1] + "$" + typo[pos - 1:]
-                    elif op == "D":
-                        deletions += 1
-                        typo = typo[:pos - 1] + typo[pos:]
+                        if op == "I":
+                            if pos == 1 or pos > len(c):
+                                prev = "#"
+                            else:
+                                prev = c[pos - 1]
+                          
+                            edited_typo += "$" * idx
+                            pos -= idx
+                            pp.pprint(edited_typo)
+                            pp.pprint("----")
 
-                # Factoring in insertion or deletion probabilities
-                for i in range(0, insertions):
-                    prob *= self.error_model["ins"]
-                for i in range(0, deletions):
-                    prob *= self.error_model["del"]
+                            prob *= self.error_model["del"][prev][c[pos]]
 
-                # Factoring in substitution probabilities
-                l = zip(typo, c)
-                for i, j in l:
-                    if i == "$":
-                        continue
-                    prob *= self.error_model["sub"][i][j]
+                        elif op == "D":
+                            if pos == 1 or pos > len(c):
+                                prev = "#"
+                            else:
+                                prev = typo[pos - 1]
 
-            prob *= self.P(c)
-            tmp[c] = prob
+                            prob *= self.error_model["ins"][prev][edited_typo[pos]]
+
+                        else:
+                            for i in range(pos - idx, pos):
+                                edited_typo += typo[i]
+
+                    # Factoring in substitution probabilities
+                    l = zip(edited_typo, c)
+                    for i, j in l:
+                        if i == "$":
+                            continue
+                        prob *= self.error_model["sub"][i][j]
+
+                prob *= self.P(c) * int(edit_info["editDistance"])
+                tmp[c] = prob
+
+        else:
+            # Correcting real-word errors
+            # Probability of mistaking a word for another
+            alpha = 0.99
+            for c in cand:
+                typo = word
+                prob = 1
+
+                edit_info = el.align(c, typo, task="path")
+                cigar = edit_info["cigar"]
+
+                if word == c: 
+                    const = alpha
+                    prob *= const
+                else:
+                    const = (1 - alpha) / len(cand)
+
+                # If it's a swap it's not anything else
+                if set(c) == set(typo) and len(c) == len(typo) and "1D1=1I" in cigar:
+
+                    l = zip(word, c)
+                    already_swapped = False
+                    for i, j in l:
+                        if i != j and not already_swapped:
+                            prob *= const
+                            already_swapped = True
+                        else:
+                            already_swapped = False
+
+                else:
+                    # Editing typo to account for accidental insertions or deletions
+                    # Also factoring in insertion or deletion probabilities
+                    pos = -1
+                    for idx, op in re.findall(r'''(\d+)([IDX=])?''', cigar):
+                        idx = int(idx)
+                        pos += idx
+                        if op == "I":
+                            if pos == 1 or pos > len(c):
+                                prev = "$"
+                            else:
+                                prev = c[pos - 1]
+
+                            typo = word[:pos - 1] + "$" + word[pos - 1:]
+                            prob *= const
+                        elif op == "D":
+                            if pos == 1 or pos > len(c):
+                                prev = "$"
+                            else:
+                                prev = c[pos - 1]
+
+                            typo = word[:pos - 1] + word[pos:]
+                            prob *= const
+                            pos -= idx
+
+                    # Factoring in substitution probabilities
+                    l = zip(typo, c)
+                    for i, j in l:
+                        if i == "$":
+                            continue
+                        if i != j:
+                            prob *= const
+
+                    parameter = 1/ (int(edit_info["editDistance"]) + 1)
+                    prob *= self.P(c) * parameter
+                    tmp[c] = prob
+
             
         tmp = OrderedDict(sorted(tmp.items(), key=lambda t: t[1], reverse=True))
 
@@ -379,3 +503,7 @@ class HMM:
 
         nx.draw(G, pos=pos, labels=labels)
         plt.show()
+
+
+    def find_ngrams(self, input_list, n):
+        return list("".join(x) for x in zip(*[input_list[i:] for i in range(n)]))
