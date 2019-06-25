@@ -397,7 +397,7 @@ class HMM:
         else:
             return 1e-6
 
-    def compute_probability(self, typed, intended):
+    def compute_probability(self, typed, intended, n_candidates):
 
         edit_info = el.align(intended, typed, task="path")
         cigar = edit_info["cigar"]
