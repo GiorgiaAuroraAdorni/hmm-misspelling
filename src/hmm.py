@@ -535,7 +535,7 @@ class HMM:
                 parameter = 1/ (int(edit_info["editDistance"]) + 1)
                 prob *= self.P(c) * parameter
 
-            return prob
+        return prob
 
 
     def candidates(self, word, max_states=None):
