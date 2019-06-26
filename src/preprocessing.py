@@ -1,7 +1,8 @@
 #!/usr/bin/python3.7
-from util import clean_dataset, split_dataset, perturb, create_model_language, split_list
+from util import clean_dataset, split_dataset, perturb_file, create_model_language, split_list, create_typo_dataset
 import pandas as pd
 import json
+import csv
 import os
 import re
 
@@ -33,7 +34,9 @@ with open('../data/texts/LordOfTheRingsBook.json') as json_data:
     splitted = list()
 
     for line in real:
-        if len(line.split()) > 10:
+        if len(line.split()) == 0:
+            continue
+        elif len(line.split()) > 10:
             line = split_list(line.split(), 10)
 
             splitted.extend(line)
@@ -55,8 +58,22 @@ perturbed1 = open("../data/texts/perturbated/lotr_clean_perturbed-10%.txt", "w")
 perturbed2 = open("../data/texts/perturbated/lotr_clean_perturbed-15%.txt", "w")
 perturbed3 = open("../data/texts/perturbated/lotr_clean_perturbed-20%.txt", "w")
 
-perturb(perturbed1, 0.10)
-perturb(perturbed2, 0.20)
-perturb(perturbed3, 0.30)
+perturb_file(perturbed1, 0.10)
+perturb_file(perturbed2, 0.20)
+perturb_file(perturbed3, 0.30)
 
 create_model_language()
+
+# Create a new perturbed typo dataset (accordingly the new language model)
+typo_ds = open("../data/typo/lotr_typo.csv", mode="w")
+typo_writer = csv.writer(typo_ds)
+
+create_typo_dataset(typo_writer)
+
+typo_ds.close()
+
+# Split the typo dataset in train and test
+lotr_train, lotr_test = split_dataset(pd.read_csv("../data/typo/lotr_typo.csv"))
+
+lotr_train.to_csv(directory + "clean/lotr_train.csv", sep=',', header=None, index=False)
+lotr_test.to_csv(directory + "clean/lotr_test.csv", sep=',', header=None, index=False)

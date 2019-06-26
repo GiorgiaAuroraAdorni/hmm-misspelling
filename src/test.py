@@ -74,6 +74,14 @@ def hmm_candidate_test():
     pp.pprint("Time: " + str(pred_time))
     pp.pprint(x)
 
+    pp.pprint("Typed: permforance")
+    start = time.time()
+    x = hmm.candidates("permforance")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
     print("\n")
 
 
@@ -109,28 +117,24 @@ def hmm_predict_sequence_test():
     sentence = "wpen mr bilbo bagginx of bag end announcwd that he"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
-    correct = " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#2")
     sentence = "now beclml a local legend and it wos popultrly believed"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
-    correct = " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#3")
     sentence = "was too much of f goof thing it seemed unfair"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
-    correct = " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
     pp.pprint("#4")
     sentence = "so fap trouble had not come and as mr baggins"
     pp.pprint("Sentence: " + sentence)
     correct = hmm.predict_sequence(sentence)
-    correct = " ".join(correct)
     pp.pprint("Corrected: " + correct)
 
 

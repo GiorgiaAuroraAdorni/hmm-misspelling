@@ -23,6 +23,7 @@ def process_map(input):
     word, i, max_states, pid, nprocesses = input
 
     candidates = set(hmm.known(hmm.edits(word, i, pid, nprocesses)))
+
     n_candidates = len(candidates)
     results = [(c, hmm.compute_probability(typed=word, intended=c, n_candidates=n_candidates)) for c in candidates]
 
@@ -33,6 +34,7 @@ def process_map(input):
     # globally distinct results.
     return results[:max_states]
 
+  
 class HMM:
 
     def __init__(self, order, max_edits, max_states):
@@ -210,7 +212,6 @@ class HMM:
                 else:
                     self.error_model["sub"][key][subkey] /= ngram_counter[key]
 
-
         for key in self.error_model["ins"]:
             for subkey in self.error_model["ins"][key]:
                     if ngram_counter[key] == 0:
@@ -272,7 +273,6 @@ class HMM:
                 self.trellis.add_edge(0, new_id, weight=p)
         else:
             # Get leaf nodes representing last states
-
             leaves = [x for x, v in self.trellis.nodes(data=True)
                       if self.trellis.out_degree(x) == 0
                       and v["depth"] == self.trellis_depth - 1]
@@ -317,7 +317,8 @@ class HMM:
         # TODO: re-add a DEBUG flag if you need to enable this
         # self.plot_trellis()
 
-    def most_likely_sequence(self, output_str = True):
+    def most_likely_sequence(self, output_str=True):
+
         leaves = [x for x, v in self.trellis.nodes(data=True)
                   if self.trellis.out_degree(x) == 0
                   and v["depth"] == self.trellis_depth - 1]
@@ -346,7 +347,8 @@ class HMM:
 
         return out
 
-    def predict_sequence(self, sequence, output_str = True):
+    def predict_sequence(self, sequence, output_str=True):
+
         self.init_trellis()
 
         if isinstance(sequence, str):

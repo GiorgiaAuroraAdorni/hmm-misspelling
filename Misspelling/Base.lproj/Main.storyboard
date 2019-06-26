@@ -736,11 +736,14 @@
                                 </scroller>
                             </scrollView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wqR-d1-d0R">
-                                <rect key="frame" x="14" y="13" width="284" height="32"/>
-                                <buttonCell key="cell" type="push" title="I think we can use a couple buttons here" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="r1B-y3-TlZ">
+                                <rect key="frame" x="14" y="13" width="173" height="32"/>
+                                <buttonCell key="cell" type="push" title="Most Likely Sequence" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="r1B-y3-TlZ">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="showMostLikelySequence:" target="XfG-lQ-9wD" id="7Ah-rP-8nw"/>
+                                </connections>
                             </button>
                         </subviews>
                         <constraints>

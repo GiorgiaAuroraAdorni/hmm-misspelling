@@ -149,7 +149,8 @@ def prediction_hmm_sequence_test():
     print("Endend testing in {:6.2f} seconds \n".format(test_time))
 
     # save prediction to csv
-    d = {'target': real[:iterator], 'perturbated': perturbated[:iterator], 'observed': observed}
+    d = {'target': real[:iterator + 1], 'perturbated': perturbated[:iterator + 1], 'observed': observed}
+  
     prediction = pd.DataFrame(d)
 
     prediction.to_csv(prediction_sentence_filename, sep=',', index=False)

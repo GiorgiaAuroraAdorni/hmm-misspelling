@@ -22,7 +22,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         sys.path.insert(0, pythonSources)
         
         let os = Python.import("os")
-        os.environ["NLTK_DATA"] = Bundle.main.path(forResource: "nltk_data", ofType: nil).pythonObject
+        os.environ["PATH"] = "/usr/local/bin:\(os.environ["PATH"])".pythonObject
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
