@@ -37,7 +37,7 @@ model = {"max_edits": [hmm.max_edits], "max_states": [hmm.max_states], "order": 
          'language_ds': words_ds, 'sentence_ds': sentences_ds, 'typo_ds_train': typo_ds_train,
          'typo_ds_test': typo_ds_test, 'edit_distance': edit_distance}
 m = pd.DataFrame(model)
-m.to_csv("../results/experiment1/1-model.csv", sep=',', index=False, header=None)
+m.to_csv("../results/experiment1/1-model.csv", sep=',', index=False)
 
 ## Typo:
 # On test set
@@ -107,7 +107,7 @@ model = {"max_edits": [hmm.max_edits], "max_states": [hmm.max_states], "order": 
          'language_ds': words_ds, 'sentence_ds': sentences_ds, 'typo_ds_train': typo_ds_train,
          'typo_ds_test': typo_ds_test, 'edit_distance': edit_distance}
 m = pd.DataFrame(model)
-m.to_csv("../results/experiment1/2-model.csv", sep=',', index=False, header=None)
+m.to_csv("../results/experiment1/2-model.csv", sep=',', index=False)
 
 ## Typo:
 # On test set
@@ -118,11 +118,11 @@ eval.prediction_hmm_candidate_test(typo_ds_test, hmm, prediction_typo_test_filen
 eval.evaluation_hmm_candidate_test(prediction_typo_test_filename, meta_typo_test_filename)
 
 # On train set
-prediction_typo_train_filename = "../results/experiment1/2-typo_prediction-train.csv"
-meta_typo_train_filename = "../results/experiment1/2-meta_typo_prediction-train.csv"
+# prediction_typo_train_filename = "../results/experiment1/2-typo_prediction-train.csv"
+# meta_typo_train_filename = "../results/experiment1/2-meta_typo_prediction-train.csv"
 
-eval.prediction_hmm_candidate_test(typo_ds_train, hmm, prediction_typo_train_filename, meta_typo_train_filename)
-eval.evaluation_hmm_candidate_test(prediction_typo_train_filename, meta_typo_train_filename)
+# eval.prediction_hmm_candidate_test(typo_ds_train, hmm, prediction_typo_train_filename, meta_typo_train_filename)
+# eval.evaluation_hmm_candidate_test(prediction_typo_train_filename, meta_typo_train_filename)
 
 ## Sentence
 # Perturbation 5%
@@ -191,7 +191,7 @@ model = {"max_edits": [hmm.max_edits], "max_states": [hmm.max_states], "order": 
          'language_ds': words_ds, 'sentence_ds': sentences_ds, 'typo_ds_train': typo_ds_train,
          'typo_ds_test': typo_ds_test, 'edit_distance': edit_distance}
 m = pd.DataFrame(model)
-m.to_csv("../results/experiment3/1-model.csv", sep=',', index=False, header=None)
+m.to_csv("../results/experiment3/1-model.csv", sep=',', index=False)
 
 ## Typo:
 # On test set
@@ -261,7 +261,7 @@ model = {"max_edits": [hmm.max_edits], "max_states": [hmm.max_states], "order": 
          'language_ds': words_ds, 'sentence_ds': sentences_ds, 'typo_ds_train': typo_ds_train,
          'typo_ds_test': typo_ds_test, 'edit_distance': edit_distance}
 m = pd.DataFrame(model)
-m.to_csv("../results/experiment3/2-model.csv", sep=',', index=False, header=None)
+m.to_csv("../results/experiment3/2-model.csv", sep=',', index=False)
 
 ## Typo:
 # On test set
@@ -272,11 +272,11 @@ eval.prediction_hmm_candidate_test(typo_ds_test, hmm, prediction_typo_test_filen
 eval.evaluation_hmm_candidate_test(prediction_typo_test_filename, meta_typo_test_filename)
 
 # On train set
-prediction_typo_train_filename = "../results/experiment3/2-typo_prediction-train.csv"
-meta_typo_train_filename = "../results/experiment3/2-meta_typo_prediction-train.csv"
+# prediction_typo_train_filename = "../results/experiment3/2-typo_prediction-train.csv"
+# meta_typo_train_filename = "../results/experiment3/2-meta_typo_prediction-train.csv"
 
-eval.prediction_hmm_candidate_test(typo_ds_train, hmm, prediction_typo_train_filename, meta_typo_train_filename)
-eval.evaluation_hmm_candidate_test(prediction_typo_train_filename, meta_typo_train_filename)
+# eval.prediction_hmm_candidate_test(typo_ds_train, hmm, prediction_typo_train_filename, meta_typo_train_filename)
+# eval.evaluation_hmm_candidate_test(prediction_typo_train_filename, meta_typo_train_filename)
 
 ## Sentence
 # Perturbation 5%
