@@ -6,6 +6,7 @@ import random
 import string
 import time
 import csv
+import re
 
 
 def read_dataset(dataset):
@@ -56,7 +57,7 @@ def clean_sentences_dataset(ds):
     splitted = list()
 
     for line in ds:
-        if len(line.split()) == 0:
+        if len(line.split()) < 5:
             continue
         elif len(line.split()) > 10:
             line = split_list(line.split(), 10)

@@ -1,10 +1,9 @@
 #!/usr/bin/python3.7
-from util import clean_dataset, split_dataset, perturb_file, create_model_language, split_list, create_typo_dataset
+import util
 import pandas as pd
 import json
 import csv
 import os
-import re
 
 directory = "../data/typo/"
 
@@ -24,30 +23,28 @@ train, test = split_dataset(combined_csv)
 train.to_csv(directory + "clean/train.csv", sep=',', header=None, index=False)
 test.to_csv(directory + "clean/test.csv", sep=',', header=None, index=False)
 
+# Read big.txt and extract a cleaned dataset
+big_file = "../data/texts/big.txt"
+lotr_file = "../data/texts/LordOfTheRingsBook.json"
+
+with open(big_file, "r") as f:
+    big = f.read()
+    big_cleaned = util.clean_sentences_dataset(big)
+
+with open(big_file.replace(".txt", "_clean.txt"), mode="w") as outfile:
+    for r in big_cleaned:
+        outfile.write("%s\n" % r)
+
 # Read LordOfTheRingsBook.json and extract a cleaned dataset
-with open('../data/texts/LordOfTheRingsBook.json') as json_data:
+with open(lotr_file) as json_data:
     d = json.load(json_data)
-    real = [chapter["ChapterData"] for chapter in d]
-    real = "\n".join(real)
-    real = real.replace("Mr.", "Mr").replace("Mrs.", "Mrs")
-    real = real.split(".")
-    splitted = list()
+    lotr = [chapter["ChapterData"] for chapter in d]
+    lotr = "\n".join(lotr)
 
-    for line in real:
-        if len(line.split()) == 0:
-            continue
-        elif len(line.split()) > 10:
-            line = split_list(line.split(), 10)
-
-            splitted.extend(line)
-        else:
-            splitted.append(line)
-
-    splitted = [r.strip().lower().replace("'", '') for r in splitted]
-    splitted = [re.sub(r"[^a-zA-Z0-9]+", ' ', r) for r in splitted]
+    lotr_cleaned = util.clean_sentences_dataset(lotr)
 
 with open("../data/texts/lotr_clean.txt", mode="w") as outfile:
-    for r in splitted:
+    for r in lotr_cleaned:
         outfile.write("%s\n" % r)
 
 # Create a perturbated dataset
