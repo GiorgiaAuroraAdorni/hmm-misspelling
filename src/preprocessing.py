@@ -73,7 +73,16 @@ util.perturb_file(perturbed1b, 0.10)
 util.perturb_file(perturbed2b, 0.15)
 util.perturb_file(perturbed3b, 0.20)
 
+# Create lotr model language
 util.create_model_language()
+
+# Clean big model language
+frequency_alpha_gcide = pd.read_csv("../data/word_freq/frequency-alpha-gcide.txt", sep="\t", header=None)
+
+big_model_lang = pd.DataFrame()
+big_model_lang['word'] = [x.split()[1] for x in frequency_alpha_gcide[0].tolist()]
+big_model_lang['freq'] = frequency_alpha_gcide[2]
+big_model_lang.to_csv("../data/word_freq/big_language_model.txt", sep=',', index=False, header=None)
 
 # Create a new perturbed typo dataset (accordingly the new language model)
 typo_ds = open("../data/typo/lotr_typo.csv", mode="w")
