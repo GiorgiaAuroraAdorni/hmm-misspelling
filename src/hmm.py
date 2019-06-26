@@ -346,7 +346,7 @@ class HMM:
 
         return out
 
-    def predict_sequence(self, words, output_str = True):
+    def predict_sequence(self, sequence, output_str = True):
         self.init_trellis()
 
         if isinstance(sequence, str):
