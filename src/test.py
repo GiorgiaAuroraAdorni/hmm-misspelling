@@ -7,6 +7,7 @@ import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
 
+
 def markov_test():
     print("### Markov Test")
     m = Markov(3, "word")
@@ -19,12 +20,11 @@ def markov_test():
 
 def hmm_candidate_test():
     print("### HMM Candidates Test")
-    pp = pprint.PrettyPrinter(indent=4)
 
     hmm = HMM(1, max_edits=2, max_states=5)
     hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
               sentences_ds="../data/texts/lotr_clean.txt",
-              typo_ds="../data/typo/clean/train.csv")
+              typo_ds="../data/typo/clean/lotr_train.csv")
 
     pp.pprint("Typed: bools")
     start = time.time()
@@ -87,12 +87,11 @@ def hmm_candidate_test():
 
 def hmm_build_trellis_test():
     print("### HMM Build Trellis Test")
-    pp = pprint.PrettyPrinter(indent=4)
 
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
               sentences_ds="../data/texts/lotr_clean.txt",
-              typo_ds="../data/typo/clean/train.csv")
+              typo_ds="../data/typo/clean/lotr_train.csv")
 
     sentence = "becasue shee hes siad tat she woud sendd it o thhe dai".split()
     hmm.init_trellis()
@@ -106,7 +105,6 @@ def hmm_build_trellis_test():
 
 def hmm_predict_sequence_test():
     print("### HMM Predict Test")
-    pp = pprint.PrettyPrinter(indent=4)
 
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
@@ -144,7 +142,7 @@ def gen_test():
     hmm = HMM(1, max_edits=1, max_states=5)
     hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
               sentences_ds="../data/texts/lotr_clean.txt",
-              typo_ds="../data/typo/clean/train.csv")
+              typo_ds="../data/typo/clean/lotr_train.csv")
 
     pp.pprint("Typed: andd")
     start = time.time()
