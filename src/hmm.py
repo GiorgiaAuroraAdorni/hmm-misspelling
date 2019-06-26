@@ -17,6 +17,7 @@ def process_init(_hmm):
     # Store a copy of the HMM model in each process
     hmm = _hmm
 
+
 def process_map(input):
     global hmm
 
@@ -28,13 +29,13 @@ def process_map(input):
     results = [(c, hmm.compute_probability(typed=word, intended=c, n_candidates=n_candidates)) for c in candidates]
 
     results = sorted(results, key=lambda c: c[1], reverse=True)
-    
+
     # Conjecture: If each process returns `max_states` distinct results, then
     # merging and deduplicating all the results will yield at least `max_states`
     # globally distinct results.
     return results[:max_states]
 
-  
+
 class HMM:
 
     def __init__(self, order, max_edits, max_states):
@@ -82,13 +83,13 @@ class HMM:
 
     def _graph_init(self):
         return defaultdict(list)
-    
+
     def _default_sub_probability(self):
         return 1e-4
-    
+
     def _error_model_sub_init(self):
         return defaultdict(self._default_sub_probability)
-    
+
     def train(self, words_ds, sentences_ds, typo_ds):
 
         # Training the hidden markov chain
@@ -114,15 +115,14 @@ class HMM:
         with open(typo_ds, "r", encoding="utf-8") as f:
             reader = csv.reader(f)
             obs = [row for row in reader]
-            self.error_model = {"sub": defaultdict(self._error_model_sub_init), 
-                                "swap": defaultdict(self._error_model_sub_init), 
-                                "ins": defaultdict(self._error_model_sub_init), 
-                                "del": defaultdict(self._error_model_sub_init), 
+            self.error_model = {"sub": defaultdict(self._error_model_sub_init),
+                                "swap": defaultdict(self._error_model_sub_init),
+                                "ins": defaultdict(self._error_model_sub_init),
+                                "del": defaultdict(self._error_model_sub_init),
                                 "p": 0}
 
-        
         ngram_counter = Counter()
-        
+
         correct_character_count = 0
 
         for elem in obs:
@@ -136,13 +136,12 @@ class HMM:
             if any([x for x in typo if x in special]):
                 continue
 
-
             # Editing typed string to account for accidental insertions, deletions and swaps to align letters, counting them:
             # Ex: steet = st$eet (accidental deletion, index accounted by special char $)
             #     mapes = maps (accidental insertion, index accounted by removing the extra char)
             #     omeh = $ome (deletion + insertion)
 
-            edit_info = el.align(correct, typo, task = "path")
+            edit_info = el.align(correct, typo, task="path")
             cigar = edit_info["cigar"]
             self.error_model["p"] += edit_info["editDistance"]
             correct_character_count += len(correct)
@@ -158,7 +157,7 @@ class HMM:
                         already_swapped = True
                     else:
                         already_swapped = False
-                
+
             else:
                 pos = -1
                 edited_typo = typo
@@ -166,7 +165,7 @@ class HMM:
                 for idx, op in re.findall('(\d+)([IDX=])?', cigar):
                     idx = int(idx)
                     pos += idx
-              
+
                     if op == "I":
                         if pos == 1 or pos > len(correct):
                             prev = "$"
@@ -175,7 +174,7 @@ class HMM:
 
                         self.error_model["del"][prev][correct[pos]] += 1
 
-                        edited_typo = edited_typo[:pos] + "$"*idx + edited_typo[pos:]
+                        edited_typo = edited_typo[:pos] + "$" * idx + edited_typo[pos:]
                     elif op == "D":
                         if pos == 1 or pos > len(correct):
                             prev = "$"
@@ -207,33 +206,33 @@ class HMM:
             for subkey in self.error_model["sub"][key]:
                 if ngram_counter[key] == 0:
                     # The letter (key) doesn't appear in the dataset as a correct letter, dividing by the mean of unigram_counter
-                    
+
                     self.error_model["sub"][key][subkey] /= avg_uni
                 else:
                     self.error_model["sub"][key][subkey] /= ngram_counter[key]
 
         for key in self.error_model["ins"]:
             for subkey in self.error_model["ins"][key]:
-                    if ngram_counter[key] == 0:
-                        self.error_model["ins"][key][subkey] /= avg_uni
-                    else:
-                        self.error_model["ins"][key][subkey] /= ngram_counter[key]
+                if ngram_counter[key] == 0:
+                    self.error_model["ins"][key][subkey] /= avg_uni
+                else:
+                    self.error_model["ins"][key][subkey] /= ngram_counter[key]
 
         bigrams_counter = [v for k, v in ngram_counter.items() if len(k) == 2]
         avg_bi = sum(bigrams_counter) / len(bigrams_counter)
         for key in self.error_model["del"]:
             for subkey in self.error_model["del"][key]:
-                    if ngram_counter[key + subkey] == 0:
-                        self.error_model["del"][key][subkey] /= avg_bi
-                    else:
-                        self.error_model["del"][key][subkey] /= ngram_counter[key + subkey]
+                if ngram_counter[key + subkey] == 0:
+                    self.error_model["del"][key][subkey] /= avg_bi
+                else:
+                    self.error_model["del"][key][subkey] /= ngram_counter[key + subkey]
 
         for key in self.error_model["swap"]:
             for subkey in self.error_model["swap"][key]:
-                    if ngram_counter[key + subkey] == 0:
-                        self.error_model["swap"][key][subkey] /= avg_bi
-                    else:
-                        self.error_model["swap"][key][subkey] /= ngram_counter[key + subkey]
+                if ngram_counter[key + subkey] == 0:
+                    self.error_model["swap"][key][subkey] /= avg_bi
+                else:
+                    self.error_model["swap"][key][subkey] /= ngram_counter[key + subkey]
 
         self.error_model["p"] /= correct_character_count
 
@@ -262,7 +261,7 @@ class HMM:
                     obs_prob = self.graph[state]["obs"].count(word) / N_obs
 
                 if state in self.language_model:
-                    init_prob = self.language_model[state]   
+                    init_prob = self.language_model[state]
                 else:
                     init_prob = 1e-6
 
@@ -305,7 +304,7 @@ class HMM:
                     prev_state_prob = self.trellis.edges[predecessor, leaf_id]["weight"]
 
                     p[leaf_id] = obs_prob * trans_prob * prev_state_prob
-  
+
                 # Connecting a state to a leaf only if leaf->state is the path with the local maximal probability
                 max_key = max(p, key=p.get)
                 new_id = len(self.trellis)
@@ -391,7 +390,7 @@ class HMM:
         else:
             return itertools.chain.from_iterable(self.edits(e1, n - 1) for e1 in self.edits(word, 1, pid, nprocesses))
 
-    def known(self, words): 
+    def known(self, words):
         return set(w for w in words if w in self.language_model)
 
     def P(self, word):
@@ -405,7 +404,7 @@ class HMM:
         edit_info = el.align(intended, typed, task="path")
         cigar = edit_info["cigar"]
 
-        if not self.known([typed]): 
+        if not self.known([typed]):
             # Correcting non-word errors - typed word is not in the vocabulary
 
             prob = 1
@@ -415,8 +414,8 @@ class HMM:
 
             # If it's a swap it's not anything else
             if set(intended) == set(typed) and \
-               len(intended) == len(typed) and \
-               "1D1=1I" in cigar:
+                    len(intended) == len(typed) and \
+                    "1D1=1I" in cigar:
 
                 l = zip(typed, intended)
                 already_swapped = False
@@ -443,8 +442,8 @@ class HMM:
                             prev = "#"
                         else:
                             prev = intended[pos - 1]
-                        
-                        edited = edited[:pos] + "$"*idx + edited[pos:]
+
+                        edited = edited[:pos] + "$" * idx + edited[pos:]
                         prob *= self.error_model["del"][prev][intended[pos]]
 
                     elif op == "D":
@@ -466,7 +465,7 @@ class HMM:
                     prob *= self.error_model["sub"][i][j]
 
                 # Boosting parameter to rank higher up candidates at shorter edit distances
-                parameter = 1/ (int(edit_info["editDistance"]) + 1)
+                parameter = 1 / (int(edit_info["editDistance"]) + 1)
                 prob *= self.P(intended) * parameter
 
         else:
@@ -474,10 +473,10 @@ class HMM:
 
             # Probability of mistaking a word for another, assumed to vary for different tasks
             alpha = 0.98
-            
+
             prob = 1
 
-            if typed == intended: 
+            if typed == intended:
                 const = alpha
                 prob *= const
             else:
@@ -486,8 +485,8 @@ class HMM:
 
             # If it's a swap it's not anything else
             if set(intended) == set(typed) and \
-                len(intended) == len(typed) and \
-                "1D1=1I" in cigar:
+                    len(intended) == len(typed) and \
+                    "1D1=1I" in cigar:
 
                 l = zip(typed, intended)
                 already_swapped = False
@@ -535,11 +534,10 @@ class HMM:
                     if i != j:
                         prob *= const
 
-                parameter = 1/ (int(edit_info["editDistance"]) + 1)
+                parameter = 1 / (int(edit_info["editDistance"]) + 1)
                 prob *= self.P(intended) * parameter
 
         return prob
-
 
     def candidates(self, word, max_states=None):
         self.setup_multiprocessing()
@@ -560,7 +558,7 @@ class HMM:
                 results.update(subprocess)
 
         results = sorted(results.items(), key=lambda c: c[1], reverse=True)
-        
+
         # If no word was found not in the language model, leave the typo as the only candidate
         if len(results) == 0:
             results = [(word, 1)]
