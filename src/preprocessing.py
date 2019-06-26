@@ -104,11 +104,11 @@ big_model_lang['freq'] = frequency_alpha_gcide[2]
 big_model_lang.to_csv("../data/word_freq/big_language_model.txt", sep=',', index=False, header=None)
 
 # Create a new perturbed typo dataset (accordingly the new language model)
-typo_ds = open("../data/typo/lotr_typo.csv", mode="w")
+typo_ds = open("../data/typo/clean/lotr_typo.csv", mode="w")
 util.create_typo_dataset(typo_ds)
 
 # Split the typo dataset in train and test
-lotr_train, lotr_test = util.split_dataset(pd.read_csv("../data/typo/lotr_typo.csv"))
+lotr_train, lotr_test = util.split_dataset(pd.read_csv("../data/typo/clean/lotr_typo.csv"))
 
 lotr_train.to_csv(directory + "clean/lotr_train.csv", sep=',', header=None, index=False)
 lotr_test.to_csv(directory + "clean/lotr_test.csv", sep=',', header=None, index=False)

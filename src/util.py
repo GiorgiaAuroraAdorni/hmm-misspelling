@@ -225,7 +225,7 @@ def create_typo_dataset(typo_ds):
     hmm = HMM(1, max_edits=2, max_states=3)
     hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
               sentences_ds="../data/texts/lotr_clean.txt",
-              typo_ds="../data/typo/clean/train.csv")
+              typo_ds="../data/typo/clean/big_train.csv")
 
     with open("../data/word_freq/lotr_language_model.txt", "r") as myfile:
         reader = csv.reader(myfile)
