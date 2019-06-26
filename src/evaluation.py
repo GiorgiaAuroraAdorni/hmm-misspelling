@@ -149,7 +149,8 @@ def prediction_hmm_sequence_test():
     print("Endend testing in {:6.2f} seconds \n".format(test_time))
 
     # save prediction to csv
-    d = {'target': real[:10001], 'perturbated': perturbated[:10001], 'observed': observed}
+    d = {'target': real[:iterator + 1], 'perturbated': perturbated[:iterator + 1], 'observed': observed}
+  
     prediction = pd.DataFrame(d)
 
     prediction.to_csv(prediction_sentence_filename, sep=',', index=False)
@@ -363,8 +364,8 @@ prediction_sentence_filename = "../results/sentence_prediction.csv"
 meta_typo_filename = "../results/meta_typo_prediction-test.csv"
 meta_sentence_filename = "../results/meta_sentence_prediction.csv"
 
-# prediction_hmm_candidate_test()
-# evaluation_hmm_candidate_test()
+prediction_hmm_candidate_test()
+evaluation_hmm_candidate_test()
 
-# prediction_hmm_sequence_test()
+prediction_hmm_sequence_test()
 evaluation_hmm_sequence_test()
