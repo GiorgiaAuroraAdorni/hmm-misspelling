@@ -1,4 +1,5 @@
 #!/usr/bin/python3.7
+from hmm import HMM
 import util
 import pandas as pd
 import json
@@ -14,7 +15,7 @@ for filename in os.listdir(directory):
 clean_directory = directory + "clean/"
 
 combined_csv = pd.concat([pd.read_csv(clean_directory + f,
-                                      names=['mispelled_word', 'correct_word'])
+                                      names=['misspelled_word', 'correct_word'])
                           for f in os.listdir(clean_directory) if f.endswith(".csv")])
 
 # Split the typo dataset into train and test
@@ -47,31 +48,49 @@ with open("../data/texts/lotr_clean.txt", mode="w") as outfile:
     for r in lotr_cleaned:
         outfile.write("%s\n" % r)
 
-# Create a perturbated dataset
-if not os.path.exists("../data/texts/perturbated/"):
-    os.makedirs("../data/texts/perturbated/")
+# Create a perturbed dataset
+if not os.path.exists("../data/texts/perturbed/"):
+    os.makedirs("../data/texts/perturbed/")
 
 # Create perturbed datasets for big
-perturbed0a = open("../data/texts/perturbated/big_clean_perturbed-5%.txt", "w")
-perturbed1a = open("../data/texts/perturbated/big_clean_perturbed-10%.txt", "w")
-perturbed2a = open("../data/texts/perturbated/big_clean_perturbed-15%.txt", "w")
-perturbed3a = open("../data/texts/perturbated/big_clean_perturbed-20%.txt", "w")
+with open("../data/texts/big_clean.txt", "r") as myfile:
+    cleaned = myfile.readlines()
 
-util.perturb_file(perturbed0a, 0.05)
-util.perturb_file(perturbed1a, 0.10)
-util.perturb_file(perturbed2a, 0.15)
-util.perturb_file(perturbed3a, 0.20)
+# Create the model for the perturbation
+hmm = HMM(1, max_edits=2, max_states=3)
+hmm.train(words_ds="../data/word_freq/big_language_model.txt",
+          sentences_ds="../data/texts/big_clean.txt",
+          typo_ds="../data/typo/clean/big_test.csv")
+
+perturbed0a = open("../data/texts/perturbed/big_clean_perturbed-5%.txt", "w")
+perturbed1a = open("../data/texts/perturbed/big_clean_perturbed-10%.txt", "w")
+perturbed2a = open("../data/texts/perturbed/big_clean_perturbed-15%.txt", "w")
+perturbed3a = open("../data/texts/perturbed/big_clean_perturbed-20%.txt", "w")
+
+util.perturb_file(perturbed0a, 0.05, cleaned, hmm)
+util.perturb_file(perturbed1a, 0.10, cleaned, hmm)
+util.perturb_file(perturbed2a, 0.15, cleaned, hmm)
+util.perturb_file(perturbed3a, 0.20, cleaned, hmm)
 
 # Create perturbed datasets for lotr
-perturbed0b = open("../data/texts/perturbated/lotr_clean_perturbed-5%.txt", "w")
-perturbed1b = open("../data/texts/perturbated/lotr_clean_perturbed-10%.txt", "w")
-perturbed2b = open("../data/texts/perturbated/lotr_clean_perturbed-15%.txt", "w")
-perturbed3b = open("../data/texts/perturbated/lotr_clean_perturbed-20%.txt", "w")
+with open("../data/texts/lotr_clean.txt", "r") as myfile:
+    cleaned = myfile.readlines()
 
-util.perturb_file(perturbed0b, 0.05)
-util.perturb_file(perturbed1b, 0.10)
-util.perturb_file(perturbed2b, 0.15)
-util.perturb_file(perturbed3b, 0.20)
+# Create the model for the perturbation
+hmm = HMM(1, max_edits=2, max_states=3)
+hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
+          sentences_ds="../data/texts/lotr_clean.txt",
+          typo_ds="../data/typo/clean/lotr_test.csv")
+
+perturbed0b = open("../data/texts/perturbed/lotr_clean_perturbed-5%.txt", "w")
+perturbed1b = open("../data/texts/perturbed/lotr_clean_perturbed-10%.txt", "w")
+perturbed2b = open("../data/texts/perturbed/lotr_clean_perturbed-15%.txt", "w")
+perturbed3b = open("../data/texts/perturbed/lotr_clean_perturbed-20%.txt", "w")
+
+util.perturb_file(perturbed0b, 0.05, cleaned, hmm)
+util.perturb_file(perturbed1b, 0.10, cleaned, hmm)
+util.perturb_file(perturbed2b, 0.15, cleaned, hmm)
+util.perturb_file(perturbed3b, 0.20, cleaned, hmm)
 
 # Create lotr model language
 util.create_model_language()

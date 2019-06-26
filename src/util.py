@@ -42,7 +42,7 @@ def split_dataset(combined_csv):
     # shuffle data frame
     df['split'] = np.random.randn(df.shape[0], 1)
 
-    df['is_duplicate'] = df.duplicated()     # no duplicated rows
+    df['is_duplicate'] = df.duplicated()  # no duplicated rows
     msk = np.random.rand(len(df)) <= 0.8
 
     train = df[msk].drop(['split', 'is_duplicate'], axis=1)
@@ -88,13 +88,12 @@ def extract_model_edit_probabilities(hmm):
 
 
 def perturb_word(edit_prob, indices, word, x):
-
     def substitute(word):
         l = list(word)
         if not l[indices[j]] in edit_prob[3]:
             l[indices[j]] = random.choice(string.ascii_letters).lower().replace(l[indices[j]], "")
         else:
-            l[indices[j]] = np.random.choice(list(edit_prob[3][l[indices[j]]].keys()-l[indices[j]]))
+            l[indices[j]] = np.random.choice(list(edit_prob[3][l[indices[j]]].keys() - l[indices[j]]))
         return "".join(l)
 
     for j in range(x):
@@ -113,7 +112,7 @@ def perturb_word(edit_prob, indices, word, x):
             if not word[indices[j]] in edit_prob[1]:
                 new_letter = random.choice(string.ascii_letters).lower().replace(word[indices[j]], "")
             else:
-                new_letter = np.random.choice(list(edit_prob[1][word[indices[j]]].keys()-word[indices[j]]))
+                new_letter = np.random.choice(list(edit_prob[1][word[indices[j]]].keys() - word[indices[j]]))
             word = word[0:indices[j]] + new_letter + word[indices[j] + 1:]
 
         # delete a letter
@@ -130,21 +129,12 @@ def perturb_word(edit_prob, indices, word, x):
     return word
 
 
-def perturb_file(perturbed, rumor_percentage):
-    # Create a model for the test set
-    hmm = HMM(1, max_edits=2, max_states=3)
-    hmm.train(words_ds="../data/word_freq/lotr_language_model.txt",
-              sentences_ds="../data/texts/lotr_clean.txt",
-              typo_ds="../data/typo/clean/test.csv")
-
-    with open("../data/texts/lotr_clean.txt", "r") as myfile:
-        cleaned = myfile.readlines()
-
+def perturb_file(perturbed, rumor_percentage, cleaned, hmm):
     p, edit_prob = extract_model_edit_probabilities(hmm)
 
     p = p * rumor_percentage  # introduce a certain percentage of error (10-15-20%)
 
-    print("\n Starting pertub {} …".format(perturbed.name))
+    print("\n Starting perturb {} …".format(perturbed.name))
     start = time.time()
 
     typo_counter = 0
@@ -158,7 +148,7 @@ def perturb_file(perturbed, rumor_percentage):
         for i, word in enumerate(line_words):
             n = len(word)
             # number of errors to introduce in the word
-            x = np.random.binomial(n, p)        # x ~ Bin(p, n)
+            x = np.random.binomial(n, p)  # x ~ Bin(p, n)
 
             # choose two letter to change
             indices = np.random.choice(n, x, replace=False)
@@ -181,12 +171,14 @@ def perturb_file(perturbed, rumor_percentage):
 
     perturbed.close()
 
-    print("Endend pertubation in {:6.2f} seconds \n".format(perturb_time))
+    print("Ended perturbation in {:6.2f} seconds \n".format(perturb_time))
 
     typo_per_word = typo_counter / word_counter
-    perturbed_word_percentace = perturbed_word / word_counter
+    perturbed_word_percentage = perturbed_word / word_counter
 
-    m = {'file': [perturbed.name], 'typo_percentage': [typo_per_word], 'perturbed_word_percentace': [perturbed_word_percentace], 'total_typo': [typo_counter], 'total_word': [word_counter], 'perturbed_word': perturbed_word}
+    m = {'file': [perturbed.name], 'typo_percentage': [typo_per_word],
+         'perturbed_word_percentage': [perturbed_word_percentage], 'total_typo': [typo_counter],
+         'total_word': [word_counter], 'perturbed_word': perturbed_word}
     meta = pd.DataFrame(m)
     meta.to_csv(perturbed.name.replace('.txt', '-meta.csv'), sep=',', index=False)
 
@@ -217,7 +209,7 @@ def split_list(lst, n):
     result = list()
 
     while lst:
-        if not len(lst[:n]) < n/2:
+        if not len(lst[:n]) < n / 2:
             result.append(" ".join(lst[:n]))
         else:
             result[-1] += " " + " ".join(lst[:n])
@@ -243,7 +235,7 @@ def create_typo_dataset(typo_ds):
 
     _, edit_prob = extract_model_edit_probabilities(hmm)
 
-    print("\n Starting pertub {} …".format(typo_ds.name))
+    print("Starting perturb {} …".format(typo_ds.name))
     start = time.time()
 
     typo_counter = 0
@@ -283,11 +275,12 @@ def create_typo_dataset(typo_ds):
         for v in value:
             typo_writer.writerow([v, key])
 
-    print("Endend pertubation in {:6.2f} seconds \n".format(perturb_time))
+    print("Ended perturbation in {:6.2f} seconds \n".format(perturb_time))
 
     typo_per_word = typo_counter / word_counter
 
-    m = {'file': [typo_ds.name], 'typo_percentage': [typo_per_word], 'total_typo': [typo_counter], 'total_word': [word_counter]}
+    m = {'file': [typo_ds.name], 'typo_percentage': [typo_per_word], 'total_typo': [typo_counter],
+         'total_word': [word_counter]}
     meta = pd.DataFrame(m)
     meta.to_csv(typo_ds.name.replace('.csv', '-meta.csv'), sep=',', index=False)
 

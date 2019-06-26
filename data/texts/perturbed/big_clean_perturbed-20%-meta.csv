@@ -1,0 +1,2 @@
+file,typo_percentage,perturbed_word_percentace,total_typo,total_word,perturbed_word
+../data/texts/perturbated/big_clean_perturbed-20%.txt,0.4940991942638169,0.3848483185630276,540253,1093410,420797
