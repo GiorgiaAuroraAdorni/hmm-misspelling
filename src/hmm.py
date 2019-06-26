@@ -22,7 +22,7 @@ def process_map(input):
 
     word, i, max_states, pid, nprocesses = input
 
-    candidates = set(hmm.known(hmm.edits(word, i, pid, nprocesses)))
+    candidates = hmm.known(hmm.edits(word, i, pid, nprocesses))
 
     n_candidates = len(candidates)
     results = [(c, hmm.compute_probability(typed=word, intended=c, n_candidates=n_candidates)) for c in candidates]
