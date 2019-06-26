@@ -50,6 +50,27 @@ def split_dataset(combined_csv):
     return train, test
 
 
+def clean_sentences_dataset(ds):
+    ds = ds.replace("Mr.", "Mr").replace("Mrs.", "Mrs")
+    ds = ds.split(".")
+    splitted = list()
+
+    for line in ds:
+        if len(line.split()) == 0:
+            continue
+        elif len(line.split()) > 10:
+            line = split_list(line.split(), 10)
+
+            splitted.extend(line)
+        else:
+            splitted.append(line)
+
+    cleaned = [r.strip().lower().replace("'", '') for r in splitted]
+    cleaned = [re.sub(r"[^a-zA-Z0-9]+", ' ', r) for r in cleaned]
+
+    return cleaned
+
+
 def extract_model_edit_probabilities(hmm):
     # probability that a word has an edit
     p = hmm.error_model["p"]
