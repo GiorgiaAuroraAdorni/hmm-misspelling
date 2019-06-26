@@ -30,7 +30,7 @@ hmm.train(words_ds=words_ds,
 end = time.time()
 train_time = end - start
 
-print("Endend training in {:4.2f} seconds".format(train_time))
+print("Ended training in {:4.2f} seconds".format(train_time))
 
 model = {"max_edits": [hmm.max_edits], "max_states": [hmm.max_states], "order": [hmm.order],
          "state_len": [hmm.state_len], "error_model_p": [hmm.error_model['p']], 'train_time': [train_time],
@@ -44,15 +44,15 @@ m.to_csv("../results/experiment1/1-model.csv", sep=',', index=False, header=None
 prediction_typo_test_filename = "../results/experiment1/1-typo_prediction-test.csv"
 meta_typo_test_filename = "../results/experiment1/1-meta_typo_prediction-test.csv"
 
-# eval.prediction_hmm_candidate_test(typo_ds_test, hmm, prediction_typo_test_filename, meta_typo_test_filename)
-# eval.evaluation_hmm_candidate_test(prediction_typo_test_filename, meta_typo_test_filename)
+eval.prediction_hmm_candidate_test(typo_ds_test, hmm, prediction_typo_test_filename, meta_typo_test_filename)
+eval.evaluation_hmm_candidate_test(prediction_typo_test_filename, meta_typo_test_filename)
 
 # On train set
 prediction_typo_train_filename = "../results/experiment1/1-typo_prediction-train.csv"
 meta_typo_train_filename = "../results/experiment1/1-meta_typo_prediction-train.csv"
 
-# eval.prediction_hmm_candidate_test(typo_ds_train, hmm, prediction_typo_train_filename, meta_typo_train_filename)
-# eval.evaluation_hmm_candidate_test(prediction_typo_train_filename, meta_typo_train_filename)
+eval.prediction_hmm_candidate_test(typo_ds_train, hmm, prediction_typo_train_filename, meta_typo_train_filename)
+eval.evaluation_hmm_candidate_test(prediction_typo_train_filename, meta_typo_train_filename)
 
 ## Sentence
 # Perturbation 5%
@@ -100,7 +100,7 @@ hmm.train(words_ds=words_ds,
 end = time.time()
 train_time = end - start
 
-print("Endend training in {:4.2f} seconds".format(train_time))
+print("Ended training in {:4.2f} seconds".format(train_time))
 
 model = {"max_edits": [hmm.max_edits], "max_states": [hmm.max_states], "order": [hmm.order],
          "state_len": [hmm.state_len], "error_model_p": [hmm.error_model['p']], 'train_time': [train_time],
@@ -184,7 +184,7 @@ hmm.train(words_ds=words_ds,
 end = time.time()
 train_time = end - start
 
-print("Endend training in {:4.2f} seconds".format(train_time))
+print("Ended training in {:4.2f} seconds".format(train_time))
 
 model = {"max_edits": [hmm.max_edits], "max_states": [hmm.max_states], "order": [hmm.order],
          "state_len": [hmm.state_len], "error_model_p": [hmm.error_model['p']], 'train_time': [train_time],
@@ -254,7 +254,7 @@ hmm.train(words_ds=words_ds,
 end = time.time()
 train_time = end - start
 
-print("Endend training in {:4.2f} seconds".format(train_time))
+print("Ended training in {:4.2f} seconds".format(train_time))
 
 model = {"max_edits": [hmm.max_edits], "max_states": [hmm.max_states], "order": [hmm.order],
          "state_len": [hmm.state_len], "error_model_p": [hmm.error_model['p']], 'train_time': [train_time],
