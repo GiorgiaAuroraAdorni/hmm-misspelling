@@ -51,7 +51,7 @@ class SpellCheckerModel {
                     
                     if result == nil {
                         let candidates = [Candidate](self.model.candidates(word: token.text, max_states: 10)) ?? []
-                        let isMispelled = candidates.allSatisfy { token.text != $0.text }
+                        let isMispelled = candidates.allSatisfy { token.text.caseInsensitiveCompare($0.text) != .orderedSame }
                     
                         result = CheckResult(isMispelled: isMispelled,
                                              candidates: self.normalized(candidates))
