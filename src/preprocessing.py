@@ -20,8 +20,8 @@ combined_csv = pd.concat([pd.read_csv(clean_directory + f,
 # Split the typo dataset into train and test
 train, test = util.split_dataset(combined_csv)
 
-train.to_csv(directory + "clean/train.csv", sep=',', header=None, index=False)
-test.to_csv(directory + "clean/test.csv", sep=',', header=None, index=False)
+train.to_csv(directory + "clean/big_train.csv", sep=',', header=None, index=False)
+test.to_csv(directory + "clean/big_test.csv", sep=',', header=None, index=False)
 
 # Read big.txt and extract a cleaned dataset
 big_file = "../data/texts/big.txt"
