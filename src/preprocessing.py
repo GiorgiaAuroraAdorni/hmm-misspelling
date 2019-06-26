@@ -9,7 +9,7 @@ directory = "../data/typo/"
 
 for filename in os.listdir(directory):
     if filename.endswith(".txt"):
-        clean_dataset(directory, filename)
+        util.clean_dataset(directory, filename)
 
 clean_directory = directory + "clean/"
 
@@ -18,7 +18,7 @@ combined_csv = pd.concat([pd.read_csv(clean_directory + f,
                           for f in os.listdir(clean_directory) if f.endswith(".csv")])
 
 # Split the typo dataset into train and test
-train, test = split_dataset(combined_csv)
+train, test = util.split_dataset(combined_csv)
 
 train.to_csv(directory + "clean/train.csv", sep=',', header=None, index=False)
 test.to_csv(directory + "clean/test.csv", sep=',', header=None, index=False)
@@ -51,26 +51,36 @@ with open("../data/texts/lotr_clean.txt", mode="w") as outfile:
 if not os.path.exists("../data/texts/perturbated/"):
     os.makedirs("../data/texts/perturbated/")
 
-perturbed1 = open("../data/texts/perturbated/lotr_clean_perturbed-10%.txt", "w")
-perturbed2 = open("../data/texts/perturbated/lotr_clean_perturbed-15%.txt", "w")
-perturbed3 = open("../data/texts/perturbated/lotr_clean_perturbed-20%.txt", "w")
+# Create perturbed datasets for big
+perturbed0a = open("../data/texts/perturbated/big_clean_perturbed-5%.txt", "w")
+perturbed1a = open("../data/texts/perturbated/big_clean_perturbed-10%.txt", "w")
+perturbed2a = open("../data/texts/perturbated/big_clean_perturbed-15%.txt", "w")
+perturbed3a = open("../data/texts/perturbated/big_clean_perturbed-20%.txt", "w")
 
-perturb_file(perturbed1, 0.10)
-perturb_file(perturbed2, 0.20)
-perturb_file(perturbed3, 0.30)
+util.perturb_file(perturbed0a, 0.05)
+util.perturb_file(perturbed1a, 0.10)
+util.perturb_file(perturbed2a, 0.15)
+util.perturb_file(perturbed3a, 0.20)
 
-create_model_language()
+# Create perturbed datasets for lotr
+perturbed0b = open("../data/texts/perturbated/lotr_clean_perturbed-5%.txt", "w")
+perturbed1b = open("../data/texts/perturbated/lotr_clean_perturbed-10%.txt", "w")
+perturbed2b = open("../data/texts/perturbated/lotr_clean_perturbed-15%.txt", "w")
+perturbed3b = open("../data/texts/perturbated/lotr_clean_perturbed-20%.txt", "w")
+
+util.perturb_file(perturbed0b, 0.05)
+util.perturb_file(perturbed1b, 0.10)
+util.perturb_file(perturbed2b, 0.15)
+util.perturb_file(perturbed3b, 0.20)
+
+util.create_model_language()
 
 # Create a new perturbed typo dataset (accordingly the new language model)
 typo_ds = open("../data/typo/lotr_typo.csv", mode="w")
-typo_writer = csv.writer(typo_ds)
-
-create_typo_dataset(typo_writer)
-
-typo_ds.close()
+util.create_typo_dataset(typo_ds)
 
 # Split the typo dataset in train and test
-lotr_train, lotr_test = split_dataset(pd.read_csv("../data/typo/lotr_typo.csv"))
+lotr_train, lotr_test = util.split_dataset(pd.read_csv("../data/typo/lotr_typo.csv"))
 
 lotr_train.to_csv(directory + "clean/lotr_train.csv", sep=',', header=None, index=False)
 lotr_test.to_csv(directory + "clean/lotr_test.csv", sep=',', header=None, index=False)

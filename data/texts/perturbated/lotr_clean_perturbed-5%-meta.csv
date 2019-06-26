@@ -1,0 +1,2 @@
+file,typo_percentage,perturbed_word_percentace,total_typo,total_word,perturbed_word
+../data/texts/perturbated/lotr_clean_perturbed-5%.txt,0.058269533524553045,0.05668010955595333,27019,463690,26282
