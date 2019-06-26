@@ -149,7 +149,7 @@ def prediction_hmm_sequence_test():
     print("Endend testing in {:6.2f} seconds \n".format(test_time))
 
     # save prediction to csv
-    d = {'target': real[:iterator + 1], 'perturbated': perturbated[:iterator + 1], 'observed': observed}
+    d = {'target': real[:iterator], 'perturbated': perturbated[:iterator], 'observed': observed}
   
     prediction = pd.DataFrame(d)
 
@@ -244,7 +244,6 @@ def evaluation_hmm_sequence_test():
         predictions.loc[index, 'not_correct'] = not_perturbated / total
         predictions.loc[index, 'accuracy'] = correct_prediction / total
 
-        # FIXME: check if precision and recall are swapped
         if correct_perturbated + not_correct_not_perturbated + not_correct_modified_perturbated == 0:
             predictions.loc[index, 'precision'] = np.nan
         else:
@@ -257,11 +256,6 @@ def evaluation_hmm_sequence_test():
             predictions.loc[index, 'recall'] = correct_perturbated / (
                         correct_perturbated + not_correct_perturbated)  # same of sensitivity
 
-        # if not_correct_perturbated + correct_not_perturbated == 0:
-        #     predictions.loc[index, 'specificity'] = np.nan
-        # else:
-        #     predictions.loc[index, 'specificity'] = not_correct_perturbated / (not_correct_perturbated + correct_not_perturbated)
-
         if predictions.loc[index, 'precision'] + predictions.loc[index, 'recall'] == 0:
             predictions.loc[index, 'F1-score'] = np.nan
         else:
@@ -273,7 +267,6 @@ def evaluation_hmm_sequence_test():
     word_precision = np.mean(predictions['precision'])
     word_recall = np.mean(predictions['recall'])
     word_f1_score = np.mean(predictions['F1-score'])
-    # word_specificity = np.mean(predictions['specificity'])
 
     word_correct = np.nanmean(predictions['correct'])
     word_not_correct = np.nanmean(predictions['not_correct'])
@@ -295,7 +288,6 @@ def evaluation_hmm_sequence_test():
     print("Word precision: {:4.2f} %".format(word_precision * 100))
     print("Word recall: {:4.2f} %".format(word_recall * 100))
     print("Word F1 Score: {:4.2f} %".format(word_f1_score * 100))
-    # print("Word specificity: {:4.2f} %".format(word_specificity * 100))
 
     predictions.to_csv("../results/sentence_evaluation.csv", sep=',', index=False)
 
@@ -318,7 +310,6 @@ def evaluation_hmm_sequence_test():
     meta['precision'] = word_precision * 100
     meta['recall'] = word_recall * 100
     meta['F1-Score'] = word_f1_score * 100
-    # meta['specificity'] = word_specificity * 100
     meta['not_correct_PREV_correct'] = word_not_correct_PREV_correct * 100
     meta['correct_PREV_not_correct'] = word_correct_PREV_not_correct * 100
 
@@ -335,8 +326,8 @@ def evaluation_hmm_sequence_test():
 ### Check all the following variables before starting the prediction/evaluation
 words_ds = "../data/word_freq/lotr_language_model.txt"
 sentences_ds = "../data/texts/lotr_clean.txt"
-typo_ds_train = "../data/typo/clean/train.csv"
-typo_ds_test = "../data/typo/clean/test.csv"
+typo_ds_train = "../data/typo/clean/lotr_train.csv"
+typo_ds_test = "../data/typo/clean/lotr_test.csv"
 perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-10%.txt"
 # perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-15%.txt"
 # perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-20%.txt"
