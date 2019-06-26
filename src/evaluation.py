@@ -137,7 +137,7 @@ def prediction_hmm_sequence_test():
                 continue
             if iterator % 20 == 0:
                 pp.pprint(iterator)
-            if iterator > 8000:
+            if iterator > 10000:
                 break
 
             iterator += 1
@@ -149,7 +149,7 @@ def prediction_hmm_sequence_test():
     print("Endend testing in {:6.2f} seconds \n".format(test_time))
 
     # save prediction to csv
-    d = {'target': real[:10001], 'perturbated': perturbated[:10001], 'observed': observed}
+    d = {'target': real[:iterator], 'perturbated': perturbated[:iterator], 'observed': observed}
     prediction = pd.DataFrame(d)
 
     prediction.to_csv(prediction_sentence_filename, sep=',', index=False)
@@ -334,12 +334,12 @@ def evaluation_hmm_sequence_test():
 ### Check all the following variables before starting the prediction/evaluation
 words_ds = "../data/word_freq/lotr_language_model.txt"
 sentences_ds = "../data/texts/lotr_clean.txt"
-typo_ds_train = "../data/typo/clean/lotr_train.txt"
-typo_ds_test = "../data/typo/clean/lotr_test.txt"
+typo_ds_train = "../data/typo/clean/train.csv"
+typo_ds_test = "../data/typo/clean/test.csv"
 perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-10%.txt"
 # perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-15%.txt"
 # perturbed_ds = "../data/texts/perturbated/lotr_clean_perturbed-20%.txt"
-edit_distance = 2
+edit_distance = 1
 ####
 
 print("\n Starting training…")
