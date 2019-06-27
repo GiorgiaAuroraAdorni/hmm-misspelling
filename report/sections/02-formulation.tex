@@ -1,5 +1,14 @@
-\chapter{Problem Formulation} 
+\chapter{Problem Formulation}
 
+Given a string of text, typically a phrase, we are interested in detecting and correcting misspelling errors in the typed phrase.
+This project aims to implement a solution to the issue by implementing an Error Model, capable of offering a list of correcting candidates to a single (usually) 
+misspelled word, and a Hidden Markov Model, capable of finding the most likely sequence of candidates for each word in a sentence.
+
+The two models work sequentially in a pipeline, but are not strictly dependant on each other, as the Error Model acts as a local corrector, and the HMM acts as 
+a maximizer of the probability of the sequences of candidates.
+
+
+\textbf{MOVEME} (NOTA: definizione dell'HMM va nella sua sezione non qua)
 \textbf{FIXME}: Given an observation sequence, typically a phrase, and the model parameters, we are interested 
 in detecting and correcting errors, estimating the optimal state sequence. 
 
@@ -11,20 +20,20 @@ the probability of one word given its predecessor obtained from ??\textbf{FIXME}
 The emission probabilities, $B_{ij}$, represent the probability of a typed word given the intended one, and 
 depend on the confusion probabilities.
 
-\textbf{FIXME}: We also detect the non-word error?
+\textbf{FIXME}: We also detect the non-word error? (se ne parla nell'error model non nell'HMM)
+\textbf{MOVEME}
 
 \section{Design Choices}
 
-We have chosen the English language for various reasons. First of all, great majority of material in literature 
+We have chosen to implement this solution using the English language for various reasons. First of all, great majority of material in literature 
 deals with this problem in the English language. \textcolor{red}{Moreover it is a simple language, both from a 
-grammatical and a lexical point of view: it lacks in certain symbols, like accents and apostrophes, and genres. }
+	grammatical and a lexical point of view: it lacks in certain symbols, like accents and apostrophes, and genres. }
 Furthermore all punctuation and special character symbols were not considered, but only letters and sometimes 
 numbers. 
-\\
-\textbf{FIXME}:{why??}
-We considered that a typed word only depends on the previous one, being in the framework of Markov chains. If 
-we know the probability of a word given its predecessor, the frequency of each word, and the probability to type 
-word x when word y is intended, we have all the necessary ingredients to use Hidden Markov Models.
+
+We assume that a typed word only depends on the previous one for ease of implementation. As such we will implement a first order HMM. 
+If we know the probability of a word given its predecessor, the frequency of each word, and the probability to type word $x$ when word $y$ is intended, we 
+have all the necessary ingredients to use Hidden Markov Models.
 
 \section{Software}
 \textbf{FIXME}
