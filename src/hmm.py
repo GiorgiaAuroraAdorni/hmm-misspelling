@@ -239,7 +239,7 @@ class HMM:
     def init_trellis(self):
         self.trellis.clear()
         self.trellis_depth = 1
-        self.trellis.add_node(0, name="")
+        self.trellis.add_node(0, name="•")
 
     def empty_trellis(self):
         if len(self.trellis) == 1:
@@ -582,7 +582,7 @@ class HMM:
         labels = {e[0]: e[1]["name"] for e in G.nodes(data=True)}
         pos = graphviz_layout(G, prog='dot')
 
-        nx.draw(G, pos=pos, labels=labels)
+        nx.draw(G, pos=pos, labels=labels, node_size=500 ,node_color='w')
 
         if show:
             # show() should not be called when opening plots from the GUI, since

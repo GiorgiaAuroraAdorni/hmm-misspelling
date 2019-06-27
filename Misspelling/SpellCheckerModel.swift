@@ -77,23 +77,28 @@ class SpellCheckerModel {
         }
     }
     
-    func mostLikelySequence(tokens: [Token]) -> [String] {
-        var result: [String]!
+    func mostLikelySequence(tokens: [Token]) {
+        guard !tokens.isEmpty else {
+            return
+        }
         
         let time = measure {
             self.queue.sync {
                 let mostLikelySeq = self.model.predict_sequence(tokens.map { $0.text }, output_str: false)
-                
-                result = [String](mostLikelySeq) ?? []
+                let result = [String](mostLikelySeq) ?? []
+                let title = """
+                    Most Likely Sequence:
+                    \(result.joined(separator: " "))
+                """
                 
                 plt.figure(1)
+                plt.clf()
+                
+                plt.title(title)
                 self.model.plot_trellis(show: false)
             }
         }
         
         print("Most Likely Sequence: \(time) ms")
-        print(result!)
-        
-        return result
     }
 }
