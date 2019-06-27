@@ -84,6 +84,10 @@ In order to evaluate our algorithm on whole sentences, we create new perturbed d
 already printed text to 10-15\% for web queries.
 The disturbance introduced presents an error dependent on the error model previously presented, with the 
 difference that it is created starting from the typos belonging to the test datasets.
+\textbf{FIXME}:{Analysis of spelling error data has shown that the majority of spelling errors consist of a single-letter 
+change and 
+	so we often make the simplifying assumption that these candidates have an edit distance of 1 from the error 
+	model.}
 
 Three different texts for each dataset, of approximately \num{50000} sentences each, have been generated, each of which 
 has a percentage of errors in the text of \textbf{FIXME} \num{10}-\num{15}-\num{20}\% respectively. \\

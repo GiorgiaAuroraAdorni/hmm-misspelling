@@ -241,69 +241,128 @@ The parameters on which the structure is based are shown in the table below:
 	\label{tab:error_model3}
 \end{figure}
 
-Analysis of spelling error data has shown that the majority of spelling errors consist of a single-letter change and 
-so we often make the simplifying assumption that these candidates have an edit distance of 1 from the error 
-model.
+In the two tables to follow are shown the results obtained as regards the evaluation of the \textit{local correction} of our 
+model on the typos dataset and the correction of the entire sequence with the \textit{Viterbi algorithm}.
 
-\textbf{FIXME}
 \begin{figure}[H]
 	\centering
-	\begin{tabular}{lcccc}
+	\begin{tabular}{lcc|cc}
 		\toprule
-		& Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
+		&\multicolumn{2}{c|}{\textsc{Edit Distance 1}} & \multicolumn{2}{c}{\textsc{Edit Distance 2}}\\
+		& Train & Test & Train & Test \\
 		\midrule
-		Train & \num{20986} & \num{41,38}\%  & \num{57,28} \% & \num{61,60} \% \\
-		Test &	\num{5270}  & \num{56,78}\%  & \num{74,75} \% & \num{80,59} \%  \\
+		\textbf{Num. observation} & \num{49959} & \num{12570} & \num{49959} & \num{12570} \\
+		\textbf{Time (sec)}  		& \num{32} 				& \num{9} 			& \num{1207} 	& \num{309} \\
+		\textbf{Accuracy Top1} & \num{39,75}\%  & \num{40,47}\%  & \num{63,71}\%  & \num{63,87}\%  \\
+		\textbf{Accuracy Top3} &  \num{44,74}\%  & \num{45,34}\%  & \num{76,44}\%  & \num{76,75}\%  \\
+		\textbf{Accuracy Top5} & \num{46,25}\%  & \num{46,92}\%  & \num{80,86}\%  & \num{80,80}\%  \\
 		\bottomrule
 	\end{tabular}
 	\captionof{table}{Typos performance evaluation}
 	\label{tab:typo-eval3}
 \end{figure}
 
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{lcccc}
+		\toprule
+		&\multicolumn{4}{c}{\textsc{Edit Distance 1}} \\
+		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\%& \num{20}\%  \\
+		\midrule
+		\textbf{Time (sec)}							 &\num{116}			&\num{114}			& \num{114}			&\num{112} \\
+		\textbf{Perturbed correct} 			   & \num{79,97}\% &\num{76,55}\%  & \num{73,74}\%	& \num{71,76}\% \\
+		\textbf{Unperturbed not correct} & \num{13,68}\% &\num{14,46}\%  & \num{14,86}\%	& \num{15,69}\% \\
+		\textbf{Exact match} 					  & \num{30,89}\% &\num{27,51}\%  & \num{25,23}\%	& \num{22,66}\% \\
+		\textbf{Accuracy} 							&\num{85,99}\%  &\num{84,62}\% &\num{83,32}\% &\num{81,73}\% \\
+		\textbf{Precision}							 & \num{28,99}\% &\num{41,97}\%  & \num{48,90}\%	& \num{52,85}\% \\
+		\textbf{Recall}								  & \num{91,19}\% &\num{88,30}\%  & \num{86,09}\%	& \num{84,31}\% \\
+		\textbf{F-Measure}						  & \num{74,19}\% &\num{72,87}\%  & \num{72,44}\%	& \num{71,97}\% \\
+		\bottomrule
+		%\vspace*{0.5em}
+	\end{tabular}
+	\begin{center}
+		...
+	\end{center}
+	\begin{tabular}{lcccc}
+		\toprule
+		&\multicolumn{4}{c}{\textsc{Edit Distance 2}} \\
+		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\%& \num{20}\%  \\
+		\midrule
+		\textbf{Time (sec)}							 &\num{866}			&\num{869}			& \num{854}			&\num{849} \\
+		\textbf{Perturbed correct} 			   & \num{73,26}\% &\num{72,05}\%  & \num{71,10}\%	& \num{69,90}\% \\
+		\textbf{Unperturbed not correct} & \num{18,47}\% &\num{18,86}\%  & \num{19,46}\%	& \num{20,16}\% \\
+		\textbf{Exact match} 					  & \num{22,74}\% &\num{21,26}\%  & \num{19,52}\%	& \num{18,38}\% \\
+		\textbf{Accuracy} 							&\num{81,07}\%  &\num{80,17}\% &\num{79,06}\% &\num{77,79}\% \\
+		\textbf{Precision}							 & \num{22,40}\% &\num{34,49}\%  & \num{41,35}\%	& \num{45,37}\% \\
+		\textbf{Recall}								  & \num{94,31}\% &\num{94,16}\%  & \num{93,63}\%	& \num{93,43}\% \\
+		\textbf{F-Measure}						  & \num{68,76}\% &\num{68,60}\%  & \num{68,53}\%	& \num{68,58}\% \\
+		\bottomrule
+	\end{tabular}
+	
+	\captionof{table}{Sentences performance evaluation}
+	\label{tab:sentence-eval3}
+\end{figure}
+
+
+%\textbf{FIXME}
+%\begin{figure}[H]
+%	\centering
+%	\begin{tabular}{lcccc}
+%		\toprule
+%		& Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
+%		\midrule
+%		Train & \num{20986} & \num{41,38}\%  & \num{57,28} \% & \num{61,60} \% \\
+%		Test &	\num{5270}  & \num{56,78}\%  & \num{74,75} \% & \num{80,59} \%  \\
+%		\bottomrule
+%	\end{tabular}
+%	\captionof{table}{Typos performance evaluation}
+%	\label{tab:typo-eval3}
+%\end{figure}
+
 % con 10% ho il 17% di errore
 % con 10% ho il 25% di errore
 % con 20% ho il 40% 31 di errore
 
-\begin{figure}[H]
-	\centering
-	\begin{tabular}{lccc|ccc}
-		\toprule
-		\textbf{Edit Distance} & \multicolumn{3}{c|}{1} & \multicolumn{3}{c}{2}\\
-		\textbf{Dataset Perturbation} & \num{10}\% & \num{15}\%& \num{20}\% & \num{10}\% & \num{15}\%& 
-		\num{20}\% \\
-		\midrule
-		Time (sec) &\num{165}&\num{157}& \num{147}&\num{2920}&\num{2835}&\num{2869}\\
-		\midrule
-		Perturbed correct & \num{81,33}\% &\num{76,48}\%& \num{71,58}\%& \num{61,33}\% 
-		&\num{60,99}\% 
-		&\num{59,91}\%\\
-		Unperturbed not correct &\num{41,62}\%&\num{42,34}\% & \num{43,94}\% & \num{61,75}\% & 
-		\num{61,61}\% & 
-		\num{62,09}\%\\
-		Exact match &\num{5,49}\%&\num{5,35}\%&\num{5,06}\%&\num{1,76}\%&\num{2,06}\%&\num{2,06}\%\\
-		Accuracy &\num{60,84}\% &\num{61,49}\% &\num{60,59}\% &\num{40,70}\% &\num{43,08}\% 
-		&\num{44,39}\% \\
-		Precision&\num{21,94}\%&\num{33,61}\% &\num{39,7}\%&\num{12,41}\%&\num{21,22}\%&\num{27,06}\%\\
-		Recall&\num{94,59}\%&\num{90,05}\%&\num{85,97}\%&\num{99,41}\%&\num{98,58}\%&\num{97,71}\%\\
-		F-Measure&\num{50,55}\%&\num{54,58}\%&\num{57,09}\%&\num{39,16}\%&\num{43,67}\%&\num{47,36}\%\\
-		\bottomrule
-	\end{tabular}
-	\captionof{table}{Sentences performance evaluation}
-	\label{tab:sentence-eval3a}
-\end{figure}
-
-
-\begin{figure}[H]
-	\centering
-	\begin{tabular}{ccccccc}
-		\toprule
-		\#sentence & Time (sec)  & Accuracy & Initial Error  &  Precision & Recall & Specificity \\
-		\midrule
-		\num{1620}	& \num{2705}  & \num{58,21}\%  & \num{17,39}\% & \num{90,30}\% & \num{58,62}\%  & 
-		\num{8,43}\%  
-		\\
-		\bottomrule
-	\end{tabular}
-	\captionof{table}{Sentences performance evaluation}
-	\label{tab:sentence-eval3}
-\end{figure}
+%\begin{figure}[H]
+%	\centering
+%	\begin{tabular}{lccc|ccc}
+%		\toprule
+%		\textbf{Edit Distance} & \multicolumn{3}{c|}{1} & \multicolumn{3}{c}{2}\\
+%		\textbf{Dataset Perturbation} & \num{10}\% & \num{15}\%& \num{20}\% & \num{10}\% & \num{15}\%& 
+%		\num{20}\% \\
+%		\midrule
+%		Time (sec) &\num{165}&\num{157}& \num{147}&\num{2920}&\num{2835}&\num{2869}\\
+%		\midrule
+%		Perturbed correct & \num{81,33}\% &\num{76,48}\%& \num{71,58}\%& \num{61,33}\% 
+%		&\num{60,99}\% 
+%		&\num{59,91}\%\\
+%		Unperturbed not correct &\num{41,62}\%&\num{42,34}\% & \num{43,94}\% & \num{61,75}\% & 
+%		\num{61,61}\% & 
+%		\num{62,09}\%\\
+%		Exact match &\num{5,49}\%&\num{5,35}\%&\num{5,06}\%&\num{1,76}\%&\num{2,06}\%&\num{2,06}\%\\
+%		Accuracy &\num{60,84}\% &\num{61,49}\% &\num{60,59}\% &\num{40,70}\% &\num{43,08}\% 
+%		&\num{44,39}\% \\
+%		Precision&\num{21,94}\%&\num{33,61}\% &\num{39,7}\%&\num{12,41}\%&\num{21,22}\%&\num{27,06}\%\\
+%		Recall&\num{94,59}\%&\num{90,05}\%&\num{85,97}\%&\num{99,41}\%&\num{98,58}\%&\num{97,71}\%\\
+%		F-Measure&\num{50,55}\%&\num{54,58}\%&\num{57,09}\%&\num{39,16}\%&\num{43,67}\%&\num{47,36}\%\\
+%		\bottomrule
+%	\end{tabular}
+%	\captionof{table}{Sentences performance evaluation}
+%	\label{tab:sentence-eval3a}
+%\end{figure}
+%
+%
+%\begin{figure}[H]
+%	\centering
+%	\begin{tabular}{ccccccc}
+%		\toprule
+%		\#sentence & Time (sec)  & Accuracy & Initial Error  &  Precision & Recall & Specificity \\
+%		\midrule
+%		\num{1620}	& \num{2705}  & \num{58,21}\%  & \num{17,39}\% & \num{90,30}\% & \num{58,62}\%  & 
+%		\num{8,43}\%  
+%		\\
+%		\bottomrule
+%	\end{tabular}
+%	\captionof{table}{Sentences performance evaluation}
+%	\label{tab:sentence-eval3}
+%\end{figure}
