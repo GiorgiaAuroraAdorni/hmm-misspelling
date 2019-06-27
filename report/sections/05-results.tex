@@ -94,55 +94,87 @@ In all the experiments to come, reference will be made to the following variable
 	\item swap: the probability that a word has a swap between two letters
 \end{itemize}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Experiment 1}
-
-\textbf{FIXME}
-Edit distance, perturbation dataset used
-
+The first experiment was carried out on two different hmm that differ in the choice of the \texttt{max\_edits} parameter.
+In the first case, in fact, the edit distance considered was $1$, while in the second $2$.
+In both cases the hmm is structured as follows:
 
 \begin{figure}[H]
 	\centering
 	\begin{tabular}{ccccc}
 		\toprule
-		p 				 & ins 				 	& del  				&  sub 			   &   swap\\ \midrule
-		\num{0.5} & \num{0,70} & \num{0,70}  & \num{0,70} & \num{0,70}\\
+				max states 	& language model	&  sentence ds  &  train typo ds 	&  test typo ds\\ \midrule
+				\num{5} & \texttt{big\_language\_model} & \texttt{big\_clean}  & \texttt{big\_train}  &\texttt{big\_test}\\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{Error Model}
+	\captionof{table}{Hmm model}
 	\label{tab:error_model1}
 \end{figure}
 
-% how many observation
+In the two tables to follow are shown the results obtained as regards the evaluation of the \textit{local correction} of our 
+model on the typos dataset and the correction of the entire sequence with the \textit{Viterbi algorithm}.
+
 \begin{figure}[H]
 	\centering
-	\begin{tabular}{lcccc}
+	\begin{tabular}{lcc|cc}
 		\toprule
-		& Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
+		&\multicolumn{2}{c|}{\textsc{Edit Distance 1}} & \multicolumn{2}{c}{\textsc{Edit Distance 2}}\\
+		& Train & Test & Train & Test \\
 		\midrule
-		Train & \num{} & \%  &  \% &  \%  \\
-		Test &	\num{1220}  & \num{40,96}\%  & \num{56,34} \% & \num{60,03} \%  \\
+		\textbf{Num. observation} & \num{63759} & \num{15918} & \num{63759} & \num{15918} \\
+		\textbf{Time (sec)}  & \num{53} & \num{14} & \num{1648} & \num{408} \\
+		\textbf{Accuracy Top1} & \num{35,01}\%  & \num{35,60}\%  & \num{36,09}\%  & \num{36,84}\%  \\
+		\textbf{Accuracy Top3} &  \num{46,24}\%  & \num{46,62}\%  & \num{48,61}\%  & \num{48,99}\%  \\
+		\textbf{Accuracy Top5} & \num{50,19}\%  & \num{50,56}\%  & \num{52,86}\%  & \num{53,16}\%  \\
 		\bottomrule
 	\end{tabular}
 	\captionof{table}{Typos performance evaluation}
 	\label{tab:typo-eval1}
 \end{figure}
 
-
 \begin{figure}[H]
 	\centering
-	\begin{tabular}{ccccccc}
+	\begin{tabular}{lcccc}
 		\toprule
-		\#sentence & Time (sec)  & Accuracy & Initial Error  &  Precision & Recall & Specificity \\
+		&\multicolumn{4}{c}{\textsc{Edit Distance 1}} \\
+		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%& \num{40}\%  \\
 		\midrule
-		\num{5000}	& \num{3549}  & \num{44,40}\%  & \num{14,77}\% & \num{89,43}\% & \num{45,42}\%  & 
-		\num{14,81}\%  
-		\\
+		\textbf{Time (sec)}							 &\num{201}			&\num{199}			& \num{191}			&\num{186} \\
+		\textbf{Perturbed correct} 			   & \num{64,06}\% &\num{60,16}\%  & \num{57,30}\%	& \num{52,81}\% \\
+		\textbf{Unperturbed not correct} &\num{41,70}\%	 &\num{43,36}\%  & \num{44,84}\% & \num{46,58}\% \\
+		\textbf{Exact match} 					  &\num{2,60}\%	   &\num{2,32}\%	&\num{1,56}\%	&\num{1,42}\% \\
+		\textbf{Accuracy} 							&\num{58,82}\%  &\num{57,47}\% &\num{55,73}\% &\num{42,60}\% \\
+		\textbf{Precision}							 &\num{16,00}\% &\num{25,12}\% &\num{30,74}\%	&\num{33,75}\% \\
+		\textbf{Recall}									&\num{79,66}\% &\num{77,36}\%&\num{74,30}\%	&\num{70,40}\%\\
+		\textbf{F-Measure}						  &\num{46,28}\% &\num{48,49}\%&\num{49,65}\%	&\num{49,82}\%\\
+		\bottomrule
+		%\vspace*{0.5em}
+	\end{tabular}
+		\begin{center}
+		...
+		\end{center}
+	\begin{tabular}{lcccc}
+		\toprule
+		&\multicolumn{4}{c}{\textsc{Edit Distance 2}} \\
+		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%& \num{40}\%  \\
+		\midrule
+		\textbf{Time (sec)}							 &\num{1110}		&\num{1121}	 	& \num{1116}		&\num{1121} \\
+		\textbf{Perturbed correct} 			   & \num{54,96}\% &\num{55,47}\%  & \num{54,34}\%	& \num{51,76}\% \\
+		\textbf{Unperturbed not correct} &\num{55,19}\%	 &\num{56,31}\%  & \num{57,52}\% & \num{58,43}\% \\
+		\textbf{Exact match} 					  &\num{0,90}\%	   &\num{1,00}\%	&\num{0,76}\%	&\num{0,80}\% \\
+		\textbf{Accuracy} 							&\num{45,81}\%  &\num{46,00}\% &\num{45,85}\% &\num{45,14}\% \\
+		\textbf{Precision}							 &\num{10,67}\% &\num{18,45}\% &\num{23,7}\%	&\num{27,22}\% \\
+		\textbf{Recall}									&\num{89,91}\% &\num{90,94}\%&\num{90,69}\%	&\num{88,21}\%\\
+		\textbf{F-Measure}						  &\num{38,77}\% &\num{41,55}\%&\num{44,37}\%	&\num{46,18}\%\\
 		\bottomrule
 	\end{tabular}
+
 	\captionof{table}{Sentences performance evaluation}
 	\label{tab:sentence-eval1}
 \end{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Experiment 2}
 \begin{figure}[H]
 	\centering
@@ -190,19 +222,22 @@ In order to avoid this problem, we decided to try a new approach that use lemmat
 	\label{tab:sentence-eval2}
 \end{figure}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Experiment 3}
 
-Edit distance, perturbation dataset used
+As for the previous cases, the third experiment too was carried out on two different hmm with the same edit distances as 
+the previous experiments. 
+The parameters on which the structure is based are shown in the table below:
 
 \begin{figure}[H]
 	\centering
 	\begin{tabular}{ccccc}
 		\toprule
-		p 				 & ins 				 	& del  				&  sub 			   &   swap\\ \midrule
-		\num{0.5} & \num{0,70} & \num{0,70}  & \num{0,70} & \num{0,70}\\
+		max states 	& language model	&  sentence ds  &  train typo ds 	&  test typo ds\\ \midrule
+		\num{5} & \texttt{lotr\_language\_model} & \texttt{lotr\_clean}  & \texttt{lotr\_train}  &\texttt{lotr\_test}\\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{Error Model}
+	\captionof{table}{Hmm model}
 	\label{tab:error_model3}
 \end{figure}
 
