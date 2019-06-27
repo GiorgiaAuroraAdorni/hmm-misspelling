@@ -84,18 +84,18 @@ class SpellCheckerModel {
         
         let time = measure {
             self.queue.sync {
-                let mostLikelySeq = self.model.predict_sequence(tokens.map { $0.text }, output_str: false)
-                let result = [String](mostLikelySeq) ?? []
+                let result = self.model.predict_sequence(tokens.map { $0.text }, output_str: false).tuple2
+                let mostLikelyWords = [String](result.0) ?? []
                 let title = """
                     Most Likely Sequence:
-                    \(result.joined(separator: " "))
+                    \(mostLikelyWords.joined(separator: " "))
                 """
                 
                 plt.figure(1)
                 plt.clf()
                 
                 plt.title(title)
-                self.model.plot_trellis(show: false)
+                self.model.plot_trellis(show: false, highlight_path: result.1)
             }
         }
         

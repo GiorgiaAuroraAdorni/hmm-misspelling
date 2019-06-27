@@ -342,7 +342,8 @@ class HMM:
         if output_str:
             out = " ".join(corrected_words)
         else:
-            out = corrected_words
+            # Return the list of corrected words and the list of node indices
+            out = corrected_words, seq
 
         return out
 
@@ -572,7 +573,7 @@ class HMM:
     def find_ngrams(self, input_list, n):
         return list("".join(x) for x in zip(*[input_list[i:] for i in range(n)]))
 
-    def plot_trellis(self, show=True):
+    def plot_trellis(self, highlight_path=None, show=True):
         import matplotlib.pyplot as plt
         from networkx.drawing.nx_agraph import graphviz_layout
 
@@ -581,8 +582,22 @@ class HMM:
 
         labels = {e[0]: e[1]["name"] for e in G.nodes(data=True)}
         pos = graphviz_layout(G, prog='dot')
+        edge_color = None
 
-        nx.draw(G, pos=pos, labels=labels, node_size=500 ,node_color='w')
+        if highlight_path is not None:
+            i = 0
+            edge_color = []
+
+            for edge_from, edge_to in G.edges():
+                if (i == 0                  and edge_from == 0                     and edge_to == highlight_path[0]) or \
+                   (i < len(highlight_path) and edge_from == highlight_path[i - 1] and edge_to == highlight_path[i]):
+
+                    edge_color.append('r')
+                    i += 1
+                else:
+                    edge_color.append('k')
+
+        nx.draw(G, pos=pos, labels=labels, edge_color=edge_color, node_size=500, node_color='w')
 
         if show:
             # show() should not be called when opening plots from the GUI, since
