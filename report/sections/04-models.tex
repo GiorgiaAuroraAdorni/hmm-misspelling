@@ -1,4 +1,7 @@
-We will consider two optimality criteria. The first one chooses the states that are individually most likely and maximizes the 
+\chapter{Models}
+
+We will consider two optimality criteria. The first one chooses the states that 
+are individually most likely and maximizes the 
 expected number of correct individual states. The second criterion estimates the most likely state sequence, or 
 \textit{trellis path}. The algorithm used to implement these criteria is the \textbf{Viterbi} algorithm. %\ref
 
@@ -94,7 +97,7 @@ sum of the scores for all proposed candidates.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=10cm]{NoisyChannel.png}
-	\caption{Noisy channel}
+	\caption{Diagram of the Noisy Channel Model}
 	\label{fig:noisychannel}
 \end{figure}
 
@@ -110,11 +113,13 @@ transposition called \textbf{Damerau-Levenshtein} edit distance \ref{}.	\\
 
 The following type of errors were considered in our model:
 \begin{itemize}
-	\item \textsc{digits deletions}
-	\item \textsc{digits insertions}
-	\item \textsc{substitutions of digits}: this is the probability to type a character $i$ when the character $j$ was 
+	\item \textsc{character deletions}
+	\item \textsc{character insertions}
+	\item \textsc{substitution of characters}: this is the probability to type 
+	a character $i$ when the character $j$ was 
 	intended ($P(i|j)$). This probability was determined experimentally. \textbf{FIXME}: how? from where?
-	\item \textsc{transpositions of adjacent digits}: two letters are swapped.
+	\item \textsc{transposition of adjacent characters}: two letters are 
+	swapped.
 \end{itemize}
 
 \section{Most Likely State Sequence}
