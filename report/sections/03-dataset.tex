@@ -3,10 +3,12 @@
 \section{Dataset Acquisition}
 \label{section:dataset-exploration}
 
-\subsection{Transition Model}
-\label{subsection:transmodel}
+\textbf{FIXME}{This is not the transition model, it's the dataset used for transitions (maybe transition dataset?}
+\subsection{Sentences Dataset}
+\label{subsection:sencences_ds}
 We performed our experiments on two different transition models.\\
-The first one is a concatenation of public domain book excerpts from \href{http://www.gutenberg.org/wiki/Main_Page}{ 
+The first one is a concatenation of public domain book excerpts from 
+\href{http://www.gutenberg.org/wiki/Main\_Page}{ 
 	\textcolor{blue}{Project Gutenberg}}, containing about a million words. 
 
 \textbf{FIXME}:{
@@ -14,109 +16,122 @@ The second one has been extracted from the collection
 \href{https://www.kaggle.com/mokosan/lord-of-the-rings-character-data#LordOfTheRingsBook.json}{ 
 	\textcolor{blue}{LordOfTheRingsBook.json}} containing the collections of the “Lord Of The Rings” books.}
 
-To each corpora we applied some preprocessing procedures, in particular we divided them in lower-case sentences, and 
-removed special characters and punctuation, obtaining the datasets \texttt{big\_clean.csv} and \texttt{lotr\_clean.csv} ( 
-\textbf{FIXME }something about apostrophes)
+To each corpora we applied some preprocessing procedures, in particular we divided them in lower-case 
+sentences, and removed special characters and punctuation, obtaining the datasets \texttt{big\_clean.csv} and 
+\texttt{lotr\_clean.csv} (\textbf{FIXME }something about apostrophes)
 
 
-\textbf{FIXME}{How we use these?}
-
-\subsection{Error Model}
-The basic error model dataset was collected from the following resources:
+\subsection{Typos Dataset}
+The basic typos dataset was collected from the following resources:
 %\footnote{\url{https://www.dcs.bbk.ac.uk/~ROGER/corpora.html}}  
 %\footnote{\url{https://www.kaggle.com/rtatman/spelling-variation-on-urban-dictionary}}  
 %\footnote{\url{https://www.kaggle.com/bittlingmayer/spelling}}
 %\footnote{\url{http://luululu.com/tweet}}
 \begin{itemize}
-	\item \textsc{birkbeck} \footlabel{note1}{\url{https://www.dcs.bbk.ac.uk/~ROGER/corpora.html}} : contains \num{36133} 
-	misspellings of \num{6136} words, taken from the native-speaker section (British and American) of the Birkbeck spelling 
-	error corpus.
-	\item \textsc{holbrook} \footref{note1}: contains \num{1791} misspellings of \num{1200} words, taken from the book 
-	"English for the Rejected" by David Holbrook (Cambridge University Press - 1964).
-	\item \textsc{aspell} \footref{note1} :contains \num{531} misspellings of \num{450} words, taken from one assembled by 
-	Atkinson for testing the GNU Aspell spellchecker.
-	\item \textsc{wikipedia} \footref{note1}: contains \num{2455} misspellings of \num{1922} words, taken from the 
-	misspellings made by Wikipedia editors.
+	\item \textsc{birkbeck} \footlabel{note1}{\url{https://www.dcs.bbk.ac.uk/~ROGER/corpora.html}} : contains 
+	\num{36133} misspellings of \num{6136} words, taken from the native-speaker section (British and 
+	American) of the Birkbeck spelling error corpus.
+	\item \textsc{holbrook} \footref{note1}: contains \num{1791} misspellings of \num{1200} words, taken from 
+	the book "English for the Rejected" by David Holbrook (Cambridge University Press - 1964).
+	\item \textsc{aspell} \footref{note1} :contains \num{531} misspellings of \num{450} words, taken from one 
+	assembled by Atkinson for testing the GNU Aspell spellchecker.
+	\item \textsc{wikipedia} \footref{note1}: contains \num{2455} misspellings of \num{1922} words, taken from 
+	the misspellings made by Wikipedia editors.
 	\item \textsc{urban-dictionary-variants} 
-	\footnote{\url{https://www.kaggle.com/rtatman/spelling-variation-on-urban-dictionary}}  : contains \num{716} variant 
+	\footnote{\url{https://www.kaggle.com/rtatman/spelling-variation-on-urban-dictionary}}  : contains 
+	\num{716} variant 
 	spellings, taken from the text scraped from Urban Dictionary (in UK English).
-	\item \textsc{spell-set} \footnote{\url{https://www.kaggle.com/bittlingmayer/spelling}}: contains \num{670} typos.
-	\item \textsc{tweet-typo} \footnote{\url{http://luululu.com/tweet}}:: contains \num{39172} typos, taken from Twitter.
+	\item \textsc{spell-set} \footnote{\url{https://www.kaggle.com/bittlingmayer/spelling}}: contains 
+	\num{670} typos.
+	\item \textsc{tweet-typo} \footnote{\url{http://luululu.com/tweet}}:: contains \num{39172} typos, taken 
+	from Twitter.
 \end{itemize}
 
 All the datasets are cleaned and joined in a new one that contains \num{79677} rows, each with a typo and the 
 corresponding correct word.
-The dataset is then divided into two corpora: \num{80}\% is used as a train set (\num{63679} rows) and \num{20}\% 
-is used as a test set (\num{15998} rows).
-
-
+The dataset is then divided into two corpora: \num{80}\% is used as a train set (\num{63679} rows) and 
 \textbf{FIXME}: {WHY}\textcolor{red}{
-We decided to created another dataset of typos starting from the \\\texttt{lotr\_clean.csv}. 
-Extracting a list of all the words contained in this corpus, for each of these we have generated a sequence of five typos 
-according to the algorithm that will be defined in the chapter \ref{subsection:perturbed}.
-The final dataset contains \num{62759} row, with the same structure as the one described above.
-Also in this case the two datasets train and test were created, respectively containing \num{50058} and \num{12701}\% 
-rows.}
+\num{20}\% is used as a test set (\num{15998} rows).
 
 
-\subsection{Language Model}
-\textbf{FIXME}{Explain what is a language model}\\
+\textcolor{red}{
+	We decided to created another dataset of typos starting from the \\\texttt{lotr\_clean.csv}. 
+	Extracting a list of all the words contained in this corpus, for each of these we have generated a sequence of 
+	five typos according to the algorithm that will be defined in the chapter \ref{subsection:perturbed}.
+	The final dataset contains \num{62759} row, with the same structure as the one described above.
+	Also in this case the two datasets train and test were created, respectively containing \num{50058} and 
+	\num{12701}\% rows.}
+
+\subsection{Language Dataset}
+A language model represents the frequency of words in a certain language.
 We used two different language model datasets. \\
-The first one is a lists of most frequent words from \href{https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists}{ 
-\textcolor{blue}{Wiktionary}} and the \href{http://www.kilgarriff.co.uk/bnc-readme.html}{\textcolor{blue}{British National 
-Corpus}}. 
+The first one is a lists of most frequent words from 
+\href{https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists}{ 
+	\textcolor{blue}{Wiktionary}} and the 
+	\href{http://www.kilgarriff.co.uk/bnc-readme.html}{\textcolor{blue}{British National Corpus}}. 
 We use \texttt{frequency-alpha-gcide.txt}, a smaller version derived from the original dataset 
-\href{https://books.google.com/ngrams/}{\textcolor{blue}{Google's ngram corpora}}, that includes wordlists, cleaned up 
-and limited to only the top \num{65537} words.
+\href{https://books.google.com/ngrams/}{\textcolor{blue}{Google's ngram corpora}}, that includes wordlists, 
+cleaned up and limited to only the top \num{65537} words.
 
-We found some problems with this dataset, for example the lack of proper names, city names, countries, brands etc.
+We found some problems with this dataset, for example the lack of proper names, city names, countries, brands 
+etc.
 Moreover, most of the typical words of the language used in the sentence dataset were missing.
-For this reason, we decided to create a new language model \texttt{lotr\_language\_model.txt}, based on the frequency of 
-the word in the dataset \texttt{lotr\_clean.csv} \textbf{FIXME:}(12506 parole).
+For this reason, we decided to create a new language model \texttt{lotr\_language\_model.txt}, based on the 
+frequency of the word in the dataset \texttt{lotr\_clean.csv} \textbf{FIXME:}(12506 parole).
 
- \textbf{FIXME}{
-Each of these datasets contains in each row the word itself and a percentage of how often each word was being used.}
+\textbf{FIXME}{
+	Each of these datasets contains in each row the word itself and a percentage of how often each word was 
+	being used.}
 
 \subsection{Perturbated Dataset}
 \label{subsection:perturbed}
-In order to evaluate our algorithm on whole sentences, we create new perturbed datasets starting from the datasets 
-\texttt{big\_clean} and \texttt{lotr\_clean} described in the section \ref{subsection:transmodel}.
+In order to evaluate our algorithm on whole sentences, we create new perturbed datasets starting from the 
+datasets \texttt{big\_clean} and \texttt{lotr\_clean} described in the section \ref{subsection:sencences_ds}.
 
-\textbf{FIXME}:Estimates for the frequency of spelling errors in human-typed text vary from 1-2\% for carefully retyping 
-already printed text to 10-15\% for web queries.
+\textbf{FIXME}:Estimates for the frequency of spelling errors in human-typed text vary from 1-2\% for carefully 
+retyping already printed text to 10-15\% for web queries.
 The disturbance introduced presents an error dependent on the error model previously presented, with the 
 difference that it is created starting from the typos belonging to the test datasets.
-\textbf{FIXME}:{Analysis of spelling error data has shown that the majority of spelling errors consist of a single-letter 
-change and 
-	so we often make the simplifying assumption that these candidates have an edit distance of 1 from the error 
-	model.}
+\textbf{FIXME}:{Analysis of spelling error data has shown that the majority of spelling errors consist of a 
+single-letter change and so we often make the simplifying assumption that these candidates have an edit 
+distance of 1 from the error model.}
 
-Three different texts for each dataset, of approximately \num{50000} sentences each, have been generated, each of which 
-has a percentage of errors in the text of \textbf{FIXME} \num{10}-\num{15}-\num{20}\% respectively. \\
+Three different texts for each dataset, of approximately \num{50000} sentences each, have been generated, 
+each of which has a percentage of errors in the text of \textbf{FIXME} \num{10}-\num{15}-\num{20}\% 
+respectively. \\
 
-We implemented a perturbation algorithm, which for each line of our input file generates a new perturbed string.\\
+We implemented a perturbation algorithm, which for each line of our input file generates a new perturbed 
+string.\\
 The input text is perturbed accordingly the following steps:
 
 \begin{enumerate}
-	\item The probability that a word has an edit is computed by multiplying the value of $p$, coming from the error model, 
-	by the percentage of errors desired (10-15-20\%).
-	\item For each word of length $n$, the number of edits to be introduced $x$ is calculated according to the relation $x 
-	\sim \text{Bin}(n, p)$ \textbf{FIXME}: why? Assumptions?
+	\item The probability that a word has an edit is computed by multiplying the value of $p$, coming from the 
+	error model, by the percentage of errors desired (10-15-20\%).
+	\item For each word of length $n$, the number of edits to be introduced $x$ is calculated according to the 
+	relation $x \sim \text{Bin}(n, p)$
 	\item The characters to be changed within each word are chosen randomly.
-	\item \textbf{FIXME}: The type of edit to be introduced within each word is chosen according to the probability of each 
-	type of error.
+	\item \textbf{FIXME}: The type of edit to be introduced within each word is chosen according to the 
+	probability of each type of error. 
 	The disturbance goes to alter the letters designated not in a random manner. 
-	In fact, we use four different probabilities to define whether a letter will be deleted from the index in question, if a new 
-	letter will be inserted after the actual character, or if the current character will be replaced with one of the possible 
-	letters according to the error model probability, or if the current character will be swapped with the next or the previous 
-	one.
+	In fact, we use four different probabilities to define whether a letter will be deleted from the index in question, 
+	if a new letter will be inserted after the actual character, or if the current character will be replaced with one of 
+	the possible letters according to the error model probability, or if the current character will be swapped with 
+	the next or the previous one.
 	
 \end{enumerate}
 
-Swap errors are only introduced if there are no further changes in the word. Cases of elimination of a whole word are 
-excluded, as these would heavily influence the evaluation metrics as they are 
-inconsistent with our model. 
+Swap errors are only introduced if there are no further changes in the word. Cases of elimination of a whole 
+word are excluded, as these would heavily influence the evaluation metrics as they are inconsistent with our 
+model. 
 
+\subsection{On using consistent languages}
+Our experimentation with different datasets has made us come to the conclusion that, for the models to work 
+optimally, each dataset must share the same language. That is, the datasets must share most of the vocabulary 
+used in them. We have noticed that when the datasets don't share the same vocabulary, and the distribution of 
+words isn't aligned between them, the error model might produce candidates that it found most probable for 
+the language model he's trained for, but in the HMM, if trained on a transitions dataset not sharing the same 
+language as the language model, might discard these candidates for less-likely ones that have a higher 
+transition probability.
 
 
 %(\num{58000} sentence)
