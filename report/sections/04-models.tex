@@ -154,16 +154,17 @@ In our implementation, we construct the \textit{trellis} choosing the \textbf{FI
 see in the 
 picture below, we display an example of the trellis drawing only the best predecessor of each state.
 
+\textbf{FIXME}
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=10cm]{TrellisExample.png}
+	\includegraphics[width=15cm]{TrellisExample.png}
 	\caption{Trellis example}
 	\label{fig:trellis}
 \end{figure}
 
-In this example, we observed the sentence \textsl{my practice iu never iery absorcing} and our algorithm return the most 
-likely state sequence \textsl{may practice is never very absorbing}. In this case, the algorithm partially fails, because the 
-intended sentence was \textsl{my practice is never very absorbing}.
+In this example, we observed the sentence \textsl{someone else alwais has to cary on the storry} and our algorithm return 
+the most likely state sequence \textsl{someone else always had to carry on the starry}. In this case, the algorithm partially 
+fails, because the intended sentence was \textsl{someone else always has to carry on the story}.
 \\
 \textbf{FIXME}: (pi la probabilità iniziale del prima stato non lo abbiamo, non lo facciamo perchè dal nostro dataset non 
 abbiamo sempre la prima parola…)
