@@ -271,7 +271,7 @@ def evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_fil
     print("Word recall: {:4.2f} %".format(word_recall * 100))
     print("Word F1 Score: {:4.2f} %".format(word_f1_score * 100))
 
-    predictions.to_csv("../results/sentence_evaluation.csv", sep=',', index=False)
+    predictions.to_csv(prediction_sentence_filename, sep=',', index=False)
 
     meta['eval_time'] = eval_time
     meta['perturbed_ds'] = perturbed_ds
