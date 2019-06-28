@@ -1,17 +1,16 @@
 \chapter{Dataset}
 
 \section{Sentences Dataset}
-\label{subsection:sencences_ds}
-We used two different datasets of English sentences, to construct the transition probability matrix, following the 
+\label{section:sentences_ds}
+We used two different datasets of English sentences to construct the transition probability matrix, following the 
 procedure described in Section \ref{section:hmm}.\\
-The first one is a concatenation of public domain book excerpts from 
-\href{http://www.gutenberg.org/wiki/Main\_Page}{ 
-	\textcolor{blue}{Project Gutenberg}}, containing about a million words. 
+The first one is a concatenation of public domain book excerpts from Project 
+Gutenberg\footnote{\url{http://www.gutenberg.org/wiki/Main\_Page}}, containing about a million words. 
 
 The second one has been extracted from the collection  of the “Lord Of The Rings” 
 books\footnote{\url{https://www.kaggle.com/mokosan/lord-of-the-rings-character-data}}.
 
-We applied some preprocessing procedures to each corpus, in particular we divided them in lower-case 
+We then applied some preprocessing procedures to each corpus, in particular we divided them in lower-case 
 sentences and removed special characters and punctuation, obtaining the \texttt{big\_clean} and 
 \texttt{lotr\_clean} datasets.
 
@@ -57,43 +56,39 @@ structure described above. We then split it in train and test datasets, respecti
 A language model represents the frequency of words in a certain language.
 We used two different language model datasets. \\
 The first one is a lists of most frequent words from 
-\href{https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists}{ 
-	\textcolor{blue}{Wiktionary}} and the 
+\href{https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists}{\textcolor{blue}{Wiktionary}} and the 
 	\href{http://www.kilgarriff.co.uk/bnc-readme.html}{\textcolor{blue}{British National Corpus}}. 
 We use \texttt{frequency-alpha-gcide.txt}, a smaller version derived from the original dataset 
 \href{https://books.google.com/ngrams/}{\textcolor{blue}{Google's ngram corpora}}, that includes wordlists, 
 cleaned up and limited to only the top \num{65537} words.
 
-We found some problems with this dataset, for example the lack of proper names, city names, countries, brands 
-etc.
-Moreover, most of the typical words of the language used in the sentence dataset were missing.
+We found some problems with this dataset, for example the lack of proper names, city names, countries, brands, 
+etc. Moreover, most of the typical words of the language used in the sentence dataset were missing.
 For this reason, we decided to create a new language model \texttt{lotr\_language\_model}, based on the 
-frequency of the word in the dataset \texttt{lotr\_clean} \textbf{FIXME:}(12506 parole).
+frequency of the \num{12506} distinct words in the \texttt{lotr\_clean} dataset.
 
-\textbf{FIXME}{
-	Each of these datasets contains in each row the word itself and a percentage of how often each word was 
-	being used.}
+Both of these datasets contain, for each word, the frequency it appears in the corresponding text corpus.
 
 \section{Perturbed Dataset}
 \label{section:perturbed}
-In order to evaluate our algorithm on whole sentences, we create new perturbed datasets starting from the 
-datasets \texttt{big\_clean} and \texttt{lotr\_clean} described in the section \ref{subsection:sencences_ds}.
+In order to evaluate the performance of our algorithm for the Most Likely Sequence, we created new datasets of 
+perturbed sentences, starting from the \texttt{big\_clean} and \texttt{lotr\_clean} datasets described in 
+Section~\ref{section:sentences_ds}.
 
-\textbf{FIXME}:Estimates for the frequency of spelling errors in human-typed text vary from 1-2\% for carefully 
-retyping already printed text to 10-15\% for web queries.
+Estimates for the frequency of spelling errors in human-typed text vary greatly depending on the situation: from 1-2\% 
+when carefully retyping already printed text to 10-15\% when writing web queries. For this reason, we generated four 
+different texts from each dataset, introducing errors in respectively \textbf{FIXME} \num{10}-\num{15}-\num{20}\% of 
+the words.
+
+\textbf{FIXME}:
 The disturbance introduced presents an error dependent on the error model previously presented, with the 
 difference that it is created starting from the typos belonging to the test datasets.
 \textbf{FIXME}:{Analysis of spelling error data has shown that the majority of spelling errors consist of a 
 single-letter change and so we often make the simplifying assumption that these candidates have an edit 
 distance of 1 from the error model.}
 
-Three different texts for each dataset, of approximately \num{50000} sentences each, have been generated, 
-each of which has a percentage of errors in the text of \textbf{FIXME} \num{10}-\num{15}-\num{20}\% 
-respectively. \\
-
 We implemented a perturbation algorithm, which for each line of our input file generates a new perturbed 
-string.\\
-The input text is perturbed accordingly the following steps:
+string, according to the following steps:
 
 \begin{enumerate}
 	\item The probability that a word has an edit is computed by multiplying the value of $p$, coming from the 
