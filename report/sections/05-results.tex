@@ -3,7 +3,7 @@
 \textbf{FIXME} comparison
 \textbf{FIXME} performance
 
-\subsection{Evaluation Metrics}
+\section{Evaluation Metrics}
 We evaluate the local model performances, or that carried out on individual typos, through various measures of 
 accuracy. 
 We compute the \textsc{Top-1 Accuracy} comparing the misspelt word and the best candidate predicted by the 
@@ -76,7 +76,7 @@ metrics in a simple way:
 
 Based on these metrics, it is then possible to define whether the models have behaved more or less correctly.
 
-\subsection{Experiments}
+\section{Experiments}
 We performed three different types of experiments.
 
 The first one using as a transition model the dataset \texttt{big\_clean}, the associate perturbed dataset and test error 
@@ -97,7 +97,7 @@ In all the experiments to come, reference will be made to the following variable
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Experiment 1}
+\subsection{Experiment 1}
 The first experiment was carried out on two different hmm that differ in the choice of the \texttt{max\_edits} parameter.
 In the first case, in fact, the edit distance considered was $1$, while in the second $2$.
 In both cases the hmm is structured as follows:
@@ -177,7 +177,7 @@ model on the typos dataset and the correction of the entire sequence with the \t
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Experiment 2}
+\subsection{Experiment 2}
 \begin{figure}[H]
 	\centering
 	\begin{tabular}{ccccc}
@@ -225,7 +225,7 @@ In order to avoid this problem, we decided to try a new approach that use lemmat
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Experiment 3}
+\subsection{Experiment 3}
 
 As for the previous cases, the third experiment too was carried out on two different hmm with the same edit distances as 
 the previous experiments. 
