@@ -102,7 +102,7 @@ equal distribution of $1-\alpha$, while keeping the logic of the model intact.
 
 
 \section{Hidden Markov Model}
-
+\label{section:hmm}
 A \textbf{Hidden Markov Model} (HMM) allows us to talk about both observed events, like misspelled words that 
 we see in the input, and hidden events, like the intended words, that we think of as causal factors in our 
 probabilistic model. 
@@ -123,7 +123,13 @@ Our HMM is specified by the following components:
 	probability that the Markov chain will start in state $i$. 
 \end{itemize}
 
-\textbf{FIXME}{Aggiungere immagine fig come fig 2 di Articolo.pdf }
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{hmm.png}
+	\caption{Illustration of Hidden Markov Model}
+	\label{fig:hmm}
+\end{figure}
 
 We consider a \textit{first-order} Hidden Markov Model, that instantiates two simplifying assumptions. First, as 
 with a first-order Markov chain, the probability of a particular state depends only on the previous state. Second, 
