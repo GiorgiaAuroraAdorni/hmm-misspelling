@@ -1,27 +1,22 @@
 \chapter{Dataset}
 
-\section{Dataset Acquisition}
-\label{section:dataset-exploration}
-
-\textbf{FIXME}{This is not the transition model, it's the dataset used for transitions (maybe transition dataset?}
-\subsection{Sentences Dataset}
+\section{Sentences Dataset}
 \label{subsection:sencences_ds}
-We performed our experiments on two different transition models.\\
+We used two different datasets of English sentences, to construct the transition probability matrix, following the 
+procedure described in Section \ref{section:hmm}.\\
 The first one is a concatenation of public domain book excerpts from 
 \href{http://www.gutenberg.org/wiki/Main\_Page}{ 
 	\textcolor{blue}{Project Gutenberg}}, containing about a million words. 
 
-\textbf{FIXME}:{
-The second one has been extracted from the collection  
-\href{https://www.kaggle.com/mokosan/lord-of-the-rings-character-data#LordOfTheRingsBook.json}{ 
-	\textcolor{blue}{LordOfTheRingsBook.json}} containing the collections of the “Lord Of The Rings” books.}
+The second one has been extracted from the collection  of the “Lord Of The Rings” 
+books\footnote{\url{https://www.kaggle.com/mokosan/lord-of-the-rings-character-data}}.
 
-To each corpora we applied some preprocessing procedures, in particular we divided them in lower-case 
-sentences, and removed special characters and punctuation, obtaining the datasets \texttt{big\_clean.csv} and 
-\texttt{lotr\_clean.csv} (\textbf{FIXME }something about apostrophes)
+We applied some preprocessing procedures to each corpus, in particular we divided them in lower-case 
+sentences and removed special characters and punctuation, obtaining the \texttt{big\_clean} and 
+\texttt{lotr\_clean} datasets.
 
 
-\subsection{Typos Dataset}
+\section{Typos Dataset}
 The basic typos dataset was collected from the following resources:
 %\footnote{\url{https://www.dcs.bbk.ac.uk/~ROGER/corpora.html}}  
 %\footnote{\url{https://www.kaggle.com/rtatman/spelling-variation-on-urban-dictionary}}  
@@ -61,7 +56,7 @@ The dataset is then divided into two corpora: \num{80}\% is used as a train set 
 	Also in this case the two datasets train and test were created, respectively containing \num{50058} and 
 	\num{12701}\% rows.}
 
-\subsection{Language Dataset}
+\section{Language Dataset}
 A language model represents the frequency of words in a certain language.
 We used two different language model datasets. \\
 The first one is a lists of most frequent words from 
@@ -82,7 +77,7 @@ frequency of the word in the dataset \texttt{lotr\_clean.csv} \textbf{FIXME:}(12
 	Each of these datasets contains in each row the word itself and a percentage of how often each word was 
 	being used.}
 
-\subsection{Perturbated Dataset}
+\section{Perturbated Dataset}
 \label{subsection:perturbed}
 In order to evaluate our algorithm on whole sentences, we create new perturbed datasets starting from the 
 datasets \texttt{big\_clean} and \texttt{lotr\_clean} described in the section \ref{subsection:sencences_ds}.
@@ -123,7 +118,7 @@ Swap errors are only introduced if there are no further changes in the word. Cas
 word are excluded, as these would heavily influence the evaluation metrics as they are inconsistent with our 
 model. 
 
-\subsection{On using consistent languages}
+\section{On using consistent languages}
 Our experimentation with different datasets has made us come to the conclusion that, for the models to work 
 optimally, each dataset must share the same language. That is, the datasets must share most of the vocabulary 
 used in them. We have noticed that when the datasets don't share the same vocabulary, and the distribution of 
