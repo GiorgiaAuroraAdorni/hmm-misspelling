@@ -1,12 +1,13 @@
 \chapter{Problem Formulation}
 
-Given a string of text, typically a phrase, we are interested in detecting and correcting misspelling errors in the typed phrase.
-This project aims to implement a solution to the issue by implementing an Error Model, capable of offering a list 
-of correcting candidates to a single (usually) misspelled word, and a Hidden Markov Model, capable of finding 
-the most likely sequence of candidates for each word in a sentence.
+Given a string of text, typically a phrase, we are interested in detecting and correcting misspelling errors in the 
+typed phrase. This project aims to implement an Error Model, capable of offering corrected candidates to a single 
+misspelled word, and a Hidden Markov Model, capable of finding the most likely sequence of candidates for each word in 
+a sentence.
 
-The two models work sequentially in a pipeline, but are not strictly dependant on each other, as the Error Model 
-acts as a local corrector, and the HMM acts as a maximizer of the probability of the sequences of candidates.
+The two models work sequentially in a pipeline, but are not strictly dependant 
+on each other, as the Error Model acts as a local corrector, and the HMM acts 
+as a maximizer of the probability of the sequences of candidates.
 
 \section{Design Choices}
 

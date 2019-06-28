@@ -23,38 +23,35 @@ The basic typos dataset was collected from the following resources:
 %\footnote{\url{https://www.kaggle.com/bittlingmayer/spelling}}
 %\footnote{\url{http://luululu.com/tweet}}
 \begin{itemize}
-	\item \textsc{birkbeck} \footlabel{note1}{\url{https://www.dcs.bbk.ac.uk/~ROGER/corpora.html}} : contains 
+	\item \textsc{birkbeck}\footlabel{note1}{\url{https://www.dcs.bbk.ac.uk/~ROGER/corpora.html}} : contains 
 	\num{36133} misspellings of \num{6136} words, taken from the native-speaker section (British and 
 	American) of the Birkbeck spelling error corpus.
-	\item \textsc{holbrook} \footref{note1}: contains \num{1791} misspellings of \num{1200} words, taken from 
+	\item \textsc{holbrook}\footref{note1}: contains \num{1791} misspellings of \num{1200} words, taken from 
 	the book "English for the Rejected" by David Holbrook (Cambridge University Press - 1964).
-	\item \textsc{aspell} \footref{note1} :contains \num{531} misspellings of \num{450} words, taken from one 
+	\item \textsc{aspell}\footref{note1}: contains \num{531} misspellings of \num{450} words, taken from one 
 	assembled by Atkinson for testing the GNU Aspell spellchecker.
-	\item \textsc{wikipedia} \footref{note1}: contains \num{2455} misspellings of \num{1922} words, taken from 
+	\item \textsc{wikipedia}\footref{note1}: contains \num{2455} misspellings of \num{1922} words, taken from 
 	the misspellings made by Wikipedia editors.
 	\item \textsc{urban-dictionary-variants} 
-	\footnote{\url{https://www.kaggle.com/rtatman/spelling-variation-on-urban-dictionary}}  : contains 
+	\footnote{\url{https://www.kaggle.com/rtatman/spelling-variation-on-urban-dictionary}}: contains 
 	\num{716} variant 
 	spellings, taken from the text scraped from Urban Dictionary (in UK English).
-	\item \textsc{spell-set} \footnote{\url{https://www.kaggle.com/bittlingmayer/spelling}}: contains 
+	\item \textsc{spell-set}\footnote{\url{https://www.kaggle.com/bittlingmayer/spelling}}: contains 
 	\num{670} typos.
-	\item \textsc{tweet-typo} \footnote{\url{http://luululu.com/tweet}}:: contains \num{39172} typos, taken 
+	\item \textsc{tweet-typo}\footnote{\url{http://luululu.com/tweet}}: contains \num{39172} typos, taken 
 	from Twitter.
 \end{itemize}
 
-All the datasets are cleaned and joined in a new one that contains \num{79677} rows, each with a typo and the 
+All the datasets were cleaned and joined in a single one containing \num{79677} rows, each with a typo and the 
 corresponding correct word.
-The dataset is then divided into two corpora: \num{80}\% is used as a train set (\num{63679} rows) and 
+This dataset was then divided into two corpora: \num{80}\% is used as a train set (\num{63679} rows) and 
 \num{20}\% is used as a test set (\num{15998} rows).
 
-
-\textcolor{red}{
-	We decided to created another dataset of typos starting from the \\\texttt{lotr\_clean.csv}. 
-	Extracting a list of all the words contained in this corpus, for each of these we have generated a sequence of 
-	five typos according to the algorithm that will be defined in the chapter \ref{subsection:perturbed}.
-	The final dataset contains \num{62759} row, with the same structure as the one described above.
-	Also in this case the two datasets train and test were created, respectively containing \num{50058} and 
-	\num{12701}\% rows.}
+To evaluate the performance of our model, we also created another dataset of typos starting from the \\ 
+\texttt{lotr\_clean} file. For each word contained in this corpus we generated five typos according to the algorithm 
+that will be defined in Section~\ref{section:perturbed}. This dataset contains \num{62759} rows, with the same 
+structure described above. We then split it in train and test datasets, respectively containing \num{50058} and 
+\num{12701} rows.
 
 \section{Language Dataset}
 A language model represents the frequency of words in a certain language.
@@ -70,8 +67,8 @@ cleaned up and limited to only the top \num{65537} words.
 We found some problems with this dataset, for example the lack of proper names, city names, countries, brands 
 etc.
 Moreover, most of the typical words of the language used in the sentence dataset were missing.
-For this reason, we decided to create a new language model \texttt{lotr\_language\_model.txt}, based on the 
-frequency of the word in the dataset \texttt{lotr\_clean.csv} \textbf{FIXME:}(12506 parole).
+For this reason, we decided to create a new language model \texttt{lotr\_language\_model}, based on the 
+frequency of the word in the dataset \texttt{lotr\_clean} \textbf{FIXME:}(12506 parole).
 
 \textbf{FIXME}{
 	Each of these datasets contains in each row the word itself and a percentage of how often each word was 
