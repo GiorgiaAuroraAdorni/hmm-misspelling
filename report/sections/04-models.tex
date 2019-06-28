@@ -39,6 +39,13 @@ going to consider only a set of candidates $C$ at a maximum edit distance for th
 
 The distance used to limit the set of candidates $C$ is the \textbf{Levenshtein} edit distance \ref{}.	
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{NoisyChannel.png}
+	\caption{Diagram of the Noisy Channel Model}
+	\label{fig:noisychannel}
+\end{figure}
+
 Once obtained a set of candidates, the formula \ref{eq:4.2} requires us to compute the two components, 
 respectively, the prior probability of a hidden word $w$ and the channel model (or likelihood).
 The prior probability $P(w)$ is given by the language model, that is obtained by counting the frequencies of 
@@ -61,13 +68,6 @@ kind of channel model we're going to use. The following are the channel models u
 	yx)}} 
 	{\mbox{count (xy)}}$
 \end{itemize}
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=10cm]{NoisyChannel.png}
-	\caption{Diagram of the Noisy Channel Model}
-	\label{fig:noisychannel}
-\end{figure}
 
 
 This model is appropriate for estimating the likelihood of \textbf{non-word spelling errors}, or errors were the 
