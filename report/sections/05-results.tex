@@ -178,6 +178,34 @@ model on the typos dataset and the correction of the entire sequence with the \t
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Experiment 2}
+The second experiment was carried out using the same model described in the experiment above, with the 
+difference that candidates are generated with lemmatisation.  
+
+Language models can vary widely in content, depending on different factors such as datasets, preprocessing, and 
+so on. An ideal scenario would be having every different conjugation, inflection and mood of a word in a language 
+model, to assess its frequency in a certain language. But this is not always the case, and as our experimentation 
+progressed, we found time and time again that a certain word, independently from its rarity, would be missing 
+from our language model, and as such finding its inherent probability, $P(\mbox{word})$, would either be solved 
+by defaulting to a base probability, or finding another solution.
+
+The different solution came in the form of lemmatisation.
+Lemmatisation takes into consideration the morphological analysis of the words. To do so, it is necessary to have 
+detailed dictionaries which the algorithm can look through to link the form back to its lemma. Lemmatisation is 
+more powerful than stemming because it doesn't consist only of a stemming algorithm, but also a dictionary to 
+lookup the correct originating lemma.
+
+Introducing lemmatisation gave us a margin of +-2\% overall accuracy on the models, as, for example, run and 
+running would both end up looking for P(run), and words that didn't have a corrispective term in the language 
+model most probably had the originating lemma in it. But we also found the models would be losing precision in 
+the lookup of different words that had the same originating lemma (non ricordo un esempio), and also the 
+models would lose the nuance in probability between, for example, run and running, which have a different 
+frequency of use.
+
+The biggest issue we found was a large overhead of time consumption that the lemmatisation would take in the 
+process of generating candidates, making the process last from an original 0.02 seconds (giusto?) to up to 5 
+seconds, which we deemed unreasonable for the usage we had in mind for the project, thus abandoning the idea 
+of lemmatisation.
+
 \begin{figure}[H]
 	\centering
 	\begin{tabular}{ccccc}
