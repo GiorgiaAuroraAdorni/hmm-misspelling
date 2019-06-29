@@ -182,7 +182,7 @@ class HMM:
                             prev = edited_typo[pos - 1]
 
                         self.error_model["ins"][prev][edited_typo[pos]] += 1
-                        edited_typo = edited_typo[:pos - idx + 1] + edited_typo[pos:]
+                        edited_typo = edited_typo[:pos - idx] + edited_typo[pos:]
                         pos -= idx
 
                 l = zip(edited_typo, correct)
@@ -444,13 +444,12 @@ class HMM:
                             prev = intended[pos - 1]
 
                         prob *= self.error_model["ins"][prev][edited[pos]]
-
+    
                         if debug:
                             components.append(("ins", prev, edited[pos]))
 
-                        edited = edited[:pos - idx + 1] + edited[pos:]
+                        edited = edited[:pos - idx] + edited[pos:]
                         pos -= idx
-
                 # Factoring in substitution probabilities
                 l = zip(edited, intended)
                 for i, j in l:
@@ -515,7 +514,7 @@ class HMM:
                         else:
                             prev = intended[pos - 1]
 
-                        edited = edited[:pos - 1] + "$" + edited[pos - 1:]
+                        edited = edited[:pos - 1] + "$"*idx + edited[pos - 1:]
                         prob *= const
 
                     elif op == "D":
@@ -524,7 +523,7 @@ class HMM:
                         else:
                             prev = intended[pos - 1]
 
-                        edited = edited[:pos - 1] + edited[pos:]
+                        edited = edited[:pos - idx] + edited[pos:]
                         prob *= const
                         pos -= idx
 
