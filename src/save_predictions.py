@@ -80,12 +80,12 @@ eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_15, hmm, prediction
 eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_15)
 
 # Perturbation 20%
-prediction_sentence_filename = "../results/experiment1/1-sentence_prediction-20%.csv"
-meta_sentence_filename = "../results/experiment1/1-meta_sentence_prediction-20%.csv"
-
-eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_20, hmm, prediction_sentence_filename,
-                                  meta_sentence_filename)
-eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_20)
+# prediction_sentence_filename = "../results/experiment1/1-sentence_prediction-20%.csv"
+# meta_sentence_filename = "../results/experiment1/1-meta_sentence_prediction-20%.csv"
+#
+# eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_20, hmm, prediction_sentence_filename,
+#                                   meta_sentence_filename)
+# eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_20)
 
 ###
 edit_distance = 2
@@ -118,11 +118,11 @@ eval.prediction_hmm_candidate_test(typo_ds_test, hmm, prediction_typo_test_filen
 eval.evaluation_hmm_candidate_test(prediction_typo_test_filename, meta_typo_test_filename)
 
 # On train set
-# prediction_typo_train_filename = "../results/experiment1/2-typo_prediction-train.csv"
-# meta_typo_train_filename = "../results/experiment1/2-meta_typo_prediction-train.csv"
+prediction_typo_train_filename = "../results/experiment1/2-typo_prediction-train.csv"
+meta_typo_train_filename = "../results/experiment1/2-meta_typo_prediction-train.csv"
 
-# eval.prediction_hmm_candidate_test(typo_ds_train, hmm, prediction_typo_train_filename, meta_typo_train_filename)
-# eval.evaluation_hmm_candidate_test(prediction_typo_train_filename, meta_typo_train_filename)
+eval.prediction_hmm_candidate_test(typo_ds_train, hmm, prediction_typo_train_filename, meta_typo_train_filename)
+eval.evaluation_hmm_candidate_test(prediction_typo_train_filename, meta_typo_train_filename)
 
 ## Sentence
 # Perturbation 5%
@@ -149,19 +149,20 @@ eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_15, hmm, prediction
                                   meta_sentence_filename)
 eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_15)
 
-# Perturbation 20%
-prediction_sentence_filename = "../results/experiment1/2-sentence_prediction-20%.csv"
-meta_sentence_filename = "../results/experiment1/2-meta_sentence_prediction-20%.csv"
-
-eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_20, hmm, prediction_sentence_filename,
-                                  meta_sentence_filename)
-eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_20)
+# # Perturbation 20%
+# prediction_sentence_filename = "../results/experiment1/2-sentence_prediction-20%.csv"
+# meta_sentence_filename = "../results/experiment1/2-meta_sentence_prediction-20%.csv"
+#
+# eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_20, hmm, prediction_sentence_filename,
+#                                   meta_sentence_filename)
+# eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_20)
 
 #### EXPERIMENT 3 ####
 words_ds = "../data/word_freq/lotr_language_model.txt"
 sentences_ds = "../data/texts/lotr_clean.txt"
-typo_ds_train = "../data/typo/clean/lotr_train.csv"
-typo_ds_test = "../data/typo/clean/lotr_test.csv"
+typo_ds_train = "../data/typo/clean/big_train.csv"
+typo_ds_test_lotr = "../data/typo/clean/lotr_test.csv"
+typo_ds_test_big = "../data/typo/clean/big_test.csv"
 perturbed_ds_5 = "../data/texts/perturbed/lotr_clean_perturbed-5%.txt"
 perturbed_ds_10 = "../data/texts/perturbed/lotr_clean_perturbed-10%.txt"
 perturbed_ds_15 = "../data/texts/perturbed/lotr_clean_perturbed-15%.txt"
@@ -194,18 +195,18 @@ m = pd.DataFrame(model)
 m.to_csv("../results/experiment3/1-model.csv", sep=',', index=False)
 
 ## Typo:
-# On test set
-prediction_typo_test_filename = "../results/experiment3/1-typo_prediction-test.csv"
-meta_typo_test_filename = "../results/experiment3/1-meta_typo_prediction-test.csv"
+# On lotr test set
+prediction_typo_test_filename = "../results/experiment3/1-typo_prediction-lotr.csv"
+meta_typo_test_filename = "../results/experiment3/1-meta_typo_prediction-lotr.csv"
 
-eval.prediction_hmm_candidate_test(typo_ds_test, hmm, prediction_typo_test_filename, meta_typo_test_filename)
+eval.prediction_hmm_candidate_test(typo_ds_test_lotr, hmm, prediction_typo_test_filename, meta_typo_test_filename)
 eval.evaluation_hmm_candidate_test(prediction_typo_test_filename, meta_typo_test_filename)
 
-# On train set
-prediction_typo_train_filename = "../results/experiment3/1-typo_prediction-train.csv"
-meta_typo_train_filename = "../results/experiment3/1-meta_typo_prediction-train.csv"
+# On big test set
+prediction_typo_train_filename = "../results/experiment3/1-typo_prediction-big.csv"
+meta_typo_train_filename = "../results/experiment3/1-meta_typo_prediction-big.csv"
 
-eval.prediction_hmm_candidate_test(typo_ds_train, hmm, prediction_typo_train_filename, meta_typo_train_filename)
+eval.prediction_hmm_candidate_test(typo_ds_test_big, hmm, prediction_typo_train_filename, meta_typo_train_filename)
 eval.evaluation_hmm_candidate_test(prediction_typo_train_filename, meta_typo_train_filename)
 
 ## Sentence
@@ -234,12 +235,12 @@ eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_15, hmm, prediction
 eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_15)
 
 # Perturbation 20%
-prediction_sentence_filename = "../results/experiment3/1-sentence_prediction-20%.csv"
-meta_sentence_filename = "../results/experiment3/1-meta_sentence_prediction-20%.csv"
-
-eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_20, hmm, prediction_sentence_filename,
-                                  meta_sentence_filename)
-eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_20)
+# prediction_sentence_filename = "../results/experiment3/1-sentence_prediction-20%.csv"
+# meta_sentence_filename = "../results/experiment3/1-meta_sentence_prediction-20%.csv"
+#
+# eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_20, hmm, prediction_sentence_filename,
+#                                   meta_sentence_filename)
+# eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_20)
 
 ###
 edit_distance = 2
@@ -264,19 +265,19 @@ m = pd.DataFrame(model)
 m.to_csv("../results/experiment3/2-model.csv", sep=',', index=False)
 
 ## Typo:
-# On test set
-prediction_typo_test_filename = "../results/experiment3/2-typo_prediction-test.csv"
-meta_typo_test_filename = "../results/experiment3/2-meta_typo_prediction-test.csv"
+# On lotr test set
+prediction_typo_test_filename = "../results/experiment3/2-typo_prediction-lotr.csv"
+meta_typo_test_filename = "../results/experiment3/2-meta_typo_prediction-lotr.csv"
 
-eval.prediction_hmm_candidate_test(typo_ds_test, hmm, prediction_typo_test_filename, meta_typo_test_filename)
+eval.prediction_hmm_candidate_test(typo_ds_test_lotr, hmm, prediction_typo_test_filename, meta_typo_test_filename)
 eval.evaluation_hmm_candidate_test(prediction_typo_test_filename, meta_typo_test_filename)
 
-# On train set
-# prediction_typo_train_filename = "../results/experiment3/2-typo_prediction-train.csv"
-# meta_typo_train_filename = "../results/experiment3/2-meta_typo_prediction-train.csv"
+# On big test set
+prediction_typo_train_filename = "../results/experiment3/2-typo_prediction-big.csv"
+meta_typo_train_filename = "../results/experiment3/2-meta_typo_prediction-big.csv"
 
-# eval.prediction_hmm_candidate_test(typo_ds_train, hmm, prediction_typo_train_filename, meta_typo_train_filename)
-# eval.evaluation_hmm_candidate_test(prediction_typo_train_filename, meta_typo_train_filename)
+eval.prediction_hmm_candidate_test(typo_ds_test_big, hmm, prediction_typo_train_filename, meta_typo_train_filename)
+eval.evaluation_hmm_candidate_test(prediction_typo_train_filename, meta_typo_train_filename)
 
 ## Sentence
 # Perturbation 5%
@@ -304,9 +305,9 @@ eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_15, hmm, prediction
 eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_15)
 
 # Perturbation 20%
-prediction_sentence_filename = "../results/experiment3/2-sentence_prediction-20%.csv"
-meta_sentence_filename = "../results/experiment3/2-meta_sentence_prediction-20%.csv"
-
-eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_20, hmm, prediction_sentence_filename,
-                                  meta_sentence_filename)
-eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_20)
+# prediction_sentence_filename = "../results/experiment3/2-sentence_prediction-20%.csv"
+# meta_sentence_filename = "../results/experiment3/2-meta_sentence_prediction-20%.csv"
+#
+# eval.prediction_hmm_sequence_test(sentences_ds, perturbed_ds_20, hmm, prediction_sentence_filename,
+#                                   meta_sentence_filename)
+# eval.evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_filename, perturbed_ds_20)

@@ -160,6 +160,13 @@ def evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_fil
     else:
         exact_match_accuracy = exact_match_frequencies[True]
 
+    case_1_T = 0
+    case_1a_T = 0
+    case_1b_T = 0
+    case_2_T = 0
+    case_3_T = 0
+    case_4_T = 0
+
     for index, row in predictions.iterrows():
         real = row["target"].split()
         prediction = row["observed"].split()
@@ -173,13 +180,12 @@ def evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_fil
         correct_prediction = 0
         not_correct_prediction = 0
 
-        correct_perturbed = 0
-        not_correct_perturbed = 0
-
-        correct_not_perturbed = 0
-        not_correct_not_perturbed = 0
-
-        not_correct_modified_perturbed = 0
+        case_1 = 0   # Perturbed word not correctly provided
+        case_1a = 0  # The perturbed word was not the subject of attempted correction by the model
+        case_1b = 0  # The perturbed word has been the subject of attempted correction by the model but without success
+        case_2 = 0   # Perturbed word correctly provided
+        case_3 = 0   # Unperturbed word not correctly provided
+        case_4 = 0   # Unperturbed word correctly provided
 
         for i, word in enumerate(real):
             is_perturbed = (real[i] != noisy[i])
@@ -196,69 +202,83 @@ def evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_fil
                 not_correct_prediction += 1
 
             if is_perturbed and is_correct:
-                correct_perturbed += 1
+                case_2 += 1
             elif is_perturbed and not is_correct:
+                case_1 += 1
                 if noisy[i] != prediction[i]:
-                    not_correct_modified_perturbed += 1
+                    case_1b += 1
                 else:
-                    not_correct_perturbed += 1
+                    case_1a += 1
             elif not is_perturbed and is_correct:
-                correct_not_perturbed += 1
+                case_4 += 1
             else:
-                not_correct_not_perturbed += 1
+                case_3 += 1
 
         if perturbed == 0:
-            predictions.loc[index, 'not_correct PREV correct'] = np.nan
-            predictions.loc[index, 'not_correct PREV not_correct'] = np.nan
-            predictions.loc[index, 'initial_error'] = np.nan
+            predictions.loc[index, 'case_1'] = np.nan
+            predictions.loc[index, 'case_1a'] = np.nan
+            predictions.loc[index, 'case_1b'] = np.nan
+            predictions.loc[index, 'case_2'] = np.nan
         else:
-            predictions.loc[index, 'not_correct PREV correct'] = correct_perturbed / perturbed
-            predictions.loc[index, 'not_correct PREV not_correct'] = not_correct_perturbed / perturbed
-            predictions.loc[index, 'initial_error'] = perturbed / total
+            predictions.loc[index, 'case_1'] = case_1 / perturbed
+            predictions.loc[index, 'case_1a'] = case_1a / perturbed
+            predictions.loc[index, 'case_1b'] = case_1b / perturbed
+            predictions.loc[index, 'case_2'] = case_2 / perturbed
 
         if not_perturbed == 0:
-            predictions.loc[index, 'correct PREV correct'] = np.nan
-            predictions.loc[index, 'correct PREV not_correct'] = np.nan
+            predictions.loc[index, 'case_3'] = np.nan
+            predictions.loc[index, 'case_4'] = np.nan
         else:
-            predictions.loc[index, 'correct PREV correct'] = correct_not_perturbed / not_perturbed
-            predictions.loc[index, 'correct PREV not_correct'] = not_correct_not_perturbed / not_perturbed
+            predictions.loc[index, 'case_3'] = case_3 / not_perturbed
+            predictions.loc[index, 'case_4'] = case_4 / not_perturbed
 
-        predictions.loc[index, 'not_correct_modified PREV not_correct'] = not_correct_modified_perturbed
-        predictions.loc[index, 'correct'] = perturbed / total
-        predictions.loc[index, 'not_correct'] = not_perturbed / total
-        predictions.loc[index, 'accuracy'] = correct_prediction / total
+        predictions.loc[index, 'detection-accuracy'] = (case_1b + case_2 + case_4) / total
+        predictions.loc[index, 'correction-accuracy'] = (case_2 + case_4) / total
 
-        if correct_perturbed + not_correct_not_perturbed + not_correct_modified_perturbed == 0:
-            predictions.loc[index, 'precision'] = np.nan
+        # Recall
+        if case_1 + case_2 == 0:
+            predictions.loc[index, 'detection-recall'] = np.nan
         else:
-            predictions.loc[index, 'precision'] = correct_perturbed / (
-                    correct_perturbed + not_correct_not_perturbed + not_correct_modified_perturbed)
+            predictions.loc[index, 'detection-recall'] = (case_1b + case_2) / (case_1 + case_2)
 
-        if correct_perturbed + not_correct_perturbed == 0:
-            predictions.loc[index, 'recall'] = np.nan
+        if case_1 + case_2 == 0:
+            predictions.loc[index, 'correction-recall'] = np.nan
         else:
-            predictions.loc[index, 'recall'] = correct_perturbed / (correct_perturbed + not_correct_perturbed)
+            predictions.loc[index, 'correction-recall'] = case_2 / (case_1 + case_2)
 
-        if predictions.loc[index, 'precision'] + predictions.loc[index, 'recall'] == 0:
-            predictions.loc[index, 'F1-score'] = np.nan
+        # Precision
+        if case_1b + case_2 + case_3 == 0:
+            predictions.loc[index, 'detection-precision'] = np.nan
         else:
-            predictions.loc[index, 'F1-score'] = 2 * (
-                    predictions.loc[index, 'precision'] * predictions.loc[index, 'recall'] / (
-                    predictions.loc[index, 'precision'] + predictions.loc[index, 'recall']))
+            predictions.loc[index, 'detection-precision'] = (case_1b + case_2) / (case_1b + case_2 + case_3)
 
-    word_accuracy = np.mean(predictions['accuracy'])
-    word_precision = np.mean(predictions['precision'])
-    word_recall = np.mean(predictions['recall'])
-    word_f1_score = np.mean(predictions['F1-score'])
+        if case_2 + case_3 == 0:
+            predictions.loc[index, 'correction-precision'] = np.nan
+        else:
+            predictions.loc[index, 'correction-precision'] = case_2 / (case_2 + case_3)
 
-    word_correct = np.nanmean(predictions['correct'])
-    word_not_correct = np.nanmean(predictions['not_correct'])
-    word_not_correct_PREV_correct = np.nanmean(predictions['not_correct PREV correct'])
-    word_not_correct_PREV_not_correct = np.nanmean(predictions['not_correct PREV not_correct'])
-    word_correct_PREV_correct = np.nanmean(predictions['correct PREV correct'])
-    word_correct_PREV_not_correct = np.nanmean(predictions['correct PREV not_correct'])
-    word_not_correct_modified_PREV_not_correct = np.nanmean(predictions['not_correct_modified PREV not_correct'])
-    initial_error = np.nanmean(predictions['initial_error'])
+        # Specificity
+        if case_3 + case_4 == 0:
+            predictions.loc[index, 'specificity'] = np.nan
+        else:
+            predictions.loc[index, 'specificity'] = case_4 / (case_3 + case_4)
+
+        case_1_T += case_1
+        case_1a_T += case_1a
+        case_1b_T += case_1b
+        case_2_T += case_2
+        case_3_T += case_3
+        case_4_T += case_4
+
+    detection_accuracy = np.mean(predictions['detection-accuracy'])
+    detection_recall = np.mean(predictions['detection-recall'])
+    detection_precision = np.mean(predictions['detection-precision'])
+
+    correction_accuracy = np.mean(predictions['correction-accuracy'])
+    correction_recall = np.mean(predictions['correction-recall'])
+    correction_precision = np.mean(predictions['correction-precision'])
+
+    specificity = np.mean(predictions['specificity'])
 
     end = time.time()
     eval_time = end - start
@@ -266,28 +286,34 @@ def evaluation_hmm_sequence_test(prediction_sentence_filename, meta_sentence_fil
     print("Ended evaluation in {:6.2f} seconds".format(eval_time))
 
     print("Exact match accuracy: {:4.2f} %".format(exact_match_accuracy * 100))
-    print("Word accuracy: {:4.2f} %".format(word_accuracy * 100))
-    print("Word precision: {:4.2f} %".format(word_precision * 100))
-    print("Word recall: {:4.2f} %".format(word_recall * 100))
-    print("Word F1 Score: {:4.2f} %".format(word_f1_score * 100))
+    print("Word detection-accuracy: {:4.2f} %".format(detection_accuracy * 100))
+    print("Word correction-accuracy: {:4.2f} %".format(correction_accuracy * 100))
+    print("Word detection-recall: {:4.2f} %".format(detection_recall * 100))
+    print("Word correction-recall: {:4.2f} %".format(correction_recall * 100))
+    print("Word detection-precision: {:4.2f} %".format(detection_precision * 100))
+    print("Word correction-precision: {:4.2f} %".format(correction_precision * 100))
+    print("Word specificity: {:4.2f} %".format(specificity * 100))
 
     predictions.to_csv(prediction_sentence_filename, sep=',', index=False)
 
     meta['eval_time'] = eval_time
     meta['perturbed_ds'] = perturbed_ds
-    meta['accuracy'] = word_accuracy * 100
+
+    meta['case_1'] = case_1_T
+    meta['case_1a'] = case_1a_T
+    meta['case_1b'] = case_1b_T
+    meta['case_2'] = case_2_T
+    meta['case_3'] = case_3_T
+    meta['case_4'] = case_4_T
+
     meta['exact_match'] = exact_match_accuracy * 100
-    meta['initial_error'] = initial_error * 100
-    meta['precision'] = word_precision * 100
-    meta['recall'] = word_recall * 100
-    meta['F1-Score'] = word_f1_score * 100
-    meta['not_correct_PREV_correct'] = word_not_correct_PREV_correct * 100
-    meta['correct_PREV_not_correct'] = word_correct_PREV_not_correct * 100
-    meta['correct'] = word_correct * 100
-    meta['not_correct'] = word_not_correct * 100
-    meta['not_correct_PREV_not_correct'] = word_not_correct_PREV_not_correct * 100
-    meta['not_correct_modified_PREV_not_correct'] = word_not_correct_modified_PREV_not_correct * 100
-    meta['correct_PREV_correct'] = word_correct_PREV_correct * 100
+    meta['detection_accuracy'] = detection_accuracy * 100
+    meta['correction_accuracy'] = correction_accuracy * 100
+    meta['detection_recall'] = detection_recall * 100
+    meta['correction_recall'] = correction_recall * 100
+    meta['detection_precision'] = detection_precision * 100
+    meta['correction_precision'] = correction_precision * 100
+    meta['specificity'] = specificity * 100
 
     meta = meta.round(2)
     meta.to_csv(meta_sentence_filename, sep=',', index=False)
