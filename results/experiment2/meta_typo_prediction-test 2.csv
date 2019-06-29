@@ -1,0 +1,2 @@
+obervation,train_time,test_time,eval_time,language_ds,sentence_ds,typo_ds_train,typo_ds_test,accuracy_top_1,accuracy_top_3,accuracy_top_5
+15998,2.07,5270.06,0.03,frequency-alpha-gcide,big_clean,train,test,41.54,57.18,61.15

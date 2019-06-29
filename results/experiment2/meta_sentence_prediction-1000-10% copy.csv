@@ -1,0 +1,2 @@
+obervation,train_time,test_time,eval_time,language_ds,sentence_ds,typo_ds_train,typo_ds_test,accuracy_top_1,exact_match,initial_error,error_rate,precision,recall,specificity,correct,not_correct,not_correct_PREV_correct,not_correct_PREV_not_correct,correct_PREV_correct,correct_PREV_not_correct
+1001,2.17,2695.01,7.22,frequency-alpha-gcide,big_clean,train,test,47.99,0.2,15.01,52.01,89.77,48.33,11.9,10.88,89.12,45.24,54.76,48.33,51.67

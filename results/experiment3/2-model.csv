@@ -1,2 +1,2 @@
 max_edits,max_states,order,state_len,error_model_p,train_time,language_ds,sentence_ds,typo_ds_train,typo_ds_test,edit_distance
-2,5,1,2,0.24904155849513634,2.625308036804199,../data/word_freq/lotr_language_model.txt,../data/texts/lotr_clean.txt,../data/typo/clean/lotr_train.csv,../data/typo/clean/lotr_test.csv,2
+2,5,1,2,0.28965382967952963,3.6324708461761475,../data/word_freq/lotr_language_model.txt,../data/texts/lotr_clean.txt,../data/typo/clean/big_train.csv,../data/typo/clean/big_test.csv,2

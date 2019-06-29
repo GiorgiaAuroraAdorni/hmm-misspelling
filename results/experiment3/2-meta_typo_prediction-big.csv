@@ -1,2 +1,2 @@
 observation,test_time,eval_time,accuracy_top_1,accuracy_top_3,accuracy_top_5
-15918,418.55,0.03,37.95,49.25,53.65
+15918,373.61,0.03,28.06,37.98,42.15

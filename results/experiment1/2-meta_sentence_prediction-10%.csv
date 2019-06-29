@@ -1,2 +1,2 @@
-observation,test_time,eval_time,perturbed_ds,accuracy,exact_match,initial_error,precision,recall,F1-Score,not_correct_PREV_correct,correct_PREV_not_correct,correct,not_correct,not_correct_PREV_not_correct,not_correct_modified_PREV_not_correct,correct_PREV_correct
-5001,1120.63,40.79,../data/texts/perturbed/big_clean_perturbed-10%.txt,46.0,1.0,22.75,18.45,90.94,41.55,55.47,56.31,19.65,80.35,5.43,72.09,43.69
+observation,test_time,eval_time,perturbed_ds,case_1,case_1a,case_1b,case_2,case_3,case_4,exact_match,detection_accuracy,correction_accuracy,detection_recall,correction_recall,detection_precision,correction_precision,specificity
+1001,224.84,8.35,../data/texts/perturbed/big_clean_perturbed-10%.txt,573,142,431,1240,792,6580,20.88,89.61,84.94,92.37,68.97,68.58,61.74,89.08
