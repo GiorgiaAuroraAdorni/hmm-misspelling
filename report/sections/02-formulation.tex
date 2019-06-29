@@ -5,15 +5,15 @@ typed phrase. This project aims to implement an Error Model, capable of offering
 misspelled word, and a Hidden Markov Model, capable of finding the most likely sequence of candidates for each word in 
 a sentence.
 
-The two models work sequentially in a pipeline, but are not strictly dependant 
-on each other, as the Error Model acts as a local corrector, and the HMM acts 
-as a maximizer of the probability of the sequences of candidates.
+The two models work sequentially in a pipeline, but are not strictly dependant on each other, as the Error Model 
+acts as a local corrector, and the HMM acts as a maximiser of the probability of the sequences of candidates.
 
 \section{Design Choices}
 
-We have chosen to implement this solution using the English language for various reasons. First of all, great majority of material in literature 
-deals with this problem in the English language. \textcolor{red}{Moreover it is a simple language, both from a 
-	grammatical and a lexical point of view: it lacks in certain symbols, like accents and apostrophes, and genres. }
+We have chosen to implement this solution using the English language for various reasons. First of all, great 
+majority of material in literature deals with this problem in the English language. \textcolor{red}{Moreover it is a 
+simple language, both from a grammatical and a lexical point of view: it lacks in certain symbols, like accents 
+and apostrophes, and genres. }
 Furthermore all punctuation and special character symbols were not considered, but only letters and sometimes 
 numbers. 
 
