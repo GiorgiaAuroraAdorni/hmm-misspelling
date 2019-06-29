@@ -31,48 +31,83 @@ Therefore, for each word, the following cases can occur:
 	\item \textit{Unperturbed word correctly provided}
 \end{enumerate}
 
-We can therefore represent the confusion matrix of the data in output through table \ref{tab:confmat}:
+We can therefore represent two different confusion matrices, the first one based on the error detection and the 
+second one on the error correction.
 
 \begin{figure}[H]
 	\centering
 	\begin{tabular}{lc|cc}
 		\toprule
 		& & \multicolumn{2}{c}{\textbf{Model Prediction}}\\
-		& & \textsc{True}  & \textsc{False} \\
+		& & \textsc{Detected}  & \textsc{Not Detected} \\
 		\midrule
 		\multirow{4}{*}{\textbf{Hidden Truth}} 
-		& \multirow{2}{*}{\textsc{True}}   & True Positive & False Negative	\\ 
-			& & Case 2. & Case 1(a).	\\ 
-		& \multirow{2}{*}{\textsc{False}}  & False Positive & True Negative	\\
-		& &  Case 3. \& 1(b).  & Case 4.	\\ 
+		& \multirow{2}{*}{\textsc{Perturbed}}   & True Positive & False Negative	\\ 
+		& &  Case 1(b). \& Case 2. & Case 1(a).	\\ 
+		& \multirow{2}{*}{\textsc{Unperturbed}}  & False Positive & True Negative	\\
+		& &  Case 3.  & Case 4.	\\ 
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{Confusion matrix}
-	\label{tab:confmat}
+	\captionof{table}{Confusion matrix - Error Detection}
+	\label{tab:confmat-detection}
 \end{figure}
 
 From the confusion matrix defined in the table above, it is possible to calculate the following performance 
 metrics in a simple way:
 \begin{itemize}
-	\item \textsc{Rate of perturbed words correctly predicted}:
-	\[ \frac{\mbox{True Positive}}{\sum \mbox{Perturbed}} = \frac{\mbox{Case 2.}}{\mbox{Case 2.} + \mbox{Case 
-	1.}}\]
-	\item \textsc{Rate of unperturbed words not correctly predicted}:
-	\[ \frac{\mbox{True Negative}}{\sum \mbox{Unperturbed}} = \frac{\mbox{Case 2.}}{\mbox{Case 3.} + 
-	\mbox{Case 4.}}\]
-	\item \textsc{Accuracy}: measures the goodness of the model among the positive correction results obtained
+	\item \textsc{Detection-Accuracy}: percentage of words where the model prediction matches the 
+	ground-truth  
+	\[ \frac{\mbox{True Positive} + \mbox{True Negative}}{\sum \mbox{All}} = \frac{\mbox{Case 1(b).} + 
+	\mbox{Case 2.} + \mbox{Case 4.}}{\mbox{Case 1.} + \mbox{Case 2.} + \mbox{Case 3.} + \mbox{Case 4.}}\]
+	\item \textsc{Detection-Recall}: proportion of all the detected errors among all the errors
+	\[ \frac{\mbox{Case 1(b).} + \mbox{Case 2.}}{\mbox{Case 1.} + \mbox{Case 2.}}\]
+	\item \textsc{Detection-Precision}: ratio of the corrected detection with respect to all the detections
+		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Positive}} = \frac{\mbox{Case 1(b). + 
+		\mbox{Case 2.}}}{\mbox{Case 1(b).}+  \mbox{Case 2.} + \mbox{Case 3.}}\]
+\end{itemize}
+
+
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{lc|cc}
+		\toprule
+		& & \multicolumn{2}{c}{\textbf{Model Prediction}}\\
+		& & \textsc{Corrected}  & \textsc{Not Corrected} \\
+		\midrule
+		\multirow{4}{*}{\textbf{Hidden Truth}} 
+		& \multirow{2}{*}{\textsc{Perturbed}}   & True Positive & False Negative	\\ 
+			& & Case 2. & Case 1.	\\ 
+		& \multirow{2}{*}{\textsc{Unperturbed}}  & False Positive & True Negative	\\
+		& &  Case 3.  & Case 4.	\\ 
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Confusion matrix - Error Correction}
+	\label{tab:confma-error}
+\end{figure}
+
+
+From the second confusion matrix defined in the Table \ref{tab:confma-error}, it is possible to calculate the 
+following metrics:
+\begin{itemize}
+	\item \textsc{Correction-Accuracy}: percentage of words where the model prediction matches the 
+	ground-truth  
 	\[ \frac{\mbox{True Positive} + \mbox{True Negative}}{\sum \mbox{All}} = \frac{\mbox{Case 2.} + \mbox{Case 
 	4.}}{\mbox{Case 1.} + \mbox{Case 2.} + \mbox{Case 3.} + \mbox{Case 4.}}\]
-	\item \textsc{Precision}: ratio of the corrected predictions with respect to the significant values returned by the 
+	\item \textsc{Correction-Recall}: rate of perturbed words correctly predicted
+\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Negative}} = \frac{\mbox{Case 
+		2.}}{\mbox{Case 2.} + \mbox{Case 1.}}\]
+	\item \textsc{Correction-Precision}: ratio of the corrected predictions with respect to the significant values 
+	returned by the 
 	model (the corrections made) 
 		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Positive}} = \frac{\mbox{Case 
-		2.}}{\mbox{Case 1(b).} + \mbox{Case 2.} + \mbox{Case 3.}}\]
-	\item \textsc{Recall}: proportion of all the correct results
-		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Negative}} = \frac{\mbox{Case 
-		2.}}{\mbox{Case 1(a).} + \mbox{Case 2.}}\]
-	\item \textsc{F-Measure}: weighted average (between 0 and 1) with respect to precision and recall
-			\[ 2 * \frac{\mbox{Precision} * \mbox{Recall}}{\mbox{Precision} + \mbox{Recall}} \]
+		2.}}{\mbox{Case 2.} + \mbox{Case 3.}}\]
 \end{itemize}
+
+The \textsc{Specificity}, that is the rate of unperturbed words correctly predicted, is computed in the same way 
+from both the confusion matrices:
+\[ \frac{\mbox{True Negative}}{\sum \mbox{Unperturbed}} = \frac{\mbox{Case 4.}}{\mbox{Case 3.} + 
+	\mbox{Case 4.}}\]
+
 
 Based on these metrics, it is then possible to define whether the models have behaved more or less correctly.
 
@@ -98,9 +133,10 @@ In all the experiments to come, reference will be made to the following variable
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Experiment 1}
-The first experiment was carried out on two different hmm that differ in the choice of the \texttt{max\_edits} parameter.
+The first experiment was carried out on two different HMM that differ in the choice of the \texttt{max\_edits} 
+parameter.
 In the first case, in fact, the edit distance considered was $1$, while in the second $2$.
-In both cases the hmm is structured as follows:
+In both cases the HMM is structured as follows:
 
 \begin{figure}[H]
 	\centering
@@ -110,7 +146,7 @@ In both cases the hmm is structured as follows:
 				\num{5} & \texttt{big\_language\_model} & \texttt{big\_clean}  & \texttt{big\_train}  &\texttt{big\_test}\\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{Hmm model}
+	\captionof{table}{HMM model}
 	\label{tab:error_model1}
 \end{figure}
 
@@ -211,53 +247,11 @@ candidates, making the process last from an original \num{0,03} seconds to more 
 we deemed unreasonable for the real-time usage we had in mind for the project, thus abandoning the idea of 
 lemmatisation.
 
-%\begin{figure}[H]
-%	\centering
-%	\begin{tabular}{ccccc}
-%		\toprule
-%		p 				 & ins 				 	& del  				&  sub 			   &   swap\\ \midrule
-%		\num{0.5} & \num{0,70} & \num{0,70}  & \num{0,70} & \num{0,70}\\
-%		\bottomrule
-%	\end{tabular}
-%	\captionof{table}{Error Model}
-%	\label{tab:error_model2}
-%\end{figure}
-
-%\begin{figure}[H]
-%	\centering
-%	\begin{tabular}{lcccc}
-%		\toprule
-%		& Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
-%		\midrule
-%		Train & \num{20986} & \num{41,38}\%  & \num{57,28} \% & \num{61,60} \% \\
-%		Test &	\num{5270}  & \num{41,54}\%  & \num{57,18} \% & \num{61,15} \%  \\
-%		\bottomrule
-%	\end{tabular}
-%	\captionof{table}{Typos performance evaluation}
-%	\label{tab:typo-eval2}
-%\end{figure}
-%
-
-%\begin{figure}[H]
-%	\centering
-%	\begin{tabular}{ccccccc}
-%		\toprule
-%		\#sentence & Time (sec)  & Accuracy & Initial Error  &  Precision & Recall & Specificity \\
-%		\midrule
-%		\num{1000}	& \num{2705}  & \num{53,46}\%  & \num{15,01}\% & \num{90,96}\% & \num{54,50}\%  & 
-%		\num{10,52}\%  
-%		\\
-%		\bottomrule
-%	\end{tabular}
-%	\captionof{table}{Sentences performance evaluation}
-%	\label{tab:sentence-eval2}
-%\end{figure}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Experiment 3}
 
-As for the previous cases, the third experiment too was carried out on two different HMMs with the same edit distances 
-as the previous experiments. 
+The third experiment too was carried out on two different HMMs with the same edit distances as the previous 
+experiments. 
 The parameters on which the structure is based are shown in the table below:
 
 \begin{figure}[H]
@@ -265,10 +259,10 @@ The parameters on which the structure is based are shown in the table below:
 	\begin{tabular}{ccccc}
 		\toprule
 		max states 	& language model	&  sentence ds  &  train typo ds 	&  test typo ds\\ \midrule
-		\num{5} & \texttt{lotr\_language\_model} & \texttt{lotr\_clean}  & \texttt{lotr\_train}  &\texttt{lotr\_test}\\
+		\num{5} & \texttt{lotr\_language\_model} & \texttt{lotr\_clean}  & \texttt{big\_train}  &\texttt{lotr\_test}\\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{Hmm model}
+	\captionof{table}{HMM model}
 	\label{tab:error_model3}
 \end{figure}
 
