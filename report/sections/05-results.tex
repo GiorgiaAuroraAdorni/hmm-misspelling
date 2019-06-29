@@ -194,69 +194,69 @@ detailed dictionaries which the algorithm can look through to link the form back
 more powerful than stemming because it doesn't consist only of a stemming algorithm, but also a dictionary to 
 lookup the correct originating lemma.
 
-Introducing lemmatisation gave us a margin of +-2\% overall accuracy on the models, as, for example, run and 
-running would both end up looking for P(run), and words that didn't have a corrispective term in the language 
-model most probably had the originating lemma in it. But we also found the models would be losing precision in 
-the lookup of different words that had the same originating lemma (non ricordo un esempio), and also the 
-models would lose the nuance in probability between, for example, run and running, which have a different 
-frequency of use.
+We use one of the most popular packages for Natural Language Processing in Python, the \textbf{Natural 
+Language Toolkit} (NLTK). We use the \textbf{WordNet} lexical database for lemmatisation.
+
+Introducing lemmatisation gave us an improvement of about $2\%$ overall accuracy on the models, as, for 
+example, 
+\texttt{run} and \texttt{running} would both end up looking for $P(\mbox{run})$, and words that did not have a 
+corresponding term in the language model most probably had the originating lemma in it. But we also found the 
+models would be losing precision in the lookup of different words that had the same originating lemma (non 
+ricordo un esempio), and also the models would lose the nuance in probability between, for example, \texttt{run} 
+and \texttt{running}, which have a different frequency of use.
 
 The biggest issue we found was a large overhead of time consumption that the lemmatisation would take in the 
-process of generating candidates, making the process last from an original 0.02 seconds (giusto?) to up to 5 
-seconds, which we deemed unreasonable for the usage we had in mind for the project, thus abandoning the idea 
-of lemmatisation.
+process of generating candidates, making the process last from an original \num{0,03} seconds to up to 
+\num{0,33} seconds, which we deemed unreasonable for the usage we had in mind for the project, thus 
+abandoning the idea of lemmatisation.
 
-\begin{figure}[H]
-	\centering
-	\begin{tabular}{ccccc}
-		\toprule
-		p 				 & ins 				 	& del  				&  sub 			   &   swap\\ \midrule
-		\num{0.5} & \num{0,70} & \num{0,70}  & \num{0,70} & \num{0,70}\\
-		\bottomrule
-	\end{tabular}
-	\captionof{table}{Error Model}
-	\label{tab:error_model2}
-\end{figure}
+%\begin{figure}[H]
+%	\centering
+%	\begin{tabular}{ccccc}
+%		\toprule
+%		p 				 & ins 				 	& del  				&  sub 			   &   swap\\ \midrule
+%		\num{0.5} & \num{0,70} & \num{0,70}  & \num{0,70} & \num{0,70}\\
+%		\bottomrule
+%	\end{tabular}
+%	\captionof{table}{Error Model}
+%	\label{tab:error_model2}
+%\end{figure}
 
-We detected some problems with our dataset, in particular it lacks of plural forms and other things
+%\begin{figure}[H]
+%	\centering
+%	\begin{tabular}{lcccc}
+%		\toprule
+%		& Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
+%		\midrule
+%		Train & \num{20986} & \num{41,38}\%  & \num{57,28} \% & \num{61,60} \% \\
+%		Test &	\num{5270}  & \num{41,54}\%  & \num{57,18} \% & \num{61,15} \%  \\
+%		\bottomrule
+%	\end{tabular}
+%	\captionof{table}{Typos performance evaluation}
+%	\label{tab:typo-eval2}
+%\end{figure}
+%
 
-In order to avoid this problem, we decided to try a new approach that use lemmatisation (stemming) ......
-
-\begin{figure}[H]
-	\centering
-	\begin{tabular}{lcccc}
-		\toprule
-		& Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
-		\midrule
-		Train & \num{20986} & \num{41,38}\%  & \num{57,28} \% & \num{61,60} \% \\
-		Test &	\num{5270}  & \num{41,54}\%  & \num{57,18} \% & \num{61,15} \%  \\
-		\bottomrule
-	\end{tabular}
-	\captionof{table}{Typos performance evaluation}
-	\label{tab:typo-eval2}
-\end{figure}
-
-
-\begin{figure}[H]
-	\centering
-	\begin{tabular}{ccccccc}
-		\toprule
-		\#sentence & Time (sec)  & Accuracy & Initial Error  &  Precision & Recall & Specificity \\
-		\midrule
-		\num{1000}	& \num{2705}  & \num{53,46}\%  & \num{15,01}\% & \num{90,96}\% & \num{54,50}\%  & 
-		\num{10,52}\%  
-		\\
-		\bottomrule
-	\end{tabular}
-	\captionof{table}{Sentences performance evaluation}
-	\label{tab:sentence-eval2}
-\end{figure}
+%\begin{figure}[H]
+%	\centering
+%	\begin{tabular}{ccccccc}
+%		\toprule
+%		\#sentence & Time (sec)  & Accuracy & Initial Error  &  Precision & Recall & Specificity \\
+%		\midrule
+%		\num{1000}	& \num{2705}  & \num{53,46}\%  & \num{15,01}\% & \num{90,96}\% & \num{54,50}\%  & 
+%		\num{10,52}\%  
+%		\\
+%		\bottomrule
+%	\end{tabular}
+%	\captionof{table}{Sentences performance evaluation}
+%	\label{tab:sentence-eval2}
+%\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Experiment 3}
 
-As for the previous cases, the third experiment too was carried out on two different hmm with the same edit distances as 
-the previous experiments. 
+The third experiment too was carried out on two different hmm with the same edit distances as the first 
+experiments. 
 The parameters on which the structure is based are shown in the table below:
 
 \begin{figure}[H]
