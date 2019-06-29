@@ -389,13 +389,13 @@ class HMM:
         edit_info = el.align(intended, typed, task="path")
         cigar = edit_info["cigar"]
 
+        debug = (intended in ["starry", "story"])
+        components = []
+
         if not self.known([typed]):
             # Correcting non-word errors - typed word is not in the vocabulary
 
             prob = 1
-
-            edit_info = el.align(intended, typed, task="path")
-            cigar = edit_info["cigar"]
 
             # If it's a swap it's not anything else
             if set(intended) == set(typed) and \
@@ -409,6 +409,9 @@ class HMM:
                     if i != j and not already_swapped:
                         prob *= self.error_model["swap"][j][i]
                         already_swapped = True
+
+                        if debug:
+                            components.append(("swap", j, i))
                     else:
                         already_swapped = False
 
@@ -431,6 +434,9 @@ class HMM:
                         edited = edited[:pos] + "$" * idx + edited[pos:]
                         prob *= self.error_model["del"][prev][intended[pos]]
 
+                        if debug:
+                            components.append(("del", prev, intended[pos]))
+
                     elif op == "D":
                         if pos == 1 or pos > len(intended):
                             prev = "#"
@@ -438,6 +444,9 @@ class HMM:
                             prev = intended[pos - 1]
 
                         prob *= self.error_model["ins"][prev][edited[pos]]
+
+                        if debug:
+                            components.append(("ins", prev, edited[pos]))
 
                         edited = edited[:pos - idx + 1] + edited[pos:]
                         pos -= idx
@@ -449,9 +458,17 @@ class HMM:
                         continue
                     prob *= self.error_model["sub"][i][j]
 
+                    if debug:
+                        components.append(("sub", i, j))
+
                 # Boosting parameter to rank higher up candidates at shorter edit distances
                 parameter = 1 / (int(edit_info["editDistance"]) + 1)
                 prob *= self.P(intended) * parameter
+
+                if debug:
+                    components.append(("prior", intended))
+                    components.append(("boost", parameter))
+
 
         else:
             # Correcting real-word errors - typed word is in the vocabulary
@@ -522,6 +539,9 @@ class HMM:
                 parameter = 1 / (int(edit_info["editDistance"]) + 1)
                 prob *= self.P(intended) * parameter
 
+        if debug:
+            print("P(intended=" + intended + "|typed=" + typed + ")=" + str(prob) + ", cigar: " + cigar + "\n" + str(components) + "\n")
+
         return prob
 
     def candidates(self, word, max_states=None):
@@ -534,7 +554,7 @@ class HMM:
 
         results = dict()
         for i in range(1, self.max_edits + 1):
-            nprocesses = multiprocessing.cpu_count()
+            nprocesses = 1
             input = [(word, i, max_states, pid, nprocesses) for pid in range(nprocesses)]
 
             subprocesses = self.pool.imap_unordered(process_map, input)
