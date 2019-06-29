@@ -81,24 +81,21 @@ different texts from each dataset, introducing errors in respectively \textbf{FI
 the words.
 
 \textbf{FIXME}:
-The disturbance introduced presents an error dependent on the error model previously presented, with the 
-difference that it is created starting from the typos belonging to the test datasets.
-\textbf{FIXME}:{Analysis of spelling error data has shown that the majority of spelling errors consist of a 
-single-letter change and so we often make the simplifying assumption that these candidates have an edit 
-distance of 1 from the error model.}
-
-We implemented a perturbation algorithm, which for each line of our input file generates a new perturbed 
-string, according to the following steps:
+The disturbance introduced presents an error dependent on the channel model presented in the Section 
+\ref{section:ncm}. In particular we train an HMM for each sentences dataset, starting from the associated typos 
+dataset.
+Our perturbation algorithm generates for each line of the input texts a new perturbed string, according to the 
+following steps:
 
 \begin{enumerate}
 	\item The probability that a word has an edit is computed by multiplying the value of $p$, coming from the 
-	error model, by the percentage of errors desired (10-15-20\%).
+	error model, that is the probability that a certain letter has an edit, by 
+	\num{5}-\num{10}-\num{15}-\num{20}\% that ideally represent the percentage of errors desired.
 	\item For each word of length $n$, the number of edits to be introduced $x$ is calculated according to the 
-	relation $x \sim \text{Bin}(n, p)$
+	relation $x \sim \text{Bin}(n, p)$ \textbf{FIXME}:{Explain the assumption}
 	\item The characters to be changed within each word are chosen randomly.
 	\item \textbf{FIXME}: The type of edit to be introduced within each word is chosen according to the 
-	probability of each type of error. 
-	The disturbance goes to alter the letters designated not in a random manner. 
+	probability of each type of error, accordingly the error model. 
 	In fact, we use four different probabilities to define whether a letter will be deleted from the index in question, 
 	if a new letter will be inserted after the actual character, or if the current character will be replaced with one of 
 	the possible letters according to the error model probability, or if the current character will be swapped with 
