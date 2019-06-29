@@ -134,7 +134,7 @@ In both cases the HMM is structured as follows:
 				\num{5} & \texttt{big\_language\_model} & \texttt{big\_clean}  & \texttt{big\_train}  &\texttt{big\_test}\\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{HMM model}
+	\captionof{table}{Experiment 1 - HMM model}
 	\label{tab:error_model1}
 \end{figure}
 
@@ -148,14 +148,14 @@ model on the typos dataset and the correction of the entire sequence with the \t
 		&\multicolumn{2}{c|}{\textsc{Edit Distance 1}} & \multicolumn{2}{c}{\textsc{Edit Distance 2}}\\
 		& \texttt{big\_train}  & \texttt{big\_test} & \texttt{big\_train}  & \texttt{big\_test} \\
 		\midrule
-		\textbf{Num. observation} & \num{63759} & \num{15918} & \num{63759} & \num{15918} \\
-		\textbf{Time (sec)}  & \num{53} & \num{14} & \num{1648} & \num{408} \\
-		\textbf{Accuracy Top1} & \num{35,01}\%  & \num{35,60}\%  & \num{36,09}\%  & \num{36,84}\%  \\
-		\textbf{Accuracy Top3} &  \num{46,24}\%  & \num{46,62}\%  & \num{48,61}\%  & \num{48,99}\%  \\
-		\textbf{Accuracy Top5} & \num{50,19}\%  & \num{50,56}\%  & \num{52,86}\%  & \num{53,16}\%  \\
+		\textbf{Num. observation} & \num{63759} & \num{15918} & \num{63759} 	& \num{15918} \\
+		\textbf{Time}  		& \num{54}s 			& \num{14}s		& \num{1660}s			& \num{419}s \\
+		\textbf{Accuracy Top1} & \num{34,96}\%  & \num{35,46}\%  & \num{37,34}\%  & \num{37,95}\%  \\
+		\textbf{Accuracy Top3} &  \num{46,05}\%  & \num{46,41}\%  & \num{49,01}\%  & \num{49,25}\%  \\
+		\textbf{Accuracy Top5} & \num{50,18}\%  & \num{50,52}\%  & \num{53,40}\%  & \num{53,65}\%  \\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{Typos performance evaluation}
+	\captionof{table}{Experiment 1 - Typos performance evaluation}
 	\label{tab:typo-eval1}
 \end{figure}
 
@@ -166,14 +166,15 @@ model on the typos dataset and the correction of the entire sequence with the \t
 		&\multicolumn{3}{c}{\textsc{Edit Distance 1}} \\
 		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%\\
 		\midrule
-		\textbf{Time (sec)}							 &\num{201}			&\num{199}			& \num{191}		\\
-		\textbf{Perturbed correct} 			   & \num{64,06}\% &\num{60,16}\%  & \num{57,30}\% \\
-		\textbf{Unperturbed not correct} &\num{41,70}\%	 &\num{43,36}\%  & \num{44,84}\%  \\
-		\textbf{Exact match} 					  &\num{2,60}\%	   &\num{2,32}\%	&\num{1,56}\% \\
-		\textbf{Accuracy} 							&\num{58,82}\%  &\num{57,47}\% &\num{55,73}\% \\
-		\textbf{Precision}							 &\num{16,00}\% &\num{25,12}\% &\num{30,74}\% \\
-		\textbf{Recall}									&\num{79,66}\% &\num{77,36}\%&\num{74,30}\%	\\
-		\textbf{F-Measure}						  &\num{46,28}\% &\num{48,49}\%&\num{49,65}\%	\\
+		\textbf{Time}							 &\num{40}s			&\num{38}s			& \num{39}s		\\
+		\textbf{Exact Sentence Match} 		 &\num{27,37}\%	   &\num{20,98}\%	&\num{13,19}\% \\
+		\textbf{Detection Accuracy} 		 &\num{90,39}\%  &\num{89,04}\% &\num{86,79}\% \\
+		\textbf{Detection Recall}				&\num{82,35}\% &\num{80,94}\%&\num{77,42}\%	\\
+		\textbf{Detection Precision}			&\num{55,15}\% &\num{69,22}\%&\num{76,67}\%	\\
+		\textbf{Correction Accuracy} 		&\num{88,75}\%  &\num{85,96}\% &\num{81,66}\% \\
+		\textbf{Correction Recall}				&\num{67,17}\% &\num{65,71}\%&\num{58,67}\%	\\
+		\textbf{Correction Precision}			&\num{49,34}\% &\num{64,36}\%&\num{70,68}\%	\\
+		\textbf{Specificity} 							&\num{91,48}\%  &\num{90,99}\% &\num{90,56}\% \\
 		\bottomrule
 		%\vspace*{0.5em}
 	\end{tabular}
@@ -185,18 +186,19 @@ model on the typos dataset and the correction of the entire sequence with the \t
 		&\multicolumn{3}{c}{\textsc{Edit Distance 2}} \\
 		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%  \\
 		\midrule
-		\textbf{Time (sec)}							 &\num{1110}		&\num{1121}	 	& \num{1116}\\
-		\textbf{Perturbed correct} 			   & \num{54,96}\% &\num{55,47}\%  & \num{54,34}\%	 \\
-		\textbf{Unperturbed not correct} &\num{55,19}\%	 &\num{56,31}\%  & \num{57,52}\%  \\
-		\textbf{Exact match} 					  &\num{0,90}\%	   &\num{1,00}\%	&\num{0,76}\%\\
-		\textbf{Accuracy} 							&\num{45,81}\%  &\num{46,00}\% &\num{45,85}\% \\
-		\textbf{Precision}							 &\num{10,67}\% &\num{18,45}\% &\num{23,7}\% \\
-		\textbf{Recall}									&\num{89,91}\% &\num{90,94}\%&\num{90,69}\%\\
-		\textbf{F-Measure}						  &\num{38,77}\% &\num{41,55}\%&\num{44,37}\%	\\
+		\textbf{Time}							 		&\num{223}s			&\num{225}s			& \num{226}s		\\
+		\textbf{Exact Sentence Match} 		&\num{24,98}\%	   &\num{20,88}\%	&\num{16,48}\% \\
+		\textbf{Detection Accuracy} 		 &\num{89,58}\%  &\num{89,61}\% &\num{89,33}\% \\
+		\textbf{Detection Recall}				&\num{92,63}\% &\num{92,37}\%&\num{90,35}\%	\\
+		\textbf{Detection Precision}			&\num{53,47}\% &\num{68,58}\%&\num{77,01}\%	\\
+		\textbf{Correction Accuracy} 		&\num{86,99}\%  &\num{84,94}\% &\num{82,48}\% \\
+		\textbf{Correction Recall}				&\num{68,74}\% &\num{68,97}\%&\num{65,29}\%	\\
+		\textbf{Correction Precision}			&\num{45,51}\% &\num{61,74}\%&\num{70,35}\%	\\
+		\textbf{Specificity} 							&\num{89,29}\%  &\num{89,08}\% &\num{89,07}\% \\
 		\bottomrule
 	\end{tabular}
 
-	\captionof{table}{Sentences performance evaluation}
+	\captionof{table}{Experiment 1 - Sentences performance evaluation}
 	\label{tab:sentence-eval1}
 \end{figure}
 
@@ -290,7 +292,7 @@ The parameters on which the structure is based are shown in the table below:
 		\num{5} & \texttt{lotr\_language\_model} & \texttt{lotr\_clean}  & \texttt{big\_train} \\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{HMM model}
+	\captionof{table}{Experiment 3 - HMM model}
 	\label{tab:error_model3}
 \end{figure}
 
@@ -305,16 +307,17 @@ sequence with the \textit{Viterbi algorithm}.
 		&\multicolumn{2}{c|}{\textsc{Edit Distance 1}} & \multicolumn{2}{c}{\textsc{Edit Distance 2}}\\
 		& \texttt{big\_test} & \texttt{lotr\_test} & \texttt{big\_test} & \texttt{lotr\_test} \\
 		\midrule
-		\textbf{Num. observation} & \num{49959} & \num{12570} & \num{49959} & \num{12570} \\
-		\textbf{Time (sec)}  		& \num{32} 				& \num{9} 			& \num{1207} 	& \num{309} \\
-		\textbf{Accuracy Top1} & \num{39,75}\%  & \num{40,47}\%  & \num{63,71}\%  & \num{63,87}\%  \\
-		\textbf{Accuracy Top3} &  \num{44,74}\%  & \num{45,34}\%  & \num{76,44}\%  & \num{76,75}\%  \\
-		\textbf{Accuracy Top5} & \num{46,25}\%  & \num{46,92}\%  & \num{80,86}\%  & \num{80,80}\%  \\
+		\textbf{Num. observation} & \num{15918} & \num{12570} & \num{15918} & \num{12570} \\
+		\textbf{Time}  					& \num{13}s			& \num{10}s 		& \num{374}s 	& \num{312}s \\
+		\textbf{Accuracy Top1} & \num{28,28}\%  & \num{40,37}\%  & \num{28,06}\%  & \num{62,26}\%  \\
+		\textbf{Accuracy Top3} &  \num{39,00}\%  & \num{45,27}\%  & \num{37,98}\%  & \num{75,90}\%  \\
+		\textbf{Accuracy Top5} & \num{45,14}\%  & \num{46,92}\%  & \num{42,15}\%  & \num{80,39}\%  \\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{Typos performance evaluation}
+	\captionof{table}{Experiment 3 - Typos performance evaluation}
 	\label{tab:typo-eval3}
 \end{figure}
+
 
 
 \begin{figure}[H]
@@ -322,16 +325,17 @@ sequence with the \textit{Viterbi algorithm}.
 	\begin{tabular}{lccc}
 		\toprule
 		&\multicolumn{3}{c}{\textsc{Edit Distance 1}} \\
-		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\%  \\
+		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%\\
 		\midrule
-		\textbf{Time (sec)}							 &\num{116}			&\num{114}			& \num{114}			 \\
-		\textbf{Perturbed correct} 			   & \num{79,97}\% &\num{76,55}\%  & \num{73,74}\%	 \\
-		\textbf{Unperturbed not correct} & \num{13,68}\% &\num{14,46}\%  & \num{14,86}\%	\\
-		\textbf{Exact match} 					  & \num{30,89}\% &\num{27,51}\%  & \num{25,23}\% \\
-		\textbf{Accuracy} 							&\num{85,99}\%  &\num{84,62}\% &\num{83,32}\%  \\
-		\textbf{Precision}							 & \num{28,99}\% &\num{41,97}\%  & \num{48,90}\%	\\
-		\textbf{Recall}								  & \num{91,19}\% &\num{88,30}\%  & \num{86,09}\%	\\
-		\textbf{F-Measure}						  & \num{74,19}\% &\num{72,87}\%  & \num{72,44}\% \\
+		\textbf{Time}							 &\num{23}s			&\num{23}s			& \num{23}s		\\
+		\textbf{Exact Sentence Match} 		 &\num{78,82}\%	   &\num{67,63}\%	&\num{59,04}\% \\
+		\textbf{Detection Accuracy} 		 &\num{99,30}\%  &\num{98,42}\% &\num{97,68}\% \\
+		\textbf{Detection Recall}				&\num{90,57}\% &\num{87,00}\%&\num{87,36}\%	\\
+		\textbf{Detection Precision}			&\num{97,17}\% &\num{98,27}\%&\num{98,48}\%	\\
+		\textbf{Correction Accuracy} 		&\num{98,90}\%  &\num{97,23}\% &\num{97,68}\% \\
+		\textbf{Correction Recall}				&\num{82,09}\% &\num{76,21}\%&\num{75,81}\%	\\
+		\textbf{Correction Precision}			&\num{96,63}\% &\num{97,81}\%&\num{98,06}\%	\\
+		\textbf{Specificity} 							&\num{99,86}\%  &\num{99,83}\% &\num{99,69}\% \\
 		\bottomrule
 		%\vspace*{0.5em}
 	\end{tabular}
@@ -341,23 +345,22 @@ sequence with the \textit{Viterbi algorithm}.
 	\begin{tabular}{lccc}
 		\toprule
 		&\multicolumn{3}{c}{\textsc{Edit Distance 2}} \\
-		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\% \\
+		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%  \\
 		\midrule
-		\textbf{Time (sec)}							 &\num{866}			&\num{869}			& \num{854}	 \\
-		\textbf{Perturbed correct} 			   & \num{73,26}\% &\num{72,05}\%  & \num{71,10}\% \\
-		\textbf{Unperturbed not correct} & \num{18,47}\% &\num{18,86}\%  & \num{19,46}\%	 \\
-		\textbf{Exact match} 					  & \num{22,74}\% &\num{21,26}\%  & \num{19,52}\%	 \\
-		\textbf{Accuracy} 							&\num{81,07}\%  &\num{80,17}\% &\num{79,06}\% \\
-		\textbf{Precision}							 & \num{22,40}\% &\num{34,49}\%  & \num{41,35}\%		\\
-		\textbf{Recall}								  & \num{94,31}\% &\num{94,16}\%  & \num{93,63}\%	 \\
-		\textbf{F-Measure}						  & \num{68,76}\% &\num{68,60}\%  & \num{68,53}\% \\
+		\textbf{Time}							 		&\num{173}s			&\num{175}s			& \num{174}s		\\
+		\textbf{Exact Sentence Match} 		&\num{79,42}\%	   &\num{69,53}\%	&\num{63,94}\% \\
+		\textbf{Detection Accuracy} 		 &\num{99,57}\%  &\num{99,24}\% &\num{98,81}\% \\
+		\textbf{Detection Recall}				&\num{94,09}\% &\num{93,25}\%&\num{93,35}\%	\\
+		\textbf{Detection Precision}			&\num{99,23}\% &\num{99,79}\%&\num{99,61}\%	\\
+		\textbf{Correction Accuracy} 		&\num{98,95}\%  &\num{97,60}\% &\num{96,75}\% \\
+		\textbf{Correction Recall}				&\num{81,51}\% &\num{78,75}\%&\num{79,97}\%	\\
+		\textbf{Correction Precision}			&\num{98,85}\% &\num{99,64}\%&\num{99,61}\%	\\
+		\textbf{Specificity} 							&\num{99,95}\%  &\num{99,96}\% &\num{99,93}\% \\
 		\bottomrule
 	\end{tabular}
-	
-	\captionof{table}{Sentences performance evaluation}
-	\label{tab:sentence-eval3}
+	\captionof{table}{Experiment 3 - Sentences performance evaluation}
+\label{tab:sentence-eval3}
 \end{figure}
-
 
 %
 %\begin{figure}[H]
