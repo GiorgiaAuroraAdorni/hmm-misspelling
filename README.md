@@ -5,15 +5,13 @@
 
 The project aims to offer a text generation and prediction model using Markov chains.
 
-#
 ## Prerequisites
 
 * Python 3.0 or greater
 
-#
 ## Installation
 ```sh
-$ git clone https://github.com/GiorgiaAuroraAdorni/next-word-predictor
+$ git clone https://github.com/GiorgiaAuroraAdorni/hmm-misspelling
 $ cd next-word-predictor
 $ pip3 install -r requirements.txt
 ```
@@ -24,7 +22,6 @@ $ cd src
 $ python test.py
 ```
 
-#
 ## Authors
 
 * **Giorgia Adorni** (806787) - [GiorgiaAuroraAdorni](https://github.com/GiorgiaAuroraAdorni)
