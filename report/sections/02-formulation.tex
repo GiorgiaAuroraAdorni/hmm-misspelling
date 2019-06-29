@@ -10,14 +10,16 @@ acts as a local corrector, and the HMM acts as a maximiser of the probability of
 
 \section{Design Choices}
 
-We have chosen to implement this solution using the English language for various reasons. First of all, great 
-majority of material in literature deals with this problem in the English language. \textcolor{red}{Moreover it is a 
-simple language, both from a grammatical and a lexical point of view: it lacks in certain symbols, like accents 
-and apostrophes, and genres. }
-Furthermore all punctuation and special character symbols were not considered, but only letters and sometimes 
+We have chosen to implement this solution using the English language for various reasons. First of all, the great 
+majority of material in literature deals with this problem in the English language. Moreover it is a somewhat simpler 
+language compared to Italian, for example, since it doesn't use special characters, such as accents, and it doesn't 
+have as many verb tenses and special forms.
+
+Furthermore, we chose not to consider all punctuation and special character symbols, but only letters and sometimes 
 numbers. 
 
-We assume that a typed word only depends on the previous one for ease of implementation. As such we will implement a first order HMM. 
+We assume that a typed word only depends on the previous one for ease of implementation. This assumption allows us to 
+model the problem as a first order HMM. 
 If we know the probability of a word given its predecessor, the frequency of each word, and the probability to 
 type word $x$ when word $y$ is intended, we have all the necessary ingredients to use Hidden Markov Models.
 
