@@ -10,6 +10,8 @@ import Cocoa
 
 class ViewController: NSViewController {
 
+    @IBOutlet var textView: TextView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -22,6 +24,8 @@ class ViewController: NSViewController {
         }
     }
 
-
+    @IBAction func showMostLikelySequence(_ sender: Any) {
+        self.textView.spellChecker.mostLikelySequence()
+    }
 }
 

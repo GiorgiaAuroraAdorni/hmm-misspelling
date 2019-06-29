@@ -1,0 +1,2 @@
+observation,test_time,eval_time,perturbed_ds,accuracy,exact_match,initial_error,precision,recall,F1-Score,not_correct_PREV_correct,correct_PREV_not_correct,correct,not_correct,not_correct_PREV_not_correct,not_correct_modified_PREV_not_correct,correct_PREV_correct
+5001,200.56,41.59,../data/texts/perturbed/big_clean_perturbed-5%.txt,58.82,2.6,16.23,16.0,79.66,46.28,64.06,41.7,10.25,89.75,16.15,18.9,58.3

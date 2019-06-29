@@ -20,6 +20,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Append the src/ folder to PYTHONPATH to be able to import it
         sys.path.insert(0, pythonSources)
+        
+        let os = Python.import("os")
+        os.environ["PATH"] = "/usr/local/bin:\(os.environ["PATH"])".pythonObject
     }
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {

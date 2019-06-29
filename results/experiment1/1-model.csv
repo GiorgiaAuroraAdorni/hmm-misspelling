@@ -1,0 +1,2 @@
+max_edits,max_states,order,state_len,error_model_p,train_time,language_ds,sentence_ds,typo_ds_train,typo_ds_test,edit_distance
+1,5,1,2,0.28965382967952963,3.9495689868927,../data/word_freq/big_language_model.txt,../data/texts/big_clean.txt,../data/typo/clean/big_train.csv,../data/typo/clean/big_test.csv,1
