@@ -197,18 +197,19 @@ lookup the correct originating lemma.
 We use one of the most popular packages for Natural Language Processing in Python, the \textbf{Natural 
 Language Toolkit} (NLTK). We use the \textbf{WordNet} lexical database for lemmatisation.
 
-Introducing lemmatisation gave us an improvement of about $2\%$ overall accuracy on the models, as, for 
-example, 
+Introducing lemmatisation gave us an improvement of about $2\%$ overall accuracy on the models, as, for example, 
 \texttt{run} and \texttt{running} would both end up looking for $P(\mbox{run})$, and words that did not have a 
-corresponding term in the language model most probably had the originating lemma in it. But we also found the 
-models would be losing precision in the lookup of different words that had the same originating lemma (non 
-ricordo un esempio), and also the models would lose the nuance in probability between, for example, \texttt{run} 
-and \texttt{running}, which have a different frequency of use.
+corresponding term in the language model most probably had the originating lemma in it. But we also found that in some 
+cases the lemmatisation algorithm used a somewhat heuristic approach, for example considering both \texttt{books} and 
+\texttt{bookses} to be valid plural forms of the \texttt{book} lemma. This meant that we could not assume that a word 
+was correct if it resulted in a correct lemma contained in the language model, defeating our intended purpose for 
+lemmatisation. Moreover the resulting models would lose the nuance among different words derived from a single lemma, 
+which may have a different frequency of use.
 
-The biggest issue we found was a large overhead of time consumption that the lemmatisation would take in the 
-process of generating candidates, making the process last from an original \num{0,03} seconds to up to 
-\num{0,33} seconds, which we deemed unreasonable for the usage we had in mind for the project, thus 
-abandoning the idea of lemmatisation.
+The biggest issue we found was a large time overhead introduced by lemmatisation in the process of generating 
+candidates, making the process last from an original \num{0,03} seconds to more than \num{0,33} seconds per word, which 
+we deemed unreasonable for the real-time usage we had in mind for the project, thus abandoning the idea of 
+lemmatisation.
 
 %\begin{figure}[H]
 %	\centering
@@ -255,8 +256,8 @@ abandoning the idea of lemmatisation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Experiment 3}
 
-The third experiment too was carried out on two different hmm with the same edit distances as the first 
-experiments. 
+As for the previous cases, the third experiment too was carried out on two different HMMs with the same edit distances 
+as the previous experiments. 
 The parameters on which the structure is based are shown in the table below:
 
 \begin{figure}[H]
