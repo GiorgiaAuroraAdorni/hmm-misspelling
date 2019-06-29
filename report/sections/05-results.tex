@@ -285,9 +285,16 @@ The parameters on which the structure is based are shown in the table below:
 	\label{tab:error_model3}
 \end{figure}
 
-In the two tables that follow are shown the results obtained from the evaluation of the \textit{local correction} 
-of our model on the typos datasets \texttt{big\_test} and \texttt{lotr\_test} and the correction of the entire 
-sequence with the \textit{Viterbi algorithm}.
+This experiment tries to investigate the performance of a model tailored to a specific writing style. In particular 
+we train the initial probabilities and transition probabilities from the ”Lord of the Rings“ books. The two tables that 
+follow show the results obtained from the evaluation of the \textit{local correction} of our model on the typos 
+datasets \texttt{big\_test} and \texttt{lotr\_test} and the correction of the entire sequence with the \textit{Viterbi 
+algorithm}.
+
+As expected, the performance on the \texttt{lotr\_test} dataset are significantly higher than in Experiment 1, since it 
+uses the same language of the text corpus the model was trained on. Somewhat surprisingly, the performance hit on 
+\texttt{big\_test} was larger than expected, with accuracies as much as 15\% worse. This shows the importance of 
+correctly choosing the training datasets based on the target writing style.
 
 \begin{figure}[H]
 	\centering
