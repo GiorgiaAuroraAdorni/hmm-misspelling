@@ -182,7 +182,7 @@ class HMM:
                             prev = edited_typo[pos - 1]
 
                         self.error_model["ins"][prev][edited_typo[pos]] += 1
-                        edited_typo = edited_typo[:pos - idx + 1] + edited_typo[pos:]
+                        edited_typo = edited_typo[:pos - idx] + edited_typo[pos:]
                         pos -= idx
 
                 l = zip(edited_typo, correct)
@@ -249,42 +249,26 @@ class HMM:
 
     def build_trellis(self, word):
         states = self.candidates(word)
-        states = [state[0] for state in states]
         if self.empty_trellis():
-            for state in states:
-
-                N_obs = len(self.graph[state]["obs"])
-                obs_freq = self.graph[state]["obs"].count(word)
-                if N_obs == 0 or obs_freq == 0:
-                    obs_prob = 1e-6
-                else:
-                    obs_prob = self.graph[state]["obs"].count(word) / N_obs
-
-                if state in self.language_model:
-                    init_prob = self.language_model[state]
-                else:
-                    init_prob = 1e-6
-
-                p = obs_prob * init_prob
+            for state, probability in states:
+                # probability is P(intended|typed) = P(typed|intended)P(intended) where intended = state, typed = word
+                # We can use it as is
 
                 new_id = len(self.trellis)
                 self.trellis.add_node(new_id, name=state, depth=self.trellis_depth)
-                self.trellis.add_edge(0, new_id, weight=p)
+                self.trellis.add_edge(0, new_id, weight=probability)
         else:
             # Get leaf nodes representing last states
             leaves = [x for x, v in self.trellis.nodes(data=True)
                       if self.trellis.out_degree(x) == 0
                       and v["depth"] == self.trellis_depth - 1]
 
-            for state in states:
+            for state, probability in states:
                 p = {}
-                # Emission probability of observation word for the current state
-                N_obs = len(self.graph[state]["obs"])
-                obs_freq = self.graph[state]["obs"].count(word)
-                if N_obs == 0 or obs_freq == 0:
-                    obs_prob = 1e-6
-                else:
-                    obs_prob = obs_freq / N_obs
+                # probability is P(intended|typed) = P(typed|intended)P(intended) where intended = state, typed = word
+                # The emission probability of observation word for the current state is just P(typed|intended), extract
+                # it dividing by P(intended).
+                obs_prob = probability / self.P(state)
 
                 for leaf_id in leaves:
                     leaf = self.trellis.node[leaf_id]["name"]
@@ -405,13 +389,14 @@ class HMM:
         edit_info = el.align(intended, typed, task="path")
         cigar = edit_info["cigar"]
 
+        debug_words = []
+        enable_debug = (intended in debug_words)
+        components = []
+
         if not self.known([typed]):
             # Correcting non-word errors - typed word is not in the vocabulary
 
             prob = 1
-
-            edit_info = el.align(intended, typed, task="path")
-            cigar = edit_info["cigar"]
 
             # If it's a swap it's not anything else
             if set(intended) == set(typed) and \
@@ -425,6 +410,9 @@ class HMM:
                     if i != j and not already_swapped:
                         prob *= self.error_model["swap"][j][i]
                         already_swapped = True
+
+                        if enable_debug:
+                            components.append(("swap", j, i))
                     else:
                         already_swapped = False
 
@@ -447,6 +435,9 @@ class HMM:
                         edited = edited[:pos] + "$" * idx + edited[pos:]
                         prob *= self.error_model["del"][prev][intended[pos]]
 
+                        if enable_debug:
+                            components.append(("del", prev, intended[pos]))
+
                     elif op == "D":
                         if pos == 1 or pos > len(intended):
                             prev = "#"
@@ -454,10 +445,12 @@ class HMM:
                             prev = intended[pos - 1]
 
                         prob *= self.error_model["ins"][prev][edited[pos]]
+    
+                        if enable_debug:
+                            components.append(("ins", prev, edited[pos]))
 
-                        edited = edited[:pos - idx + 1] + edited[pos:]
+                        edited = edited[:pos - idx] + edited[pos:]
                         pos -= idx
-
                 # Factoring in substitution probabilities
                 l = zip(edited, intended)
                 for i, j in l:
@@ -465,9 +458,17 @@ class HMM:
                         continue
                     prob *= self.error_model["sub"][i][j]
 
+                    if enable_debug:
+                        components.append(("sub", i, j))
+
                 # Boosting parameter to rank higher up candidates at shorter edit distances
                 parameter = 1 / (int(edit_info["editDistance"]) + 1)
                 prob *= self.P(intended) * parameter
+
+                if enable_debug:
+                    components.append(("prior", intended))
+                    components.append(("boost", parameter))
+
 
         else:
             # Correcting real-word errors - typed word is in the vocabulary
@@ -514,7 +515,7 @@ class HMM:
                         else:
                             prev = intended[pos - 1]
 
-                        edited = edited[:pos - 1] + "$" + edited[pos - 1:]
+                        edited = edited[:pos - 1] + "$"*idx + edited[pos - 1:]
                         prob *= const
 
                     elif op == "D":
@@ -523,7 +524,7 @@ class HMM:
                         else:
                             prev = intended[pos - 1]
 
-                        edited = edited[:pos - 1] + edited[pos:]
+                        edited = edited[:pos - idx] + edited[pos:]
                         prob *= const
                         pos -= idx
 
@@ -537,6 +538,9 @@ class HMM:
 
                 parameter = 1 / (int(edit_info["editDistance"]) + 1)
                 prob *= self.P(intended) * parameter
+
+        if enable_debug:
+            print("P(intended=" + intended + "|typed=" + typed + ")=" + str(prob) + ", cigar: " + cigar + "\n" + str(components) + "\n")
 
         return prob
 
