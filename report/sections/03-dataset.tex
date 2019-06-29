@@ -110,15 +110,6 @@ Swap errors are only introduced if there are no further changes in the word. Cas
 word are excluded, as these would heavily influence the evaluation metrics as they are inconsistent with our 
 model. 
 
-\section{On using consistent languages}
-Our experimentation with different datasets has made us come to the conclusion that, for the models to work 
-optimally, each dataset must share the same language. That is, the datasets must share most of the vocabulary 
-used in them. We have noticed that when the datasets don't share the same vocabulary, and the distribution of 
-words isn't aligned between them, the error model might produce candidates that it found most probable for 
-the language model he's trained for, but in the HMM, if trained on a transitions dataset not sharing the same 
-language as the language model, might discard these candidates for less-likely ones that have a higher 
-transition probability.
-
 
 %(\num{58000} sentence)
 
