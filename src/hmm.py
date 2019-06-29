@@ -389,7 +389,8 @@ class HMM:
         edit_info = el.align(intended, typed, task="path")
         cigar = edit_info["cigar"]
 
-        debug = (intended in ["starry", "story"])
+        debug_words = []
+        enable_debug = (intended in debug_words)
         components = []
 
         if not self.known([typed]):
@@ -410,7 +411,7 @@ class HMM:
                         prob *= self.error_model["swap"][j][i]
                         already_swapped = True
 
-                        if debug:
+                        if enable_debug:
                             components.append(("swap", j, i))
                     else:
                         already_swapped = False
@@ -434,7 +435,7 @@ class HMM:
                         edited = edited[:pos] + "$" * idx + edited[pos:]
                         prob *= self.error_model["del"][prev][intended[pos]]
 
-                        if debug:
+                        if enable_debug:
                             components.append(("del", prev, intended[pos]))
 
                     elif op == "D":
@@ -445,7 +446,7 @@ class HMM:
 
                         prob *= self.error_model["ins"][prev][edited[pos]]
     
-                        if debug:
+                        if enable_debug:
                             components.append(("ins", prev, edited[pos]))
 
                         edited = edited[:pos - idx] + edited[pos:]
@@ -457,14 +458,14 @@ class HMM:
                         continue
                     prob *= self.error_model["sub"][i][j]
 
-                    if debug:
+                    if enable_debug:
                         components.append(("sub", i, j))
 
                 # Boosting parameter to rank higher up candidates at shorter edit distances
                 parameter = 1 / (int(edit_info["editDistance"]) + 1)
                 prob *= self.P(intended) * parameter
 
-                if debug:
+                if enable_debug:
                     components.append(("prior", intended))
                     components.append(("boost", parameter))
 
@@ -538,7 +539,7 @@ class HMM:
                 parameter = 1 / (int(edit_info["editDistance"]) + 1)
                 prob *= self.P(intended) * parameter
 
-        if debug:
+        if enable_debug:
             print("P(intended=" + intended + "|typed=" + typed + ")=" + str(prob) + ", cigar: " + cigar + "\n" + str(components) + "\n")
 
         return prob
@@ -553,7 +554,7 @@ class HMM:
 
         results = dict()
         for i in range(1, self.max_edits + 1):
-            nprocesses = 1
+            nprocesses = multiprocessing.cpu_count()
             input = [(word, i, max_states, pid, nprocesses) for pid in range(nprocesses)]
 
             subprocesses = self.pool.imap_unordered(process_map, input)

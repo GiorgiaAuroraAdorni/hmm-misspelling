@@ -26,61 +26,61 @@ def hmm_candidate_test():
               sentences_ds="../data/texts/lotr_clean.txt",
               typo_ds="../data/typo/clean/lotr_train.csv")
 
-    # pp.pprint("Typed: bools")
-    # start = time.time()
-    # x = hmm.candidates("bools")
-    # end = time.time()
-    # pred_time = end - start
-    # pp.pprint("Time: " + str(pred_time))
-    # pp.pprint(x)
-    #
-    # pp.pprint("Typed: peculair")
-    # start = time.time()
-    # x = hmm.candidates("peculair")
-    # end = time.time()
-    # pred_time = end - start
-    # pp.pprint("Time: " + str(pred_time))
-    # pp.pprint(x)
-    #
-    # pp.pprint("Typed: migt")
-    # start = time.time()
-    # x = hmm.candidates("migt")
-    # end = time.time()
-    # pred_time = end - start
-    # pp.pprint("Time: " + str(pred_time))
-    # pp.pprint(x)
-    #
-    # pp.pprint("Typed: littele")
-    # start = time.time()
-    # x = hmm.candidates("littele")
-    # end = time.time()
-    # pred_time = end - start
-    # pp.pprint("Time: " + str(pred_time))
-    # pp.pprint(x)
-    #
-    # pp.pprint("Typed: hoem")
-    # start = time.time()
-    # x = hmm.candidates("hoem")
-    # end = time.time()
-    # pred_time = end - start
-    # pp.pprint("Time: " + str(pred_time))
-    # pp.pprint(x)
-    #
-    # pp.pprint("Typed: tome")
-    # start = time.time()
-    # x = hmm.candidates("tome")
-    # end = time.time()
-    # pred_time = end - start
-    # pp.pprint("Time: " + str(pred_time))
-    # pp.pprint(x)
-    #
-    # pp.pprint("Typed: permforance")
-    # start = time.time()
-    # x = hmm.candidates("permforance")
-    # end = time.time()
-    # pred_time = end - start
-    # pp.pprint("Time: " + str(pred_time))
-    # pp.pprint(x)
+    pp.pprint("Typed: bools")
+    start = time.time()
+    x = hmm.candidates("bools")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
+    pp.pprint("Typed: peculair")
+    start = time.time()
+    x = hmm.candidates("peculair")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
+    pp.pprint("Typed: migt")
+    start = time.time()
+    x = hmm.candidates("migt")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
+    pp.pprint("Typed: littele")
+    start = time.time()
+    x = hmm.candidates("littele")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
+    pp.pprint("Typed: hoem")
+    start = time.time()
+    x = hmm.candidates("hoem")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
+    pp.pprint("Typed: tome")
+    start = time.time()
+    x = hmm.candidates("tome")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
+
+    pp.pprint("Typed: permforance")
+    start = time.time()
+    x = hmm.candidates("permforance")
+    end = time.time()
+    pred_time = end - start
+    pp.pprint("Time: " + str(pred_time))
+    pp.pprint(x)
 
     pp.pprint("Typed: storry")
     start = time.time()
