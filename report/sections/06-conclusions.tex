@@ -1,0 +1,33 @@
+\chapter{Conclusions}
+% ...
+
+The approach we presented allows us to obtain acceptable performance, but it is strongly linked to the quality 
+and selection of the datasets of both models. In particular it is important to use larger Language Models.
+
+Our experimentation with different datasets has made us come to the conclusion that, for the models to work 
+optimally, each dataset must share the same language. That is, the datasets must share most of the vocabulary 
+used in them. We suppose this is the reason for the performance differences between the datasets in Experiment 3. We  
+noticed that when the datasets don't share the same vocabulary or the distribution of words isn't aligned between them, 
+the error model might produce candidates that it found most probable for the language model it's trained for, but in 
+the HMM, if trained on a transitions dataset not sharing the same language as the language model, might discard these 
+candidates for less-likely ones that have a higher transition probability.
+
+In the future, we think this model can be improved by generalising some assumptions and making some improvements, such 
+as:
+\begin{itemize}
+	\item Improve the various datasets: in particular, we could use a new transition probability dataset that is 
+	consistent with the language model one.
+	\item Compute the initial probabilities $\pi$ from the language model.
+	\item Consider additional types of errors in our model.
+	\item Extend the noisy channel error model to also consider neighbouring characters (such as the approach described 
+	by~\cite{brill2000improved}).
+	\item Evaluate the performance of other algorithms, such as the Forward-Backward (smoothing) algorithm.
+	\item Evaluate the performance of other types of models, such as Recurrent Neural Networks.
+	\item We could also improve the performance of the noisy channel model by changing how the prior and the 
+	likelihood are combined. In the standard model they are just multiplied together (some alternatives are described 
+	in~\cite{martin2009speech}).
+\end{itemize}
+
+%The fact that words are generally more frequent than their misspellings can be used in candidate suggestion, by 
+%building a set of words and spelling variations that have similar contexts, sorting by frequency, treating the most 
+%frequent variant as the source, and learning an error model from the difference

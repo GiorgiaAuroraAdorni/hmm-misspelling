@@ -15,6 +15,7 @@ The project aims to offer a text generation and prediction model using Markov ch
 ```sh
 $ git clone https://github.com/GiorgiaAuroraAdorni/next-word-predictor
 $ cd next-word-predictor
+$ pip3 install -r requirements.txt
 ```
 ## Tests
 

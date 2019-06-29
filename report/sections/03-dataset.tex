@@ -71,43 +71,35 @@ Both of these datasets contain, for each word, the frequency it appears in the c
 
 \section{Perturbed Dataset}
 \label{section:perturbed}
-In order to evaluate the performance of our algorithm for the Most Likely Sequence, we created new datasets of 
+In order to evaluate the performance of our algorithm on the Most Likely Sequence task, we created new datasets of 
 perturbed sentences, starting from the \texttt{big\_clean} and \texttt{lotr\_clean} datasets described in 
 Section~\ref{section:sentences_ds}.
 
 Estimates for the frequency of spelling errors in human-typed text vary greatly depending on the situation: from 1-2\% 
-when carefully retyping already printed text to 10-15\% when writing web queries. For this reason, we generated four 
-different texts from each dataset, introducing errors in respectively \textbf{FIXME} \num{10}-\num{15}-\num{20}\% of 
-the words.
+when carefully retyping already printed text to 10-15\% when writing web queries. For this reason, we generated three 
+different texts from each dataset, with varying the percentage of errors introduced, as described below.
 
-\textbf{FIXME}:
-The disturbance introduced presents an error dependent on the channel model presented in the Section 
-\ref{section:ncm}. In particular we train an HMM for each sentences dataset, starting from the associated typos 
-dataset.
-Our perturbation algorithm generates for each line of the input texts a new perturbed string, according to the 
-following steps:
+Our perturbation algorithm generates a new perturbed string for each line of the input texts, according to the 
+following steps. We obtain the probabilities of introducing each class of errors using the error model described in  
+Section~\ref{section:ncm}.
 
 \begin{enumerate}
-	\item The probability that a word has an edit is computed by multiplying the value of $p$, coming from the 
-	error model, that is the probability that a certain letter has an edit, by 
-	\num{5}-\num{10}-\num{15}-\num{20}\% that ideally represent the percentage of errors desired.
+	\item The probability that a word has an edit is computed by multiplying the value of $p$ (the probability that a 
+	certain letter has an edit), contained in the error model, by \num{5}-\num{10}-\num{15}\% that ideally 
+	represents the percentage of errors desired.
 	\item For each word of length $n$, the number of edits to be introduced $x$ is calculated according to the 
-	relation $x \sim \text{Bin}(n, p)$ \textbf{FIXME}:{Explain the assumption}... We assume that, in our artificial 
-	perturbation of words, the number of errors in a word follows a binomial distribution depending on the length 
-	of the word. 
-	\item The characters to be changed within each word are chosen randomly.
-	\item \textbf{FIXME}: The type of edit to be introduced within each word is chosen according to the 
-	probability of each type of error, accordingly the error model. 
-	In fact, we use four different probabilities to define whether a letter will be deleted from the index in question, 
-	if a new letter will be inserted after the actual character, or if the current character will be replaced with one of 
-	the possible letters according to the error model probability, or if the current character will be swapped with 
+	probability distribution $x \sim \text{Bin}(n, p)$. We make the assumption that the number of errors in a word 
+	follows a binomial distribution depending on the single-character error probability and the length of the word. 
+	\item The $x$ characters to be changed inside each word are chosen randomly.
+	\item The type of edit to be applied to each character is chosen randomly according to the probabilities contained 
+	in the error model. We use four different probabilities to define whether a letter will be deleted, a new letter 
+	will be inserted, the current character will be replaced with another or the current character will be swapped with 
 	the next or the previous one.
 	
 \end{enumerate}
 
-Swap errors are only introduced if there are no further changes in the word. Cases of elimination of a whole 
-word are excluded, as these would heavily influence the evaluation metrics as they are inconsistent with our 
-model. 
+Swap errors are only introduced if there are no further changes in the word. Furthermore, cases of elimination of a 
+whole word are excluded, as these would not be detectable with our model.
 
 
 %(\num{58000} sentence)

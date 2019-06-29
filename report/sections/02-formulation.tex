@@ -10,14 +10,16 @@ acts as a local corrector, and the HMM acts as a maximiser of the probability of
 
 \section{Design Choices}
 
-We have chosen to implement this solution using the English language for various reasons. First of all, great 
-majority of material in literature deals with this problem in the English language. \textcolor{red}{Moreover it is a 
-simple language, both from a grammatical and a lexical point of view: it lacks in certain symbols, like accents 
-and apostrophes, and genres. }
-Furthermore all punctuation and special character symbols were not considered, but only letters and sometimes 
+We have chosen to implement this solution using the English language for various reasons. First of all, the great 
+majority of material in literature deals with this problem in the English language. Moreover it is a somewhat simpler 
+language compared to Italian, for example, since it doesn't use special characters, such as accents, and it doesn't 
+have as many verb tenses and special forms.
+
+Furthermore, we chose not to consider all punctuation and special character symbols, but only letters and sometimes 
 numbers. 
 
-We assume that a typed word only depends on the previous one for ease of implementation. As such we will implement a first order HMM. 
+We assume that a typed word only depends on the previous one for ease of implementation. This assumption allows us to 
+model the problem as a first order HMM. 
 If we know the probability of a word given its predecessor, the frequency of each word, and the probability to 
 type word $x$ when word $y$ is intended, we have all the necessary ingredients to use Hidden Markov Models.
 
@@ -25,6 +27,18 @@ We also assume that, in our artificial perturbation of words, the number of erro
 distribution depending on the length of the word.
 
 \section{Software}
-\textbf{FIXME}
-We have developed the project in \textbf{Python}.\\
-The interface is a native macOS application written in \textbf{Swift}.
+We have developed the project using the \textbf{Python} programming language, taking advantage of various open-source 
+libraries: \textbf{edlib} to compute the sequence of edit operations to transform a word in another one,  
+\textbf{networkx} to represent the trellis graph produced by Viterbi's algorithm, \textbf{pandas} to store the 
+evaluation results, \textbf{matplotlib} and \textbf{graphviz} to visualize the trellis graph.
+
+We also created a graphical user interface that provides real-time local spell checking and on-demand visualisation of 
+the trellis graph. This part is implemented as a native macOS application written in \textbf{Swift} that interacts with 
+our Python code using Swift's official Python interoperation.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{ui-candidates.png}
+	\caption{Screenshot of the user interface for real-time spell checking}
+	\label{fig:noisychannel}
+\end{figure}

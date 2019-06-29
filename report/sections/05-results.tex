@@ -1,80 +1,101 @@
 \chapter{Experiment and Results}
 
-\textbf{FIXME} comparison
-\textbf{FIXME} performance
-
 \section{Evaluation Metrics}
-We evaluate the local model performances, or that carried out on individual typos, through various measures of 
-accuracy. 
-We compute the \textsc{Top-1 Accuracy} comparing the misspelt word and the best candidate predicted by the 
-model. 
-Than we also compute the \textsc{Top-3 Accuracy} and \textsc{Top-5 Accuracy}, comparing the misspelt word 
-with the first $N$ candidates, in this case \num{3} and \num{5}, given from the model.\\
+We evaluate the performance of the model on individual typos through various measures of accuracy. In particular, we 
+compute the \textsc{Top-1 Accuracy}, comparing the misspelt word and the best candidate predicted by the 
+model. Then we compute the \textsc{Top-3 Accuracy} and \textsc{Top-5 Accuracy}, comparing the misspelt word 
+with the first \num{3} and \num{5} candidates produced by the model, respectively.\\
 
-
-As regards the performance evaluation of the entire sequences, after every training and prediction we save a csv 
-file containing the sentences with the perturbations, the sentences that we want to predict (hidden truth) and the 
-sentences provided by the model.
-
-The idea to evaluate the performance of the model is very simple: we scroll through the lines containing the 
-perturbed, the predicted and the original (intended) text and, for each word we verify if it was disturbed or not and 
-if it corresponds to the original truth.
-Therefore, for each word, the following cases can occur:
+To evaluate the performance on entire sentences, we save a CSV file containing the sentences with our perturbations, 
+the sentences that we want to predict (hidden truth) and the sentences produced by the model. We then iterate through 
+the lines of this file and, for each word we verify if it was perturbed or not and if it corresponds to the original 
+truth. Therefore, the following cases can occur for each word:
 \begin{enumerate}
-	\item \textit{Perturbed word not correctly provided}
+	\item \textit{Perturbed word, not correctly predicted}
 	\begin{enumerate}
-		\item the word was not the subject of attempted correction by the model
-		\item the word has been the subject of attempted correction by the model but without success
+		\item the model did not attempt to correct the word
+		\item the model attempted to correct the word, but without success
 	\end{enumerate}
-	\item \textit{Perturbed word correctly provided}
-	\item \textit{Unperturbed word not correctly provided}
-	\item \textit{Unperturbed word correctly provided}
+	\item \textit{Perturbed word, correctly predicted}
+	\item \textit{Unperturbed word, not correctly predicted}
+	\item \textit{Unperturbed word, correctly predicted}
 \end{enumerate}
 
-We can therefore represent the confusion matrix of the data in output through table \ref{tab:confmat}:
+From these four cases we can construct two confusion matrices that represent, respectively, the ability of the model to 
+detect errors and the ability to provide the right corrections, depending on the classification of Cases 1(a). and 1(b).
+
 
 \begin{figure}[H]
 	\centering
 	\begin{tabular}{lc|cc}
 		\toprule
 		& & \multicolumn{2}{c}{\textbf{Model Prediction}}\\
-		& & \textsc{True}  & \textsc{False} \\
+		& & \textsc{Detected}  & \textsc{Not Detected} \\
 		\midrule
 		\multirow{4}{*}{\textbf{Hidden Truth}} 
-		& \multirow{2}{*}{\textsc{True}}   & True Positive & False Negative	\\ 
-			& & Case 2. & Case 1(a).	\\ 
-		& \multirow{2}{*}{\textsc{False}}  & False Positive & True Negative	\\
-		& &  Case 3. \& 1(b).  & Case 4.	\\ 
+		& \multirow{2}{*}{\textsc{Perturbed}}   & True Positive & False Negative	\\ 
+		& &  Case 1(b). \& Case 2. & Case 1(a).	\\ 
+		& \multirow{2}{*}{\textsc{Unperturbed}}  & False Positive & True Negative	\\
+		& &  Case 3.  & Case 4.	\\ 
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{Confusion matrix}
-	\label{tab:confmat}
+	\captionof{table}{Confusion matrix - Error Detection}
+	\label{tab:confmat-detection}
 \end{figure}
 
-From the confusion matrix defined in the table above, it is possible to calculate the following performance 
-metrics in a simple way:
+From the confusion matrix defined in the table above, it is possible to calculate the following standard performance 
+metrics:
 \begin{itemize}
-	\item \textsc{Rate of perturbed words correctly predicted}:
-	\[ \frac{\mbox{True Positive}}{\sum \mbox{Perturbed}} = \frac{\mbox{Case 2.}}{\mbox{Case 2.} + \mbox{Case 
-	1.}}\]
-	\item \textsc{Rate of unperturbed words not correctly predicted}:
-	\[ \frac{\mbox{True Negative}}{\sum \mbox{Unperturbed}} = \frac{\mbox{Case 2.}}{\mbox{Case 3.} + 
-	\mbox{Case 4.}}\]
-	\item \textsc{Accuracy}: measures the goodness of the model among the positive correction results obtained
-	\[ \frac{\mbox{True Positive} + \mbox{True Negative}}{\sum \mbox{All}} = \frac{\mbox{Case 2.} + \mbox{Case 
-	4.}}{\mbox{Case 1.} + \mbox{Case 2.} + \mbox{Case 3.} + \mbox{Case 4.}}\]
-	\item \textsc{Precision}: ratio of the corrected predictions with respect to the significant values returned by the 
-	model (the corrections made) 
-		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Positive}} = \frac{\mbox{Case 
-		2.}}{\mbox{Case 1(b).} + \mbox{Case 2.} + \mbox{Case 3.}}\]
-	\item \textsc{Recall}: proportion of all the correct results
-		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Negative}} = \frac{\mbox{Case 
-		2.}}{\mbox{Case 1(a).} + \mbox{Case 2.}}\]
-	\item \textsc{F-Measure}: weighted average (between 0 and 1) with respect to precision and recall
-			\[ 2 * \frac{\mbox{Precision} * \mbox{Recall}}{\mbox{Precision} + \mbox{Recall}} \]
+	\item \textsc{Detection-Accuracy}: percentage of words where the model prediction matches the 
+	ground-truth  
+	\[ \frac{\mbox{True Positive} + \mbox{True Negative}}{\sum \mbox{All}} = \frac{\mbox{Case 1(b).} + 
+	\mbox{Case 2.} + \mbox{Case 4.}}{\mbox{Case 1.} + \mbox{Case 2.} + \mbox{Case 3.} + \mbox{Case 4.}}\]
+	\item \textsc{Detection-Recall}: proportion of the detected errors among all the errors
+	\[ \frac{\mbox{Case 1(b).} + \mbox{Case 2.}}{\mbox{Case 1.} + \mbox{Case 2.}}\]
+	\item \textsc{Detection-Precision}: ratio of the correct detections with respect to all detections
+		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Positive}} = \frac{\mbox{Case 1(b). + 
+		\mbox{Case 2.}}}{\mbox{Case 1(b).}+  \mbox{Case 2.} + \mbox{Case 3.}}\]
 \end{itemize}
 
-Based on these metrics, it is then possible to define whether the models have behaved more or less correctly.
+\begin{figure}[H]
+	\centering
+	\begin{tabular}{lc|cc}
+		\toprule
+		& & \multicolumn{2}{c}{\textbf{Model Prediction}}\\
+		& & \textsc{Corrected}  & \textsc{Not Corrected} \\
+		\midrule
+		\multirow{4}{*}{\textbf{Hidden Truth}} 
+		& \multirow{2}{*}{\textsc{Perturbed}}   & True Positive & False Negative	\\ 
+			& & Case 2. & Case 1.	\\ 
+		& \multirow{2}{*}{\textsc{Unperturbed}}  & False Positive & True Negative	\\
+		& &  Case 3.  & Case 4.	\\ 
+		\bottomrule
+	\end{tabular}
+	\captionof{table}{Confusion matrix - Error Correction}
+	\label{tab:confma-error}
+\end{figure}
+
+From the second confusion matrix defined in the Table \ref{tab:confma-error}, it is possible to calculate the following 
+metrics:
+\begin{itemize}
+	\item \textsc{Correction-Accuracy}: percentage of words where the model prediction matches the 
+	ground-truth  
+	\[ \frac{\mbox{True Positive} + \mbox{True Negative}}{\sum \mbox{All}} = \frac{\mbox{Case 2.} + \mbox{Case 
+	4.}}{\mbox{Case 1.} + \mbox{Case 2.} + \mbox{Case 3.} + \mbox{Case 4.}}\]
+	\item \textsc{Correction-Recall}: rate of perturbed words correctly predicted
+\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Negative}} = \frac{\mbox{Case 
+		2.}}{\mbox{Case 2.} + \mbox{Case 1.}}\]
+	\item \textsc{Correction-Precision}: ratio of the corrected predictions with respect to the significant values 
+	returned by the 
+	model (the corrections made) 
+		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Positive}} = \frac{\mbox{Case 
+		2.}}{\mbox{Case 2.} + \mbox{Case 3.}}\]
+\end{itemize}
+
+The \textsc{Specificity}, that is the rate of unperturbed words correctly predicted, is computed in the same way 
+from both the confusion matrices:
+\[ \frac{\mbox{True Negative}}{\sum \mbox{Unperturbed}} = \frac{\mbox{Case 4.}}{\mbox{Case 3.} + 
+	\mbox{Case 4.}}\]
 
 \section{Experiments}
 We performed three different types of experiments.
@@ -86,15 +107,6 @@ A second one using the same datasets but introducing a lemmatisation consisting 
 
 The last one using as transition model the dataset \texttt{lotr\_clean}, the associate perturbed dataset and test error 
 models, and the language model \texttt{lotr\_language\_model}.\\
-
-In all the experiments to come, reference will be made to the following variables:
-\begin{itemize}
-	\item p: the probability that a word has an edit
-	\item ins: the probability that a word has a letter insertion
-	\item del: the probability that a word has a letter deletion
-	\item sub: the probability that a word has a letter substitution
-	\item swap: the probability that a word has a swap between two letters
-\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Experiment 1}
@@ -111,7 +123,7 @@ In both cases the HMM is structured as follows:
 				\num{5} & \texttt{big\_language\_model} & \texttt{big\_clean}  & \texttt{big\_train}  &\texttt{big\_test}\\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{HMM model}
+	\captionof{table}{Experiment 1 - HMM model parameters}
 	\label{tab:error_model1}
 \end{figure}
 
@@ -123,60 +135,102 @@ model on the typos dataset and the correction of the entire sequence with the \t
 	\begin{tabular}{lcc|cc}
 		\toprule
 		&\multicolumn{2}{c|}{\textsc{Edit Distance 1}} & \multicolumn{2}{c}{\textsc{Edit Distance 2}}\\
-		& Train & Test & Train & Test \\
+		& \texttt{big\_train}  & \texttt{big\_test} & \texttt{big\_train}  & \texttt{big\_test} \\
 		\midrule
-		\textbf{Num. observation} & \num{63759} & \num{15918} & \num{63759} & \num{15918} \\
-		\textbf{Time (sec)}  & \num{53} & \num{14} & \num{1648} & \num{408} \\
-		\textbf{Accuracy Top1} & \num{35,01}\%  & \num{35,60}\%  & \num{36,09}\%  & \num{36,84}\%  \\
-		\textbf{Accuracy Top3} &  \num{46,24}\%  & \num{46,62}\%  & \num{48,61}\%  & \num{48,99}\%  \\
-		\textbf{Accuracy Top5} & \num{50,19}\%  & \num{50,56}\%  & \num{52,86}\%  & \num{53,16}\%  \\
+		\textbf{Num. observation} & \num{63759} & \num{15918} & \num{63759} 	& \num{15918} \\
+		\textbf{Time}  		& \num{54}s 			& \num{14}s		& \num{1660}s			& \num{419}s \\
+		\textbf{Accuracy Top1} & \num{34,96}\%  & \num{35,46}\%  & \num{37,34}\%  & \num{37,95}\%  \\
+		\textbf{Accuracy Top3} &  \num{46,05}\%  & \num{46,41}\%  & \num{49,01}\%  & \num{49,25}\%  \\
+		\textbf{Accuracy Top5} & \num{50,18}\%  & \num{50,52}\%  & \num{53,40}\%  & \num{53,65}\%  \\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{Typos performance evaluation}
+	\captionof{table}{Experiment 1 - Typos performance evaluation}
 	\label{tab:typo-eval1}
 \end{figure}
 
 \begin{figure}[H]
 	\centering
-	\begin{tabular}{lcccc}
+	\begin{tabular}{lccc}
 		\toprule
-		&\multicolumn{4}{c}{\textsc{Edit Distance 1}} \\
-		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%& \num{40}\%  \\
+		&\multicolumn{3}{c}{\textsc{Edit Distance 1}} \\
+		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%\\
 		\midrule
-		\textbf{Time (sec)}							 &\num{201}			&\num{199}			& \num{191}			&\num{186} \\
-		\textbf{Perturbed correct} 			   & \num{64,06}\% &\num{60,16}\%  & \num{57,30}\%	& \num{52,81}\% \\
-		\textbf{Unperturbed not correct} &\num{41,70}\%	 &\num{43,36}\%  & \num{44,84}\% & \num{46,58}\% \\
-		\textbf{Exact match} 					  &\num{2,60}\%	   &\num{2,32}\%	&\num{1,56}\%	&\num{1,42}\% \\
-		\textbf{Accuracy} 							&\num{58,82}\%  &\num{57,47}\% &\num{55,73}\% &\num{42,60}\% \\
-		\textbf{Precision}							 &\num{16,00}\% &\num{25,12}\% &\num{30,74}\%	&\num{33,75}\% \\
-		\textbf{Recall}									&\num{79,66}\% &\num{77,36}\%&\num{74,30}\%	&\num{70,40}\%\\
-		\textbf{F-Measure}						  &\num{46,28}\% &\num{48,49}\%&\num{49,65}\%	&\num{49,82}\%\\
+		\textbf{Time}							 &\num{40}s			&\num{38}s			& \num{39}s		\\
+		\textbf{Exact Sentence Match} 		 &\num{27,37}\%	   &\num{20,98}\%	&\num{13,19}\% \\
+		\textbf{Detection Accuracy} 		 &\num{90,39}\%  &\num{89,04}\% &\num{86,79}\% \\
+		\textbf{Detection Recall}				&\num{82,35}\% &\num{80,94}\%&\num{77,42}\%	\\
+		\textbf{Detection Precision}			&\num{55,15}\% &\num{69,22}\%&\num{76,67}\%	\\
+		\textbf{Correction Accuracy} 		&\num{88,75}\%  &\num{85,96}\% &\num{81,66}\% \\
+		\textbf{Correction Recall}				&\num{67,17}\% &\num{65,71}\%&\num{58,67}\%	\\
+		\textbf{Correction Precision}			&\num{49,34}\% &\num{64,36}\%&\num{70,68}\%	\\
+		\textbf{Specificity} 							&\num{91,48}\%  &\num{90,99}\% &\num{90,56}\% \\
 		\bottomrule
 		%\vspace*{0.5em}
 	\end{tabular}
 		\begin{center}
 		...
 		\end{center}
-	\begin{tabular}{lcccc}
+	\begin{tabular}{lccc}
 		\toprule
-		&\multicolumn{4}{c}{\textsc{Edit Distance 2}} \\
-		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%& \num{40}\%  \\
+		&\multicolumn{3}{c}{\textsc{Edit Distance 2}} \\
+		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%  \\
 		\midrule
-		\textbf{Time (sec)}							 &\num{1110}		&\num{1121}	 	& \num{1116}		&\num{1121} \\
-		\textbf{Perturbed correct} 			   & \num{54,96}\% &\num{55,47}\%  & \num{54,34}\%	& \num{51,76}\% \\
-		\textbf{Unperturbed not correct} &\num{55,19}\%	 &\num{56,31}\%  & \num{57,52}\% & \num{58,43}\% \\
-		\textbf{Exact match} 					  &\num{0,90}\%	   &\num{1,00}\%	&\num{0,76}\%	&\num{0,80}\% \\
-		\textbf{Accuracy} 							&\num{45,81}\%  &\num{46,00}\% &\num{45,85}\% &\num{45,14}\% \\
-		\textbf{Precision}							 &\num{10,67}\% &\num{18,45}\% &\num{23,7}\%	&\num{27,22}\% \\
-		\textbf{Recall}									&\num{89,91}\% &\num{90,94}\%&\num{90,69}\%	&\num{88,21}\%\\
-		\textbf{F-Measure}						  &\num{38,77}\% &\num{41,55}\%&\num{44,37}\%	&\num{46,18}\%\\
+		\textbf{Time}							 		&\num{223}s			&\num{225}s			& \num{226}s		\\
+		\textbf{Exact Sentence Match} 		&\num{24,98}\%	   &\num{20,88}\%	&\num{16,48}\% \\
+		\textbf{Detection Accuracy} 		 &\num{89,58}\%  &\num{89,61}\% &\num{89,33}\% \\
+		\textbf{Detection Recall}				&\num{92,63}\% &\num{92,37}\%&\num{90,35}\%	\\
+		\textbf{Detection Precision}			&\num{53,47}\% &\num{68,58}\%&\num{77,01}\%	\\
+		\textbf{Correction Accuracy} 		&\num{86,99}\%  &\num{84,94}\% &\num{82,48}\% \\
+		\textbf{Correction Recall}				&\num{68,74}\% &\num{68,97}\%&\num{65,29}\%	\\
+		\textbf{Correction Precision}			&\num{45,51}\% &\num{61,74}\%&\num{70,35}\%	\\
+		\textbf{Specificity} 							&\num{89,29}\%  &\num{89,08}\% &\num{89,07}\% \\
 		\bottomrule
 	\end{tabular}
 
-	\captionof{table}{Sentences performance evaluation}
+	\captionof{table}{Experiment 1 - Sentences performance evaluation}
 	\label{tab:sentence-eval1}
 \end{figure}
 
+%\begin{figure}[H]
+%	\centering
+%	\begin{tabular}{lcccc}
+%		\toprule
+%		&\multicolumn{4}{c}{\textsc{Edit Distance 1}} \\
+%		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%& \num{40}\%  \\
+%		\midrule
+%		\textbf{Time (sec)}							 &\num{201}			&\num{199}			& \num{191}			&\num{186} \\
+%		\textbf{Perturbed correct} 			   & \num{64,06}\% &\num{60,16}\%  & \num{57,30}\%	& \num{52,81}\% \\
+%		\textbf{Unperturbed not correct} &\num{41,70}\%	 &\num{43,36}\%  & \num{44,84}\% & \num{46,58}\% \\
+%		\textbf{Exact match} 					  &\num{2,60}\%	   &\num{2,32}\%	&\num{1,56}\%	&\num{1,42}\% \\
+%		\textbf{Accuracy} 							&\num{58,82}\%  &\num{57,47}\% &\num{55,73}\% &\num{42,60}\% \\
+%		\textbf{Precision}							 &\num{16,00}\% &\num{25,12}\% &\num{30,74}\%	&\num{33,75}\% \\
+%		\textbf{Recall}									&\num{79,66}\% &\num{77,36}\%&\num{74,30}\%	&\num{70,40}\%\\
+%		\textbf{F-Measure}						  &\num{46,28}\% &\num{48,49}\%&\num{49,65}\%	&\num{49,82}\%\\
+%		\bottomrule
+%		%\vspace*{0.5em}
+%	\end{tabular}
+%	\begin{center}
+%		...
+%	\end{center}
+%	\begin{tabular}{lcccc}
+%		\toprule
+%		&\multicolumn{4}{c}{\textsc{Edit Distance 2}} \\
+%		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%& \num{40}\%  \\
+%		\midrule
+%		\textbf{Time (sec)}							 &\num{1110}		&\num{1121}	 	& \num{1116}		&\num{1121} \\
+%		\textbf{Perturbed correct} 			   & \num{54,96}\% &\num{55,47}\%  & \num{54,34}\%	& \num{51,76}\% \\
+%		\textbf{Unperturbed not correct} &\num{55,19}\%	 &\num{56,31}\%  & \num{57,52}\% & \num{58,43}\% \\
+%		\textbf{Exact match} 					  &\num{0,90}\%	   &\num{1,00}\%	&\num{0,76}\%	&\num{0,80}\% \\
+%		\textbf{Accuracy} 							&\num{45,81}\%  &\num{46,00}\% &\num{45,85}\% &\num{45,14}\% \\
+%		\textbf{Precision}							 &\num{10,67}\% &\num{18,45}\% &\num{23,7}\%	&\num{27,22}\% \\
+%		\textbf{Recall}									&\num{89,91}\% &\num{90,94}\%&\num{90,69}\%	&\num{88,21}\%\\
+%		\textbf{F-Measure}						  &\num{38,77}\% &\num{41,55}\%&\num{44,37}\%	&\num{46,18}\%\\
+%		\bottomrule
+%	\end{tabular}
+%	
+%	\captionof{table}{Sentences performance evaluation}
+%	\label{tab:sentence-eval1}
+%\end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Experiment 2}
 The second experiment was carried out using the same model described in the experiment above, with the 
@@ -196,7 +250,7 @@ more powerful than stemming because it doesn't consist only of a stemming algori
 lookup the correct originating lemma.
 
 We use one of the most popular packages for Natural Language Processing in Python, the \textbf{Natural 
-Language Toolkit} (NLTK). We use the \textbf{WordNet} lexical database for lemmatisation.
+Language Toolkit} (NLTK), with the \textbf{WordNet} lexical database for lemmatisation.
 
 Introducing lemmatisation gave us an improvement of about $2\%$ overall accuracy on the models, as, for example, 
 \texttt{run} and \texttt{running} would both end up looking for $P(\mbox{run})$, and words that did not have a 
@@ -212,48 +266,6 @@ candidates, making the process last from an original \num{0,03} seconds to more 
 we deemed unreasonable for the real-time usage we had in mind for the project, thus abandoning the idea of 
 lemmatisation.
 
-%\begin{figure}[H]
-%	\centering
-%	\begin{tabular}{ccccc}
-%		\toprule
-%		p 				 & ins 				 	& del  				&  sub 			   &   swap\\ \midrule
-%		\num{0.5} & \num{0,70} & \num{0,70}  & \num{0,70} & \num{0,70}\\
-%		\bottomrule
-%	\end{tabular}
-%	\captionof{table}{Error Model}
-%	\label{tab:error_model2}
-%\end{figure}
-
-%\begin{figure}[H]
-%	\centering
-%	\begin{tabular}{lcccc}
-%		\toprule
-%		& Time (sec)  & Accuracy Top1 & Accuracy Top3  &  Accuracy Top5 \\
-%		\midrule
-%		Train & \num{20986} & \num{41,38}\%  & \num{57,28} \% & \num{61,60} \% \\
-%		Test &	\num{5270}  & \num{41,54}\%  & \num{57,18} \% & \num{61,15} \%  \\
-%		\bottomrule
-%	\end{tabular}
-%	\captionof{table}{Typos performance evaluation}
-%	\label{tab:typo-eval2}
-%\end{figure}
-%
-
-%\begin{figure}[H]
-%	\centering
-%	\begin{tabular}{ccccccc}
-%		\toprule
-%		\#sentence & Time (sec)  & Accuracy & Initial Error  &  Precision & Recall & Specificity \\
-%		\midrule
-%		\num{1000}	& \num{2705}  & \num{53,46}\%  & \num{15,01}\% & \num{90,96}\% & \num{54,50}\%  & 
-%		\num{10,52}\%  
-%		\\
-%		\bottomrule
-%	\end{tabular}
-%	\captionof{table}{Sentences performance evaluation}
-%	\label{tab:sentence-eval2}
-%\end{figure}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Experiment 3}
 
@@ -263,77 +275,134 @@ The parameters on which the structure is based are shown in the table below:
 
 \begin{figure}[H]
 	\centering
-	\begin{tabular}{ccccc}
+	\begin{tabular}{cccc}
 		\toprule
-		max states 	& language model	&  sentence ds  &  train typo ds 	&  test typo ds\\ \midrule
-		\num{5} & \texttt{lotr\_language\_model} & \texttt{lotr\_clean}  & \texttt{lotr\_train}  &\texttt{lotr\_test}\\
+		max states 	& language model	&  sentence ds  &  train typo ds \\ \midrule
+		\num{5} & \texttt{lotr\_language\_model} & \texttt{lotr\_clean}  & \texttt{big\_train} \\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{HMM model}
+	\captionof{table}{Experiment 3 - HMM model parameters}
 	\label{tab:error_model3}
 \end{figure}
 
-In the two tables to follow are shown the results obtained as regards the evaluation of the \textit{local correction} of our 
-model on the typos dataset and the correction of the entire sequence with the \textit{Viterbi algorithm}.
+This experiment tries to investigate the performance of a model tailored to a specific writing style. In particular 
+we train the initial probabilities and transition probabilities from the ”Lord of the Rings“ books. The two tables that 
+follow show the results obtained from the evaluation of the \textit{local correction} of our model on the typos 
+datasets \texttt{big\_test} and \texttt{lotr\_test} and the correction of the entire sequence with the \textit{Viterbi 
+algorithm}.
+
+As expected, the performance on the \texttt{lotr\_test} dataset are significantly higher than in Experiment 1, since it 
+uses the same language of the text corpus the model was trained on. Somewhat surprisingly, the performance hit on 
+\texttt{big\_test} was larger than expected, with accuracies as much as 15\% worse. This shows the importance of 
+correctly choosing the training datasets based on the target writing style.
 
 \begin{figure}[H]
 	\centering
 	\begin{tabular}{lcc|cc}
 		\toprule
 		&\multicolumn{2}{c|}{\textsc{Edit Distance 1}} & \multicolumn{2}{c}{\textsc{Edit Distance 2}}\\
-		& Train & Test & Train & Test \\
+		& \texttt{big\_test} & \texttt{lotr\_test} & \texttt{big\_test} & \texttt{lotr\_test} \\
 		\midrule
-		\textbf{Num. observation} & \num{49959} & \num{12570} & \num{49959} & \num{12570} \\
-		\textbf{Time (sec)}  		& \num{32} 				& \num{9} 			& \num{1207} 	& \num{309} \\
-		\textbf{Accuracy Top1} & \num{39,75}\%  & \num{40,47}\%  & \num{63,71}\%  & \num{63,87}\%  \\
-		\textbf{Accuracy Top3} &  \num{44,74}\%  & \num{45,34}\%  & \num{76,44}\%  & \num{76,75}\%  \\
-		\textbf{Accuracy Top5} & \num{46,25}\%  & \num{46,92}\%  & \num{80,86}\%  & \num{80,80}\%  \\
+		\textbf{Num. observation} & \num{15918} & \num{12570} & \num{15918} & \num{12570} \\
+		\textbf{Time}  					& \num{13}s			& \num{10}s 		& \num{374}s 	& \num{312}s \\
+		\textbf{Accuracy Top1} & \num{28,28}\%  & \num{40,37}\%  & \num{28,06}\%  & \num{62,26}\%  \\
+		\textbf{Accuracy Top3} &  \num{39,00}\%  & \num{45,27}\%  & \num{37,98}\%  & \num{75,90}\%  \\
+		\textbf{Accuracy Top5} & \num{45,14}\%  & \num{46,92}\%  & \num{42,15}\%  & \num{80,39}\%  \\
 		\bottomrule
 	\end{tabular}
-	\captionof{table}{Typos performance evaluation}
+	\captionof{table}{Experiment 3 - Typos performance evaluation}
 	\label{tab:typo-eval3}
 \end{figure}
 
+
+
 \begin{figure}[H]
 	\centering
-	\begin{tabular}{lcccc}
+	\begin{tabular}{lccc}
 		\toprule
-		&\multicolumn{4}{c}{\textsc{Edit Distance 1}} \\
-		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\%& \num{20}\%  \\
+		&\multicolumn{3}{c}{\textsc{Edit Distance 1}} \\
+		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%\\
 		\midrule
-		\textbf{Time (sec)}							 &\num{116}			&\num{114}			& \num{114}			&\num{112} \\
-		\textbf{Perturbed correct} 			   & \num{79,97}\% &\num{76,55}\%  & \num{73,74}\%	& \num{71,76}\% \\
-		\textbf{Unperturbed not correct} & \num{13,68}\% &\num{14,46}\%  & \num{14,86}\%	& \num{15,69}\% \\
-		\textbf{Exact match} 					  & \num{30,89}\% &\num{27,51}\%  & \num{25,23}\%	& \num{22,66}\% \\
-		\textbf{Accuracy} 							&\num{85,99}\%  &\num{84,62}\% &\num{83,32}\% &\num{81,73}\% \\
-		\textbf{Precision}							 & \num{28,99}\% &\num{41,97}\%  & \num{48,90}\%	& \num{52,85}\% \\
-		\textbf{Recall}								  & \num{91,19}\% &\num{88,30}\%  & \num{86,09}\%	& \num{84,31}\% \\
-		\textbf{F-Measure}						  & \num{74,19}\% &\num{72,87}\%  & \num{72,44}\%	& \num{71,97}\% \\
+		\textbf{Time}							 &\num{23}s			&\num{23}s			& \num{23}s		\\
+		\textbf{Exact Sentence Match} 		 &\num{78,82}\%	   &\num{67,63}\%	&\num{59,04}\% \\
+		\textbf{Detection Accuracy} 		 &\num{99,30}\%  &\num{98,42}\% &\num{97,68}\% \\
+		\textbf{Detection Recall}				&\num{90,57}\% &\num{87,00}\%&\num{87,36}\%	\\
+		\textbf{Detection Precision}			&\num{97,17}\% &\num{98,27}\%&\num{98,48}\%	\\
+		\textbf{Correction Accuracy} 		&\num{98,90}\%  &\num{97,23}\% &\num{97,68}\% \\
+		\textbf{Correction Recall}				&\num{82,09}\% &\num{76,21}\%&\num{75,81}\%	\\
+		\textbf{Correction Precision}			&\num{96,63}\% &\num{97,81}\%&\num{98,06}\%	\\
+		\textbf{Specificity} 							&\num{99,86}\%  &\num{99,83}\% &\num{99,69}\% \\
 		\bottomrule
 		%\vspace*{0.5em}
 	\end{tabular}
 	\begin{center}
 		...
 	\end{center}
-	\begin{tabular}{lcccc}
+	\begin{tabular}{lccc}
 		\toprule
-		&\multicolumn{4}{c}{\textsc{Edit Distance 2}} \\
-		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\%& \num{20}\%  \\
+		&\multicolumn{3}{c}{\textsc{Edit Distance 2}} \\
+		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%  \\
 		\midrule
-		\textbf{Time (sec)}							 &\num{866}			&\num{869}			& \num{854}			&\num{849} \\
-		\textbf{Perturbed correct} 			   & \num{73,26}\% &\num{72,05}\%  & \num{71,10}\%	& \num{69,90}\% \\
-		\textbf{Unperturbed not correct} & \num{18,47}\% &\num{18,86}\%  & \num{19,46}\%	& \num{20,16}\% \\
-		\textbf{Exact match} 					  & \num{22,74}\% &\num{21,26}\%  & \num{19,52}\%	& \num{18,38}\% \\
-		\textbf{Accuracy} 							&\num{81,07}\%  &\num{80,17}\% &\num{79,06}\% &\num{77,79}\% \\
-		\textbf{Precision}							 & \num{22,40}\% &\num{34,49}\%  & \num{41,35}\%	& \num{45,37}\% \\
-		\textbf{Recall}								  & \num{94,31}\% &\num{94,16}\%  & \num{93,63}\%	& \num{93,43}\% \\
-		\textbf{F-Measure}						  & \num{68,76}\% &\num{68,60}\%  & \num{68,53}\%	& \num{68,58}\% \\
+		\textbf{Time}							 		&\num{173}s			&\num{175}s			& \num{174}s		\\
+		\textbf{Exact Sentence Match} 		&\num{79,42}\%	   &\num{69,53}\%	&\num{63,94}\% \\
+		\textbf{Detection Accuracy} 		 &\num{99,57}\%  &\num{99,24}\% &\num{98,81}\% \\
+		\textbf{Detection Recall}				&\num{94,09}\% &\num{93,25}\%&\num{93,35}\%	\\
+		\textbf{Detection Precision}			&\num{99,23}\% &\num{99,79}\%&\num{99,61}\%	\\
+		\textbf{Correction Accuracy} 		&\num{98,95}\%  &\num{97,60}\% &\num{96,75}\% \\
+		\textbf{Correction Recall}				&\num{81,51}\% &\num{78,75}\%&\num{79,97}\%	\\
+		\textbf{Correction Precision}			&\num{98,85}\% &\num{99,64}\%&\num{99,61}\%	\\
+		\textbf{Specificity} 							&\num{99,95}\%  &\num{99,96}\% &\num{99,93}\% \\
 		\bottomrule
 	\end{tabular}
-	
-	\captionof{table}{Sentences performance evaluation}
-	\label{tab:sentence-eval3}
+	\captionof{table}{Experiment 3 - Sentences performance evaluation}
+\label{tab:sentence-eval3}
 \end{figure}
+
+%
+%\begin{figure}[H]
+%	\centering
+%	\begin{tabular}{lcccc}
+%		\toprule
+%		&\multicolumn{4}{c}{\textsc{Edit Distance 1}} \\
+%		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\%& \num{20}\%  \\
+%		\midrule
+%		\textbf{Time (sec)}							 &\num{116}			&\num{114}			& \num{114}			&\num{112} \\
+%		\textbf{Perturbed correct} 			   & \num{79,97}\% &\num{76,55}\%  & \num{73,74}\%	& \num{71,76}\% \\
+%		\textbf{Unperturbed not correct} & \num{13,68}\% &\num{14,46}\%  & \num{14,86}\%	& \num{15,69}\% \\
+%		\textbf{Exact match} 					  & \num{30,89}\% &\num{27,51}\%  & \num{25,23}\%	& \num{22,66}\% 
+%\\
+%		\textbf{Accuracy} 							&\num{85,99}\%  &\num{84,62}\% &\num{83,32}\% &\num{81,73}\% \\
+%		\textbf{Precision}							 & \num{28,99}\% &\num{41,97}\%  & \num{48,90}\%	& \num{52,85}\% 
+%\\
+%		\textbf{Recall}								  & \num{91,19}\% &\num{88,30}\%  & \num{86,09}\%	& \num{84,31}\% \\
+%		\textbf{F-Measure}						  & \num{74,19}\% &\num{72,87}\%  & \num{72,44}\%	& \num{71,97}\% \\
+%		\bottomrule
+%		%\vspace*{0.5em}
+%	\end{tabular}
+%	\begin{center}
+%		...
+%	\end{center}
+%	\begin{tabular}{lcccc}
+%		\toprule
+%		&\multicolumn{4}{c}{\textsc{Edit Distance 2}} \\
+%		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\%& \num{20}\%  \\
+%		\midrule
+%		\textbf{Time (sec)}							 &\num{866}			&\num{869}			& \num{854}			&\num{849} \\
+%		\textbf{Perturbed correct} 			   & \num{73,26}\% &\num{72,05}\%  & \num{71,10}\%	& \num{69,90}\% \\
+%		\textbf{Unperturbed not correct} & \num{18,47}\% &\num{18,86}\%  & \num{19,46}\%	& \num{20,16}\% \\
+%		\textbf{Exact match} 					  & \num{22,74}\% &\num{21,26}\%  & \num{19,52}\%	& \num{18,38}\% 
+%\\
+%		\textbf{Accuracy} 							&\num{81,07}\%  &\num{80,17}\% &\num{79,06}\% &\num{77,79}\% \\
+%		\textbf{Precision}							 & \num{22,40}\% &\num{34,49}\%  & \num{41,35}\%	& \num{45,37}\% 
+%\\
+%		\textbf{Recall}								  & \num{94,31}\% &\num{94,16}\%  & \num{93,63}\%	& \num{93,43}\% \\
+%		\textbf{F-Measure}						  & \num{68,76}\% &\num{68,60}\%  & \num{68,53}\%	& \num{68,58}\% \\
+%		\bottomrule
+%	\end{tabular}
+%	
+%	\captionof{table}{Sentences performance evaluation}
+%	\label{tab:sentence-eval3}
+%\end{figure}
 
 
 %\textbf{FIXME}
