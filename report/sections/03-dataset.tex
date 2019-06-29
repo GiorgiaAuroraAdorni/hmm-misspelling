@@ -76,9 +76,8 @@ perturbed sentences, starting from the \texttt{big\_clean} and \texttt{lotr\_cle
 Section~\ref{section:sentences_ds}.
 
 Estimates for the frequency of spelling errors in human-typed text vary greatly depending on the situation: from 1-2\% 
-when carefully retyping already printed text to 10-15\% when writing web queries. For this reason, we generated four 
-different texts from each dataset, introducing errors in respectively \num{5}, \num{10}, \num{15} and \num{20}\% of 
-the words.
+when carefully retyping already printed text to 10-15\% when writing web queries. For this reason, we generated three 
+different texts from each dataset, with varying the percentage of errors introduced, as described below.
 
 Our perturbation algorithm generates a new perturbed string for each line of the input texts, according to the 
 following steps. We obtain the probabilities of introducing each class of errors using the error model described in  
@@ -86,7 +85,7 @@ Section~\ref{section:ncm}.
 
 \begin{enumerate}
 	\item The probability that a word has an edit is computed by multiplying the value of $p$ (the probability that a 
-	certain letter has an edit), contained in the error model, by \num{5}-\num{10}-\num{15}-\num{20}\% that ideally 
+	certain letter has an edit), contained in the error model, by \num{5}-\num{10}-\num{15}\% that ideally 
 	represents the percentage of errors desired.
 	\item For each word of length $n$, the number of edits to be introduced $x$ is calculated according to the 
 	probability distribution $x \sim \text{Bin}(n, p)$. We make the assumption that the number of errors in a word 
