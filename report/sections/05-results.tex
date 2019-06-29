@@ -1,35 +1,29 @@
 \chapter{Experiment and Results}
 
 \section{Evaluation Metrics}
-We evaluate the local model performances, or that carried out on individual typos, through various measures of 
-accuracy. 
-We compute the \textsc{Top-1 Accuracy} comparing the misspelt word and the best candidate predicted by the 
-model. 
-Than we also compute the \textsc{Top-3 Accuracy} and \textsc{Top-5 Accuracy}, comparing the misspelt word 
-with the first $N$ candidates, in this case \num{3} and \num{5}, given from the model.\\
+We evaluate the performance of the model on individual typos through various measures of accuracy. In particular, we 
+compute the \textsc{Top-1 Accuracy}, comparing the misspelt word and the best candidate predicted by the 
+model. Then we compute the \textsc{Top-3 Accuracy} and \textsc{Top-5 Accuracy}, comparing the misspelt word 
+with the first \num{3} and \num{5} candidates produced by the model, respectively.\\
 
-
-As regards the performance evaluation of the entire sequences, after every training and prediction we save a csv 
-file containing the sentences with the perturbations, the sentences that we want to predict (hidden truth) and the 
-sentences provided by the model.
-
-The idea to evaluate the performance of the model is very simple: we scroll through the lines containing the 
-perturbed, the predicted and the original (intended) text and, for each word we verify if it was disturbed or not and 
-if it corresponds to the original truth.
-Therefore, for each word, the following cases can occur:
+To evaluate the performance on entire sentences, we save a CSV file containing the sentences with our perturbations, 
+the sentences that we want to predict (hidden truth) and the sentences produced by the model. We then iterate through 
+the lines of this file and, for each word we verify if it was perturbed or not and if it corresponds to the original 
+truth. Therefore, the following cases can occur for each word:
 \begin{enumerate}
-	\item \textit{Perturbed word not correctly provided}
+	\item \textit{Perturbed word, not correctly predicted}
 	\begin{enumerate}
-		\item the word was not the subject of attempted correction by the model
-		\item the word has been the subject of attempted correction by the model but without success
+		\item the model did not attempt to correct the word
+		\item the model attempted to correct the word, but without success
 	\end{enumerate}
-	\item \textit{Perturbed word correctly provided}
-	\item \textit{Unperturbed word not correctly provided}
-	\item \textit{Unperturbed word correctly provided}
+	\item \textit{Perturbed word, correctly predicted}
+	\item \textit{Unperturbed word, not correctly predicted}
+	\item \textit{Unperturbed word, correctly predicted}
 \end{enumerate}
 
-We can therefore represent two different confusion matrices, the first one based on the error detection and the 
-second one on the error correction.
+From these four cases we can construct two confusion matrices that represent, respectively, the ability of the model to 
+detect errors and the ability to provide the right corrections, depending on the classification of Cases 1(a). and 1(b).
+
 
 \begin{figure}[H]
 	\centering
@@ -49,20 +43,19 @@ second one on the error correction.
 	\label{tab:confmat-detection}
 \end{figure}
 
-From the confusion matrix defined in the table above, it is possible to calculate the following performance 
-metrics in a simple way:
+From the confusion matrix defined in the table above, it is possible to calculate the following standard performance 
+metrics:
 \begin{itemize}
 	\item \textsc{Detection-Accuracy}: percentage of words where the model prediction matches the 
 	ground-truth  
 	\[ \frac{\mbox{True Positive} + \mbox{True Negative}}{\sum \mbox{All}} = \frac{\mbox{Case 1(b).} + 
 	\mbox{Case 2.} + \mbox{Case 4.}}{\mbox{Case 1.} + \mbox{Case 2.} + \mbox{Case 3.} + \mbox{Case 4.}}\]
-	\item \textsc{Detection-Recall}: proportion of all the detected errors among all the errors
+	\item \textsc{Detection-Recall}: proportion of the detected errors among all the errors
 	\[ \frac{\mbox{Case 1(b).} + \mbox{Case 2.}}{\mbox{Case 1.} + \mbox{Case 2.}}\]
-	\item \textsc{Detection-Precision}: ratio of the corrected detection with respect to all the detections
+	\item \textsc{Detection-Precision}: ratio of the correct detections with respect to all detections
 		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Positive}} = \frac{\mbox{Case 1(b). + 
 		\mbox{Case 2.}}}{\mbox{Case 1(b).}+  \mbox{Case 2.} + \mbox{Case 3.}}\]
 \end{itemize}
-
 
 \begin{figure}[H]
 	\centering
@@ -82,9 +75,8 @@ metrics in a simple way:
 	\label{tab:confma-error}
 \end{figure}
 
-
-From the second confusion matrix defined in the Table \ref{tab:confma-error}, it is possible to calculate the 
-following metrics:
+From the second confusion matrix defined in the Table \ref{tab:confma-error}, it is possible to calculate the following 
+metrics:
 \begin{itemize}
 	\item \textsc{Correction-Accuracy}: percentage of words where the model prediction matches the 
 	ground-truth  
@@ -104,9 +96,6 @@ The \textsc{Specificity}, that is the rate of unperturbed words correctly predic
 from both the confusion matrices:
 \[ \frac{\mbox{True Negative}}{\sum \mbox{Unperturbed}} = \frac{\mbox{Case 4.}}{\mbox{Case 3.} + 
 	\mbox{Case 4.}}\]
-
-
-Based on these metrics, it is then possible to define whether the models have behaved more or less correctly.
 
 \section{Experiments}
 We performed three different types of experiments.
@@ -261,7 +250,7 @@ more powerful than stemming because it doesn't consist only of a stemming algori
 lookup the correct originating lemma.
 
 We use one of the most popular packages for Natural Language Processing in Python, the \textbf{Natural 
-Language Toolkit} (NLTK). We use the \textbf{WordNet} lexical database for lemmatisation.
+Language Toolkit} (NLTK), with the \textbf{WordNet} lexical database for lemmatisation.
 
 Introducing lemmatisation gave us an improvement of about $2\%$ overall accuracy on the models, as, for example, 
 \texttt{run} and \texttt{running} would both end up looking for $P(\mbox{run})$, and words that did not have a 
@@ -296,7 +285,7 @@ The parameters on which the structure is based are shown in the table below:
 	\label{tab:error_model3}
 \end{figure}
 
-In the two tables to follow are shown the results obtained as regards the evaluation of the \textit{local correction} 
+In the two tables that follow are shown the results obtained from the evaluation of the \textit{local correction} 
 of our model on the typos datasets \texttt{big\_test} and \texttt{lotr\_test} and the correction of the entire 
 sequence with the \textit{Viterbi algorithm}.
 
