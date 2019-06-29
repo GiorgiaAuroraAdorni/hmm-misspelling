@@ -11,7 +11,7 @@ The project aims to offer a text generation and prediction model using Markov ch
 
 ## Installation
 ```sh
-$ git clone https://github.com/GiorgiaAuroraAdorni/hmm-misspelling
+$ git clone https://github.com/GiorgiaAuroraAdorni/misspelling-corrector
 $ cd next-word-predictor
 $ pip3 install -r requirements.txt
 ```
