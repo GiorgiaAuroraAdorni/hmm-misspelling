@@ -92,7 +92,9 @@ following steps:
 	error model, that is the probability that a certain letter has an edit, by 
 	\num{5}-\num{10}-\num{15}-\num{20}\% that ideally represent the percentage of errors desired.
 	\item For each word of length $n$, the number of edits to be introduced $x$ is calculated according to the 
-	relation $x \sim \text{Bin}(n, p)$ \textbf{FIXME}:{Explain the assumption}
+	relation $x \sim \text{Bin}(n, p)$ \textbf{FIXME}:{Explain the assumption}... We assume that, in our artificial 
+	perturbation of words, the number of errors in a word follows a binomial distribution depending on the length 
+	of the word. 
 	\item The characters to be changed within each word are chosen randomly.
 	\item \textbf{FIXME}: The type of edit to be introduced within each word is chosen according to the 
 	probability of each type of error, accordingly the error model. 
