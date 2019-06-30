@@ -1,9 +1,9 @@
 # Next Word Predictor
->Next Word Predictor based on Markov Models. Project for Probabilistic Models for Decisions course @ Unimib 18/19.
+>Misspelling corrector based on Hidden Markov Models and Noisy Channel Model. Project for Probabilistic Models for Decisions course @ Unimib 18/19.
 
 ## Brief
 
-The project aims to offer a text generation and prediction model using Markov chains.
+The project aims to offer a detection and prediction model using Hidden Markov Models.
 
 ## Prerequisites
 
