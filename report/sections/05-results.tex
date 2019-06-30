@@ -117,7 +117,7 @@ In both cases the HMM is structured as follows:
 	\begin{tabular}{ccccc}
 		\toprule
 				max states 	& language model	&  sentence ds  &  train typo ds 	&  test typo ds\\ \midrule
-				\num{5} & \texttt{big\_language\_model} & \texttt{big\_clean}  & \texttt{big\_train}  &\texttt{big\_test}\\
+				\num{5} & \texttt{frequency-alpha-gcide} & \texttt{big\_clean}  & \texttt{big\_train}  &\texttt{big\_test}\\
 		\bottomrule
 	\end{tabular}
 	\captionof{table}{Experiment 1 - HMM model parameters}
@@ -150,7 +150,7 @@ model on the typos dataset and the correction of the entire sequence with the \t
 	\begin{tabular}{lccc}
 		\toprule
 		&\multicolumn{3}{c}{\textsc{Edit Distance 1}} \\
-		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%\\
+		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\%\\
 		\midrule
 		\textbf{Time}							 &\num{40}s			&\num{38}s			& \num{39}s		\\
 		\textbf{Exact Sentence Match} 		 &\num{27,37}\%	   &\num{20,98}\%	&\num{13,19}\% \\
@@ -170,7 +170,7 @@ model on the typos dataset and the correction of the entire sequence with the \t
 	\begin{tabular}{lccc}
 		\toprule
 		&\multicolumn{3}{c}{\textsc{Edit Distance 2}} \\
-		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%  \\
+		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\%  \\
 		\midrule
 		\textbf{Time}							 		&\num{223}s			&\num{225}s			& \num{226}s		\\
 		\textbf{Exact Sentence Match} 		&\num{24,98}\%	   &\num{20,88}\%	&\num{16,48}\% \\
@@ -283,7 +283,7 @@ The parameters on which the structure is based are shown in the table below:
 \end{figure}
 
 This experiment tries to investigate the performance of a model tailored to a specific writing style. In particular 
-we train the initial probabilities and transition probabilities from the ”Lord of the Rings“ books. The two tables that 
+we train the initial probabilities and transition probabilities from the “Lord of the Rings” books. The two tables that 
 follow show the results obtained from the evaluation of the \textit{local correction} of our model on the typos 
 datasets \texttt{big\_test} and \texttt{lotr\_test} and the correction of the entire sequence with the \textit{Viterbi 
 algorithm}.
@@ -318,7 +318,7 @@ correctly choosing the training datasets based on the target writing style.
 	\begin{tabular}{lccc}
 		\toprule
 		&\multicolumn{3}{c}{\textsc{Edit Distance 1}} \\
-		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%\\
+		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\%\\
 		\midrule
 		\textbf{Time}							 &\num{23}s			&\num{23}s			& \num{23}s		\\
 		\textbf{Exact Sentence Match} 		 &\num{78,82}\%	   &\num{67,63}\%	&\num{59,04}\% \\
@@ -338,7 +338,7 @@ correctly choosing the training datasets based on the target writing style.
 	\begin{tabular}{lccc}
 		\toprule
 		&\multicolumn{3}{c}{\textsc{Edit Distance 2}} \\
-		\textbf{Dataset Perturbation} & \num{10}\%& \num{20}\% & \num{30}\%  \\
+		\textbf{Dataset Perturbation} & \num{5}\%& \num{10}\% & \num{15}\%  \\
 		\midrule
 		\textbf{Time}							 		&\num{173}s			&\num{175}s			& \num{174}s		\\
 		\textbf{Exact Sentence Match} 		&\num{79,42}\%	   &\num{69,53}\%	&\num{63,94}\% \\
