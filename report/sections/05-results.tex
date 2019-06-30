@@ -32,7 +32,7 @@ detect errors and the ability to provide the right corrections, depending on the
 		& & \multicolumn{2}{c}{\textbf{Model Prediction}}\\
 		& & \textsc{Detected}  & \textsc{Not Detected} \\
 		\midrule
-		\multirow{4}{*}{\textbf{Hidden Truth}} 
+		\multirow{4}{*}{\shortstack[c]{\textbf{Hidden}\\ \textbf{Truth}}} 
 		& \multirow{2}{*}{\textsc{Perturbed}}   & True Positive & False Negative	\\ 
 		& &  Case 1(b). \& Case 2. & Case 1(a).	\\ 
 		& \multirow{2}{*}{\textsc{Unperturbed}}  & False Positive & True Negative	\\
@@ -46,12 +46,13 @@ detect errors and the ability to provide the right corrections, depending on the
 From the confusion matrix defined in the table above, it is possible to calculate the following standard performance 
 metrics:
 \begin{itemize}
-	\item \textsc{Detection-Accuracy}: percentage of words where the model prediction matches the 
-	ground-truth  
+	\item \textsc{Detection-Accuracy}: percentage of words where the model correctly detects whether it was perturbed or 
+	not
 	\[ \frac{\mbox{True Positive} + \mbox{True Negative}}{\sum \mbox{All}} = \frac{\mbox{Case 1(b).} + 
 	\mbox{Case 2.} + \mbox{Case 4.}}{\mbox{Case 1.} + \mbox{Case 2.} + \mbox{Case 3.} + \mbox{Case 4.}}\]
 	\item \textsc{Detection-Recall}: proportion of the detected errors among all the errors
-	\[ \frac{\mbox{Case 1(b).} + \mbox{Case 2.}}{\mbox{Case 1.} + \mbox{Case 2.}}\]
+	\[\frac{\mbox{True Positive} }{\mbox{True Positive} + \mbox{False Negative} } = \frac{\mbox{Case 1(b).} + 
+	\mbox{Case 2.}}{\mbox{Case 1.} + \mbox{Case 2.}}\]
 	\item \textsc{Detection-Precision}: ratio of the correct detections with respect to all detections
 		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Positive}} = \frac{\mbox{Case 1(b). + 
 		\mbox{Case 2.}}}{\mbox{Case 1(b).}+  \mbox{Case 2.} + \mbox{Case 3.}}\]
@@ -59,16 +60,15 @@ metrics:
 
 \begin{figure}[H]
 	\centering
-	\begin{tabular}{lc|cc}
+	\begin{tabular}{lc|ccc}
 		\toprule
-		& & \multicolumn{2}{c}{\textbf{Model Prediction}}\\
-		& & \textsc{Corrected}  & \textsc{Not Corrected} \\
+		& & \multicolumn{3}{c}{\textbf{Model Prediction}}\\
+		& & \multirow{2}{*}{\textsc{Corrected}}  &  \textsc{Wrogly} & \multirow{2}{*}{\textsc{Not Corrected}}  \\
+		& &  &\textsc{Corrected}  &  \\ 
 		\midrule
-		\multirow{4}{*}{\textbf{Hidden Truth}} 
-		& \multirow{2}{*}{\textsc{Perturbed}}   & True Positive & False Negative	\\ 
-			& & Case 2. & Case 1.	\\ 
-		& \multirow{2}{*}{\textsc{Unperturbed}}  & False Positive & True Negative	\\
-		& &  Case 3.  & Case 4.	\\ 
+		\multirow{2}{*}{\shortstack[c]{\textbf{Hidden}\\ \textbf{Truth}}} 
+		& \textsc{Perturbed}  & Case 2. & Case 1(b). & Case 1(a).	\\ 
+		& \textsc{Unperturbed}  & -  & Case 3.  & Case 4.	\\ 
 		\bottomrule
 	\end{tabular}
 	\captionof{table}{Confusion matrix - Error Correction}
@@ -79,21 +79,18 @@ From the second confusion matrix defined in the Table \ref{tab:confma-error}, it
 metrics:
 \begin{itemize}
 	\item \textsc{Correction-Accuracy}: percentage of words where the model prediction matches the 
-	ground-truth  
-	\[ \frac{\mbox{True Positive} + \mbox{True Negative}}{\sum \mbox{All}} = \frac{\mbox{Case 2.} + \mbox{Case 
-	4.}}{\mbox{Case 1.} + \mbox{Case 2.} + \mbox{Case 3.} + \mbox{Case 4.}}\]
-	\item \textsc{Correction-Recall}: rate of perturbed words correctly predicted
-\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Negative}} = \frac{\mbox{Case 
-		2.}}{\mbox{Case 2.} + \mbox{Case 1.}}\]
-	\item \textsc{Correction-Precision}: ratio of the corrected predictions with respect to the significant values 
-	returned by the 
-	model (the corrections made) 
-		\[ \frac{\mbox{True Positive}}{\mbox{True Positive} + \mbox{False Positive}} = \frac{\mbox{Case 
-		2.}}{\mbox{Case 2.} + \mbox{Case 3.}}\]
+	ground truth  
+	\[ \frac{\mbox{Case 2.} + \mbox{Case 4.}}{\mbox{Case 1(a).}+ \mbox{Case 1(b).}+ \mbox{Case 2.} + \mbox{Case 3.} 
+	+ \mbox{Case 4.}}\]
+	\item \textsc{Correction-Recall}: ratio of perturbed words correctly predicted
+	\[ \frac{\mbox{Case 2.}}{\mbox{Case 2.} + \mbox{Case 1(a).}+ \mbox{Case 1(b).}}\]
+	\item \textsc{Correction-Precision}: ratio of appropriate corrections with respect to all corrections proposed by the 
+	model
+		\[ \frac{\mbox{Case	2.}}{\mbox{Case 1(b).}+ \mbox{Case 2.} + \mbox{Case 3.}}\]
 \end{itemize}
 
-The \textsc{Specificity}, that is the rate of unperturbed words correctly predicted, is computed in the same way 
-from both the confusion matrices:
+The \textsc{Specificity}, that is the ratio of unperturbed words correctly predicted, computed in the same way from both 
+the confusion matrices:
 \[ \frac{\mbox{True Negative}}{\sum \mbox{Unperturbed}} = \frac{\mbox{Case 4.}}{\mbox{Case 3.} + 
 	\mbox{Case 4.}}\]
 
@@ -162,7 +159,7 @@ model on the typos dataset and the correction of the entire sequence with the \t
 		\textbf{Detection Precision}			&\num{55,15}\% &\num{69,22}\%&\num{76,67}\%	\\
 		\textbf{Correction Accuracy} 		&\num{88,75}\%  &\num{85,96}\% &\num{81,66}\% \\
 		\textbf{Correction Recall}				&\num{67,17}\% &\num{65,71}\%&\num{58,67}\%	\\
-		\textbf{Correction Precision}			&\num{49,34}\% &\num{64,36}\%&\num{70,68}\%	\\
+		\textbf{Correction Precision}			&\num{44,18}\% &\num{55,74}\%&\num{58,07}\%	\\
 		\textbf{Specificity} 							&\num{91,48}\%  &\num{90,99}\% &\num{90,56}\% \\
 		\bottomrule
 		%\vspace*{0.5em}
@@ -182,7 +179,7 @@ model on the typos dataset and the correction of the entire sequence with the \t
 		\textbf{Detection Precision}			&\num{53,47}\% &\num{68,58}\%&\num{77,01}\%	\\
 		\textbf{Correction Accuracy} 		&\num{86,99}\%  &\num{84,94}\% &\num{82,48}\% \\
 		\textbf{Correction Recall}				&\num{68,74}\% &\num{68,97}\%&\num{65,29}\%	\\
-		\textbf{Correction Precision}			&\num{45,51}\% &\num{61,74}\%&\num{70,35}\%	\\
+		\textbf{Correction Precision}			&\num{38,49}\% &\num{50,35}\%&\num{55,60}\%	\\
 		\textbf{Specificity} 							&\num{89,29}\%  &\num{89,08}\% &\num{89,07}\% \\
 		\bottomrule
 	\end{tabular}
@@ -330,7 +327,7 @@ correctly choosing the training datasets based on the target writing style.
 		\textbf{Detection Precision}			&\num{97,17}\% &\num{98,27}\%&\num{98,48}\%	\\
 		\textbf{Correction Accuracy} 		&\num{98,90}\%  &\num{97,23}\% &\num{97,68}\% \\
 		\textbf{Correction Recall}				&\num{82,09}\% &\num{76,21}\%&\num{75,81}\%	\\
-		\textbf{Correction Precision}			&\num{96,63}\% &\num{97,81}\%&\num{98,06}\%	\\
+		\textbf{Correction Precision}			&\num{89,05}\% &\num{86,44}\%&\num{85,30}\%	\\
 		\textbf{Specificity} 							&\num{99,86}\%  &\num{99,83}\% &\num{99,69}\% \\
 		\bottomrule
 		%\vspace*{0.5em}
@@ -350,7 +347,7 @@ correctly choosing the training datasets based on the target writing style.
 		\textbf{Detection Precision}			&\num{99,23}\% &\num{99,79}\%&\num{99,61}\%	\\
 		\textbf{Correction Accuracy} 		&\num{98,95}\%  &\num{97,60}\% &\num{96,75}\% \\
 		\textbf{Correction Recall}				&\num{81,51}\% &\num{78,75}\%&\num{79,97}\%	\\
-		\textbf{Correction Precision}			&\num{98,85}\% &\num{99,64}\%&\num{99,61}\%	\\
+		\textbf{Correction Precision}			&\num{86,79}\% &\num{84,15}\%&\num{85,62}\%	\\
 		\textbf{Specificity} 							&\num{99,95}\%  &\num{99,96}\% &\num{99,93}\% \\
 		\bottomrule
 	\end{tabular}
