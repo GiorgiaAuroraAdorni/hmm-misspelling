@@ -26,4 +26,4 @@ $ python test.py
 
 * **Giorgia Adorni** (806787) - [GiorgiaAuroraAdorni](https://github.com/GiorgiaAuroraAdorni)
 * **Elia Cereda** (807539) - [EliaCereda](https://github.com/EliaCereda)
-* **Nassim Habbash** (808292) - [dodicin](https://github.com/dodicin)
+* **Nassim Habbash** (808292) - [nhabbash](https://github.com/nhabbash)
